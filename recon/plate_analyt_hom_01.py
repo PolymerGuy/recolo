@@ -8,38 +8,37 @@ based on: Timoshenko, theory of plates and shells, 1959
 import numpy
 import numpy as np
 ###
-def plate_analyt_hom(iMp, iNp, iLx, iLy, iq0, ithickness, iE_p, inu_p):
+def plate_analyt_hom(npts_x, npts_y, plate_x, plate_y, peak_press, plate_thick, bending_stiff, pois_ratio):
     ###
-    # iMp: grid points in x direction;   iNp: grid points in y direction;   
-    # ia: plate width (x-dir) [m]; ib plate langth (y-dir) [m];     
+    # npts_x: grid points in x direction;   npts_y: grid points in y direction;   
+    # plate_x: plate width (x-dir) [m]; plate_y plate langth (y-dir) [m];     
     # iqo: load amplitude []Pa
-    D_p = iE_p*(ithickness**3.)/(12.*(1.-inu_p**2.))   # flexural rigidity [N m]
-    odx = iLx/float(iMp)
-    ody = iLy/float(iNp)
+    D_p = bending_stiff*(plate_thick**3.)/(12.*(1.-pois_ratio**2.))   # flexural rigidity [N m]
+    odx = plate_x/float(npts_x)
+    ody = plate_y/float(npts_y)
     m_p = 1
     n_p = 1
     # D11 = ithickness**3/12*iE_p/(1-inu_p**2)
     # D12 = ithickness**3/12*iE_p*inu_p/(1-inu_p**2)
     ###
     # calculate out-of-plane displacements
-    ow_p = np.zeros((iNp,iMp))
-    for m in range(iMp):
-        for n in range(iNp):
-            ow_p[n, m] = iq0 / (np.pi**4.*D_p)/( ((m_p/iLx)**2.+(n_p/iLy)**2.)**2. )*np.sin(np.pi*odx*m_p/iLx*(m-1.))*np.sin(np.pi*ody*n_p/iLy*(n-1.))
+    displ = np.zeros((npts_y,npts_x))
+    for m in range(npts_x):
+        for n in range(npts_y):
+            displ[n, m] = peak_press / (np.pi**4.*D_p)/( ((m_p/plate_x)**2.+(n_p/plate_y)**2.)**2. )*np.sin(np.pi*odx*m_p/plate_x*(m-1.))*np.sin(np.pi*ody*n_p/plate_y*(n-1.))
     ###
     # matrix of load distributions (optional)
-    op = numpy.zeros((iNp,iMp))
-    for i in range(iMp):
-        for j in range(iNp):
-            op[j,i] = iq0*np.sin(np.pi*odx*m_p/iLx*(i-1.))*np.sin((np.pi*ody*n_p)/iLy*(j-1.))
+    press = numpy.zeros((npts_y,npts_x))
+    for i in range(npts_x):
+        for j in range(npts_y):
+            press[j,i] = peak_press*np.sin(np.pi*odx*m_p/plate_x*(i-1.))*np.sin((np.pi*ody*n_p)/plate_y*(j-1.))
     ###
     ###
     # calculate slopes
-    slope_x1,slope_y1 = np.gradient(-ow_p, odx, ody)
+    slope_x1,slope_y1 = np.gradient(-displ, odx, ody)
     oslope_x = slope_x1[1:-1, 1:-1]
-    del slope_x1
+    
     oslope_y = slope_y1[1:-1, 1:-1]
-    del slope_y1
     ###
     # calculate curvatures
     aux_k_xx, aux_k_s12 = np.gradient(oslope_x, odx, ody)
@@ -50,4 +49,14 @@ def plate_analyt_hom(iMp, iNp, iLx, iLy, iq0, ithickness, iE_p, inu_p):
     okxy = aux_k_xy[1:-1, 1:-1]
     #pdb.set_trace()
     ###
-    return ow_p, op, okxx, okyy, okxy, odx, ody, oslope_x, oslope_y
+    return displ, press, okxx, okyy, okxy, odx, ody, oslope_x, oslope_y
+
+
+
+
+
+
+
+
+
+

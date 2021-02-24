@@ -50,9 +50,6 @@ def plate_iso_qs_lin(iprw, ikxx, ikyy, ikxy, iD11, iD12, ikxxfield, ikyyfield, i
 
     neighbour = neighbour[padi3d.flatten(),:]
 
-    plt.imshow(neighbour)
-    plt.show()
-
     kxxl = pad_and_find_neigbours(ikxx,neighbour,iprw)    
 
     kyyl = pad_and_find_neigbours(ikyy,neighbour,iprw)
