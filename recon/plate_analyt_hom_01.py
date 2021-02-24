@@ -22,17 +22,16 @@ def plate_analyt_hom(iMp, iNp, iLx, iLy, iq0, ithickness, iE_p, inu_p):
     # D12 = ithickness**3/12*iE_p*inu_p/(1-inu_p**2)
     ###
     # calculate out-of-plane displacements
-    ow_p = np.zeros((iMp,iNp))
-    for m in range(1, iMp):
-        for n in range(1, iNp):
-            ow_p[m, n] = iq0 / (np.pi**4.*D_p)/( ((m_p/iLx)**2.+(n_p/iLy)**2.)**2. ) \
-            *np.sin(np.pi*odx*m_p/iLx*(m-1.))*np.sin(np.pi*ody*n_p/iLy*(n-1.))
+    ow_p = np.zeros((iNp,iMp))
+    for m in range(iMp):
+        for n in range(iNp):
+            ow_p[n, m] = iq0 / (np.pi**4.*D_p)/( ((m_p/iLx)**2.+(n_p/iLy)**2.)**2. )*np.sin(np.pi*odx*m_p/iLx*(m-1.))*np.sin(np.pi*ody*n_p/iLy*(n-1.))
     ###
     # matrix of load distributions (optional)
     op = numpy.zeros((iNp,iMp))
-    for i in range(1, iMp):
-        for j in range(1, iNp):
-            op[i,j] = iq0*np.sin(np.pi*odx*m_p/iLx*(i-1.))*np.sin((np.pi*ody*n_p)/iLy*(j-1.))
+    for i in range(iMp):
+        for j in range(iNp):
+            op[j,i] = iq0*np.sin(np.pi*odx*m_p/iLx*(i-1.))*np.sin((np.pi*ody*n_p)/iLy*(j-1.))
     ###
     ###
     # calculate slopes
