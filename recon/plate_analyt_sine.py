@@ -5,11 +5,10 @@ based on: Timoshenko, theory of plates and shells, 1959, chapter 5 (pp 105)
 @author:  Kaufmann
 01.12.2017
 """
-import math
-import numpy
 import numpy as np
+from .fields import Fields
 ###
-def plate_analyt_sine(iMp, iNp, iLx, iLy, iq0, ithickness, iE_p, inu_p):
+def plate_analyt_const(iMp, iNp, iLx, iLy, iq0, ithickness, iE_p, inu_p):
     ###
     # iMp: grid points in x direction;   iNp: grid points in y direction;   
     # ia: plate width (x-dir) [m]; ib plate langth (y-dir) [m];     
@@ -60,4 +59,5 @@ def plate_analyt_sine(iMp, iNp, iLx, iLy, iq0, ithickness, iE_p, inu_p):
 
     ###
     #return ow_p, op, okxx, okyy, okxy, oD11, oD12, odx, ody, oslope_x, oslope_y
-    return ow_p, op, okxx, okyy, okxy, odx, ody, oslope_x, oslope_y
+    return Fields(ow_p,op,(oslope_x,oslope_y),(okxx,okyy,okxy))
+    #return ow_p, op, okxx, okyy, okxy, odx, ody, oslope_x, oslope_y
