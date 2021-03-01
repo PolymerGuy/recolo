@@ -1,4 +1,7 @@
 env
 env/
+/recon/__pycache__/
 *.pyc
+.pyc
 .vscode
+.idea
