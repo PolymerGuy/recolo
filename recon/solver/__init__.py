@@ -40,6 +40,9 @@ def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
     # ipoint_size                                  : physical size of one data point (length over which experimental data is integrated)
     ###
 
+    irho = 7700.
+    ip_t = 5e-3
+
     if np.mod(iprw, 2) != 0:
         raise ValueError("Reconstruction window size has to be an even number")
 
@@ -60,6 +63,8 @@ def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
 
     kxyl = pad_and_find_neigbours(fields.curv_xy, neighbour, iprw)
 
+    al = pad_and_find_neigbours(fields.acceleration,neighbour,iprw)
+
     kxxf = vfields.okxxfield.flatten()
     kyyf = vfields.okyyfield.flatten()
     kxyf = vfields.okxyfield.flatten()
@@ -71,10 +76,17 @@ def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
     A12 = np.sum((kxxl * kyyf.transpose()) + (kyyl * kxxf.transpose()) - 2. * ((kxyl * kxyf.transpose())), axis=1)
     A12 = A12[~np.isnan(A12)]
 
+    a_u3 = irho * ip_t * np.sum(al * vfields.owfield.flatten().transpose(), axis=1)
+    a_u3 = a_u3[~np.isnan(a_u3)]
+
     U3 = np.sum(vfields.owfield.flatten())
 
     dim = fields.curv_xx.shape
-    aux_p = (A11 * iD11 + A12 * iD12) / U3
+    #aux_p = (A11 * iD11 + A12 * iD12) / U3
+    aux_p = (A11 * iD11 + A12 * iD12+ a_u3)/U3
+
+
+
     op = aux_p.reshape([dim[0] - iprw + 1, dim[1] - iprw + 1])
     op = (np.pad(op, (int(iprw / 2), int(iprw / 2)), mode="constant", constant_values=0.))[1:, 1:]
     return op, np.sum(A11 + A12) * 0.2 * 0.2 * 0.001

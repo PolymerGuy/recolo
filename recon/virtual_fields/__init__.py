@@ -155,7 +155,8 @@ def hermite_16_const(iprw, iL):
 
 
 class Hermite16(object):
-    def __init__(self,iprw, iL):
+    def __init__(self,iprw, dx):
+        iL = iprw * dx
         self.okxxfield, self.okyyfield, self.okxyfield, self.owfield = self.__hermite_16_const__(iprw, iL)     
     
     
@@ -201,11 +202,11 @@ class Hermite16(object):
             i_2 = np.concatenate((i_2, aux_i_2))
         del aux_i_2
         #
-        print(X1.shape)
+       # print(X1.shape)
         xsi1 = np.multiply(2/Lx_el, (X1-np.min(X1)+Lx_el/iprw)) \
                 - np.multiply(2, i_1)+1
 
-        print(xsi1.shape)
+        #print(xsi1.shape)
 
         xsi2 = np.multiply(2/Ly_el, (X2-np.min(X2)+Ly_el/iprw)) \
         - np.multiply(2, i_2)+1
@@ -230,7 +231,7 @@ class Hermite16(object):
         # virtual displacement
         # w = np.ones((4, iprw**2))
         w = np.array([Np1*Nq1, Np3*Nq1, Np3*Nq3, Np1*Nq3])
-        print(w.shape)
+      #  print(w.shape)
         # virtual curvature
         kxx = np.multiply(-1/a**2, [Cp1*Nq1, Cp3*Nq1, Cp3*Nq3, Cp1*Nq3])
         kyy = np.multiply(-1/b**2, [Np1*Cq1, Np3*Cq1, Np3*Cq3, Np1*Cq3])
