@@ -46,7 +46,7 @@ class Test_FullStaticReconstruction(TestCase):
         virtual_fields = Hermite16(win_size, float(dx * win_size))
 
         recon_press,_ = plate_iso_qs_lin(win_size, fields, mat_D11, mat_D12, virtual_fields)
-        error = rms_diff(recon_press,fields.press)
+        error = rms_diff(recon_press, fields._press_)
         if error/press >tol:
             self.fail("Reconstruction had a normalized RMS error of %f"%(error/press))
 

@@ -9,6 +9,7 @@ Using linear indexing (very fast, limited by memory)
 # import pdb
 
 import numpy as np
+from scipy.ndimage import shift
 import matplotlib.pyplot as plt
 
 
@@ -31,7 +32,7 @@ def neighbour_map(iprw, size_with_pads_y, size_with_pads_x):
     return aux_neighbour + stencil
 
 
-def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
+def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields, shift_res=True, return_valid=True):
     ###
     # iprw                                         : size of reconstruction window ( = size of virtual field )
     # ikxx, ikyy, ikxy                             : curvature data
@@ -40,7 +41,7 @@ def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
     # ipoint_size                                  : physical size of one data point (length over which experimental data is integrated)
     ###
 
-    irho = 7700.
+    irho = 8000.
     ip_t = 5e-3
 
     if np.mod(iprw, 2) != 0:
@@ -63,7 +64,7 @@ def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
 
     kxyl = pad_and_find_neigbours(fields.curv_xy, neighbour, iprw)
 
-    al = pad_and_find_neigbours(fields.acceleration,neighbour,iprw)
+    al = pad_and_find_neigbours(fields.acceleration, neighbour, iprw)
 
     kxxf = vfields.okxxfield.flatten()
     kyyf = vfields.okyyfield.flatten()
@@ -89,4 +90,11 @@ def plate_iso_qs_lin(iprw, fields, iD11, iD12, vfields):
 
     op = aux_p.reshape([dim[0] - iprw + 1, dim[1] - iprw + 1])
     op = (np.pad(op, (int(iprw / 2), int(iprw / 2)), mode="constant", constant_values=0.))[1:, 1:]
+
+    if return_valid:
+        op = op[iprw: -iprw, iprw: -iprw]
+
+    if shift_res:
+        op = shift(op, shift=0.5, order=3)
+
     return op, np.sum(A11 + A12) * 0.2 * 0.2 * 0.001

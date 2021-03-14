@@ -125,7 +125,7 @@ for sigma_time in sigma_times:
 
                 # print("Average recon pressure %f"%avg)
 
-                external_work = np.sum(recon_press * fields.deflection * dx * dy)
+                external_work = np.sum(recon_press * fields._deflection_ * dx * dy)
                 # print("Internal energy %f"%internal_energy)
                 # print("External energy %f"%external_work)
 
