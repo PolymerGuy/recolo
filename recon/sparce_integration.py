@@ -16,14 +16,6 @@ from scipy.sparse import csr_matrix
 
 ###
 def int2D(igrad_x, igrad_y, iconst, idx, idy):
-    igrad_x = np.ones([10, 10])
-    igrad_y = np.ones([10, 10])
-
-    #igrad_y,igrad_y = np.meshgrid(np.arange(10),np.arange(10))
-
-    idx = 0.5
-    idy = 0.5
-    iconst = .8
     [s_x, s_y] = np.shape(igrad_x)
     diffx = matlib.repmat(idx, s_x, 1)
     diffy = matlib.repmat(idy, s_y, 1)
