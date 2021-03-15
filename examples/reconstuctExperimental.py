@@ -19,13 +19,6 @@ def read_exp_press_data():
     return press - press[0], time
 
 
-def butter_lowpass_filter(data, cutoff, nyq, order):
-    normal_cutoff = cutoff / nyq
-    # Get the filter coefficients
-    b, a = butter(order, normal_cutoff, btype='low', analog=False)
-    y = filtfilt(b, a, data)
-    return y
-
 data = loadmat("/home/sindreno/Rene/dataset/w_5_2_set1.mat")["w"] #x,y,frame
 
 
