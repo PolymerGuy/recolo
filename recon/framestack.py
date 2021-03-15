@@ -95,20 +95,29 @@ class Frame(object):
 
 
 
-def fields_from_abaqus_rpts(abaqus_data, downsample=False, accel_from_disp=True, filter_space_sigma=None, filter_time_sigma=None):
+def fields_from_abaqus_rpts(abaqus_data, downsample=False,bin_downsamples=False, accel_from_disp=True, filter_space_sigma=None, filter_time_sigma=None):
 
-    crop=30
-    disp_fields = abaqus_data.disp_fields[:,crop:-crop,crop:-crop]
-    disp_fields = disp_fields - disp_fields[:,0,0][:,np.newaxis,np.newaxis]
-    accel_field = abaqus_data.accel_fields[:,crop:-crop,crop:-crop]
+    #crop=30
+    disp_fields = abaqus_data.disp_fields#[:,crop:-crop,crop:-crop]
+    #disp_fields = disp_fields - disp_fields[:,0,0][:,np.newaxis,np.newaxis]
+    accel_field = abaqus_data.accel_fields#[:,crop:-crop,crop:-crop]
     times = abaqus_data.times
     plate_len_x = abaqus_data.plate_len_x
     plate_len_y = abaqus_data.plate_len_y
 
-    if downsample:
+    if downsample and not bin_downsamples:
         disp_fields = disp_fields[::downsample,:,:]
         accel_field = accel_field[::downsample,:,:]
         times = times[::downsample]
+    elif downsample and bin_downsamples:
+        n_frames,n_x,n_y = disp_fields.shape
+        n_bins = np.floor(n_frames/downsample)
+        n_data_pts = int(n_bins * downsample)
+        print("Binning data, losing the %i last data points"%(n_frames-n_data_pts))
+
+        disp_fields = np.reshape(disp_fields[:n_data_pts],(bin_downsamples,-1,n_x,n_y)).mean(axis=0)
+        accel_field = np.reshape(accel_field[:n_data_pts],(bin_downsamples,-1,n_x,n_y)).mean(axis=0)
+        times = times[:n_data_pts:downsample]
 
     if filter_time_sigma:
         print("Filtering in time with sigma=%f" % float(filter_time_sigma))
