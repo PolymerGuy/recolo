@@ -36,17 +36,18 @@ bend_stiff = mat_E * (plate_thick ** 3.) / (12. * (1. - mat_nu ** 2.))  # flexur
 
 win_size = 24
 
-abq_simulation = load_abaqus_rpts("./AbaqusRPTs/")
+abq_simulation = load_abaqus_rpts("AbaqusRPTs_homogeneous/")
 
-spatial_sigmas = [0, 2, 4]
+spatial_sigmas = [0,2,4]
 temporal_sigmas = [0, 2, 4]
-downsampling_factors = [0, 2, 4, 6]
+#downsampling_factors = [0,2,4,6]
+downsampling_factors = [8,6,4,2,0]
 
 for downsampling_factor in downsampling_factors:
     for spatial_sigma in spatial_sigmas:
         for temporal_sigma in temporal_sigmas:
 
-            fields = fields_from_abaqus_rpts(abq_simulation, downsample=downsampling_factor,bin_downsamples=False, accel_from_disp=True,
+            fields = fields_from_abaqus_rpts(abq_simulation, downsample=downsampling_factor,bin_downsamples=True, accel_from_disp=True,
                                              filter_time_sigma=temporal_sigma, filter_space_sigma=spatial_sigma)
 
             presses = []
@@ -55,7 +56,7 @@ for downsampling_factor in downsampling_factors:
             times = []
 
             for i, field in enumerate(fields):
-                field.deflection = field.deflection - field.deflection[0, 0]
+                field.deflection = field.deflection
                 print("Processing frame %i" % i)
                 n_pts_x, n_pts_y = field.deflection.shape
                 dx = abq_simulation.plate_len_x / float(abq_simulation.npts_x)
@@ -77,12 +78,13 @@ for downsampling_factor in downsampling_factors:
 
 
     real_press, real_time = read_exp_press_data()
+    frame_rate = 1./(times[1]-times[0])
     plt.plot(real_time, real_press * 1.e6, '--', label="Pressure applied to FEA", color="black")
-    plt.xlim(left=0, right=0.0004)
+    plt.xlim(left=0, right=0.0007)
     plt.ylim(top=80000, bottom=-10000)
     plt.xlabel("Time [Sec]")
     plt.ylabel("Pressure [Pa]")
-    plt.title("Downsampling by %i" % downsampling_factor)
+    plt.title("Downsampling by %i, sampling rate is %0.1f" % (downsampling_factor,frame_rate))
     plt.legend(frameon=False)
     plt.tight_layout()
     plt.savefig("./Studies/Filter_study_dwnsmpl%i.png" % downsampling_factor)

@@ -5,3 +5,7 @@ env/
 .pyc
 .vscode
 .idea
+*.npy
+*.npz
+*.rpt
+*.png
