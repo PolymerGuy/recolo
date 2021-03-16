@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from recon import plate_iso_qs_lin, load_abaqus_rpts, fields_from_abaqus_rpts
 import recon
 import numpy as np
+from scipy.ndimage import gaussian_filter
 
 """
 Parameter study which chekcs the influence of spatial filtering, temporal filtering and down-sampling on the
@@ -22,6 +23,8 @@ def read_exp_press_data():
     press = data[start:end, 8] / 10.  # Convert from Bars to MPa
     return press - press[0], time
 
+real_press, real_time = read_exp_press_data()
+frame_rate_real = 1. / (real_time[1] - real_time[0])
 
 # plate and model parameters
 mat_E = 210.e9
@@ -36,12 +39,12 @@ bend_stiff = mat_E * (plate_thick ** 3.) / (12. * (1. - mat_nu ** 2.))  # flexur
 
 win_size = 24
 
-abq_simulation = load_abaqus_rpts("AbaqusRPTs_homogeneous/")
+abq_simulation = load_abaqus_rpts("AbaqusRPTs_Sine/")
 
-spatial_sigmas = [0,2,4]
-temporal_sigmas = [0, 2, 4]
+spatial_sigmas = [0]
+temporal_sigmas = [0, 6,12,18,24,36]
 #downsampling_factors = [0,2,4,6]
-downsampling_factors = [8,6,4,2,0]
+downsampling_factors = [1]
 
 for downsampling_factor in downsampling_factors:
     for spatial_sigma in spatial_sigmas:
@@ -51,7 +54,7 @@ for downsampling_factor in downsampling_factors:
                                              filter_time_sigma=temporal_sigma, filter_space_sigma=spatial_sigma)
 
             presses = []
-            press_avgs = []
+            press_center = []
             press_stds = []
             times = []
 
@@ -69,17 +72,19 @@ for downsampling_factor in downsampling_factors:
                                                                 shift_res=True, return_valid=True)
 
                 presses.append(recon_press)
-                press_avgs.append(np.mean(recon_press))
+                press_center.append(np.mean(recon_press[50, 50]))
                 press_stds.append(np.std(recon_press))
                 times.append(field.time)
 
             presses = np.array(presses)
-            plt.plot(times, press_avgs, label="Temporal=%i Spatial=%i" % (temporal_sigma, spatial_sigma))
 
+            frame_rate = 1. / (times[1] - times[0])
+            sigma_temporal_real_data = temporal_sigma* frame_rate_real/frame_rate
 
-    real_press, real_time = read_exp_press_data()
-    frame_rate = 1./(times[1]-times[0])
-    plt.plot(real_time, real_press * 1.e6, '--', label="Pressure applied to FEA", color="black")
+            plt.plot(times, press_center, label="Temporal=%i Spatial=%i" % (temporal_sigma, spatial_sigma))
+            plt.plot(real_time, gaussian_filter(real_press,sigma=sigma_temporal_real_data) * 1.e6, "--")
+
+    plt.plot(real_time, real_press * 1.e6, label="Pressure applied to FEA", color="black")
     plt.xlim(left=0, right=0.0007)
     plt.ylim(top=80000, bottom=-10000)
     plt.xlabel("Time [Sec]")

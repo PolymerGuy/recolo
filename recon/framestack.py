@@ -115,8 +115,8 @@ def fields_from_abaqus_rpts(abaqus_data, downsample=False,bin_downsamples=False,
         n_data_pts = int(n_bins * downsample)
         print("Binning data, losing the %i last data points"%(n_frames-n_data_pts))
 
-        disp_fields = np.reshape(disp_fields[:n_data_pts],(bin_downsamples,-1,n_x,n_y)).mean(axis=0)
-        accel_field = np.reshape(accel_field[:n_data_pts],(bin_downsamples,-1,n_x,n_y)).mean(axis=0)
+        disp_fields = np.reshape(disp_fields[:n_data_pts,:,:],(-1,downsample,n_x,n_y)).mean(axis=1)
+        accel_field = np.reshape(accel_field[:n_data_pts,:,:],(-1,downsample,n_x,n_y)).mean(axis=1)
         times = times[:n_data_pts:downsample]
 
     if filter_time_sigma:
@@ -126,7 +126,7 @@ def fields_from_abaqus_rpts(abaqus_data, downsample=False,bin_downsamples=False,
     if filter_space_sigma:
         for i in range(len(disp_fields)):
             print("Filtering frame %i" % i)
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
+            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma,mode="nearest")
 
     if accel_from_disp:
         return field_from_displacement(disp_fields, None, times, plate_len_x, plate_len_y)
