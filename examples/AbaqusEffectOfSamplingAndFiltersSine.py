@@ -14,7 +14,7 @@ used below was applied to the plate assuming a homogenous pressure distribution.
 def read_exp_press_data():
     import numpy as np
 
-    start = 25550# + 38
+    start = 25550  # + 38
     end = 26200
     data = np.genfromtxt("./experimentalPressures/Valid_0.125_3.txt", skip_header=20)
 
@@ -23,6 +23,7 @@ def read_exp_press_data():
     press = data[start:end, 8] / 10.  # Convert from Bars to MPa
     return press - press[0], time
 
+
 real_press, real_time = read_exp_press_data()
 frame_rate_real = 1. / (real_time[1] - real_time[0])
 
@@ -30,6 +31,7 @@ frame_rate_real = 1. / (real_time[1] - real_time[0])
 mat_E = 210.e9
 mat_nu = 0.33
 plate_thick = 5e-3
+rho = 7700
 
 mat_D = mat_E * (plate_thick ** 3.) / (12. * (1. - mat_nu))  # flexural rigidity [N m]
 mat_D11 = (plate_thick ** 3.) / 12. * mat_E / (1. - mat_nu ** 2.)
@@ -39,18 +41,20 @@ bend_stiff = mat_E * (plate_thick ** 3.) / (12. * (1. - mat_nu ** 2.))  # flexur
 
 win_size = 24
 
-abq_simulation = load_abaqus_rpts("AbaqusRPTs_Sine/")
+abq_simulation = load_abaqus_rpts("AbaqusRPTs_homogeneous/")
 
 spatial_sigmas = [0]
-temporal_sigmas = [0, 6,12,18,24,36]
-#downsampling_factors = [0,2,4,6]
+# temporal_sigmas = [0, 6,12,18,24,36]
+temporal_sigmas = [0]  # , 6,12,18,24,36]
+# downsampling_factors = [0,2,4,6]
 downsampling_factors = [1]
 
 for downsampling_factor in downsampling_factors:
     for spatial_sigma in spatial_sigmas:
         for temporal_sigma in temporal_sigmas:
 
-            fields = fields_from_abaqus_rpts(abq_simulation, downsample=downsampling_factor,bin_downsamples=True, accel_from_disp=True,
+            fields = fields_from_abaqus_rpts(abq_simulation, downsample=downsampling_factor, bin_downsamples=True,
+                                             accel_from_disp=True,
                                              filter_time_sigma=temporal_sigma, filter_space_sigma=spatial_sigma)
 
             presses = []
@@ -68,30 +72,30 @@ for downsampling_factor in downsampling_factors:
                 # define piecewise virtual fields
                 virtual_field = recon.virtual_fields.Hermite16(win_size, dx)
 
-                recon_press, internal_energy = plate_iso_qs_lin(win_size, field, mat_D11, mat_D12, virtual_field,
-                                                                shift_res=True, return_valid=True)
+                recon_press, internal_energy = plate_iso_qs_lin(field, mat_D11, mat_D12, virtual_field, rho,
+                                                                plate_thick)
 
                 presses.append(recon_press)
-                press_center.append(np.mean(recon_press[50, 50]))
+                press_center.append(np.mean(recon_press))
                 press_stds.append(np.std(recon_press))
                 times.append(field.time)
 
             presses = np.array(presses)
 
             frame_rate = 1. / (times[1] - times[0])
-            sigma_temporal_real_data = temporal_sigma* frame_rate_real/frame_rate
+            sigma_temporal_real_data = temporal_sigma * frame_rate_real / frame_rate
 
             plt.plot(times, press_center, label="Temporal=%i Spatial=%i" % (temporal_sigma, spatial_sigma))
-            plt.plot(real_time, gaussian_filter(real_press,sigma=sigma_temporal_real_data) * 1.e6, "--")
+            plt.plot(real_time, gaussian_filter(real_press, sigma=sigma_temporal_real_data) * 1.e6, "--")
 
     plt.plot(real_time, real_press * 1.e6, label="Pressure applied to FEA", color="black")
     plt.xlim(left=0, right=0.0007)
     plt.ylim(top=80000, bottom=-10000)
     plt.xlabel("Time [Sec]")
     plt.ylabel("Pressure [Pa]")
-    plt.title("Downsampling by %i, sampling rate is %0.1f" % (downsampling_factor,frame_rate))
+    plt.title("Downsampling by %i, sampling rate is %0.1f" % (downsampling_factor, frame_rate))
     plt.legend(frameon=False)
     plt.tight_layout()
     plt.savefig("./Studies/Filter_study_dwnsmpl%i.png" % downsampling_factor)
-    # plt.show()
-    plt.close()
+    plt.show()
+    # plt.close()
