@@ -140,8 +140,8 @@ def fields_from_experiments(abaqus_data, filter_space_sigma=None, filter_time_si
 
     n_times = disp_fields.shape[0]
     times = np.arange(n_times) * 1./75000.
-    plate_len_x = 0.3
-    plate_len_y = 0.3
+    plate_len_x = 90 * 2.94/1000.
+    plate_len_y = 90 * 2.94/1000.
 
 
     if filter_time_sigma:
@@ -151,7 +151,7 @@ def fields_from_experiments(abaqus_data, filter_space_sigma=None, filter_time_si
     if filter_space_sigma:
         for i in range(len(disp_fields)):
             print("Filtering frame %i" % i)
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
+            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma,mode="nearest")
     return field_from_displacement(disp_fields, None, times, plate_len_x, plate_len_y)
 
 
