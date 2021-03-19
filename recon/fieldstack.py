@@ -3,9 +3,10 @@ import numpy as np
 from .analydisp import pressure_sinusoidal
 from scipy.ndimage import gaussian_filter, gaussian_filter1d
 from copy import copy
+from collections import namedtuple
 
 
-class FrameStack(object):
+class FieldStack(object):
     def __init__(self, deflection, slopes, curvatures, acceleration, times):
         self._deflection_ = deflection
         self._slope_x_, self._slope_y_ = slopes
@@ -19,9 +20,9 @@ class FrameStack(object):
         return len(self._deflection_)
 
     def __call__(self, frame_id, *args, **kwargs):
-        return Frame(self._deflection_[frame_id], (self._slope_x_[frame_id], self._slope_y_[frame_id]),
-                     (self._curv_xx_[frame_id], self._curv_yy_[frame_id], self._curv_xy_[frame_id]),
-                     self._acceleration_[frame_id], self._times_[frame_id])
+        return Fields(self._deflection_[frame_id], self._slope_x_[frame_id], self._slope_y_[frame_id],
+                      self._curv_xx_[frame_id], self._curv_yy_[frame_id], self._curv_xy_[frame_id],
+                      self._acceleration_[frame_id], self._times_[frame_id])
 
     def __iter__(self):
         return copy(self)
@@ -57,7 +58,7 @@ class FrameStack(object):
 
         acceleration = self.__filter_time__(self._acceleration_, sigma)
         times = self._times_
-        return FrameStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), acceleration, times)
+        return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), acceleration, times)
 
     def filtered_space(self, sigma):
         deflection = self.__filter_space__(self._deflection_, sigma)
@@ -71,54 +72,45 @@ class FrameStack(object):
 
         acceleration = self.__filter_space__(self._acceleration_, sigma)
         times = self._times_
-        return FrameStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), acceleration, times)
+        return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), acceleration, times)
 
     def down_sampled(self, every_n_frame):
-        return FrameStack(self._deflection_[::every_n_frame],
+        return FieldStack(self._deflection_[::every_n_frame],
                           (self._slope_x_[::every_n_frame], self._slope_y_[::every_n_frame]), (
-                           self._curv_xx_[::every_n_frame], self._curv_yy_[::every_n_frame],
-                           self._curv_xy_[::every_n_frame]), self._acceleration_[::every_n_frame],
-                           self._times_[::every_n_frame])
+                              self._curv_xx_[::every_n_frame], self._curv_yy_[::every_n_frame],
+                              self._curv_xy_[::every_n_frame]), self._acceleration_[::every_n_frame],
+                          self._times_[::every_n_frame])
 
 
-class Frame(object):
-    def __init__(self, deflection, slopes, curvatures, acceleration, time):
-        self.deflection = deflection
-        self.slope_x, self.slope_y = slopes
-        self.curv_xx, self.curv_yy, self.curv_xy = curvatures
-        self.acceleration = acceleration
-        self.time = time
-
-    def shape(self):
-        return np.shape(self.deflection)
+Fields = namedtuple("Fields",
+                    ["deflection", "slope_x", "slope_y", "curv_xx", "curv_yy", "curv_xy", "acceleration", "time"])
 
 
-
-
-def fields_from_abaqus_rpts(abaqus_data, downsample=False,bin_downsamples=False, accel_from_disp=True, filter_space_sigma=None, filter_time_sigma=None):
-
-    #crop=30
-    disp_fields = abaqus_data.disp_fields#[:,crop:-crop,crop:-crop]
-    #disp_fields = disp_fields - disp_fields[:,0,0][:,np.newaxis,np.newaxis]
-    accel_field = abaqus_data.accel_fields#[:,crop:-crop,crop:-crop]
+def fields_from_abaqus_rpts(abaqus_data, downsample=False, bin_downsamples=False, accel_from_disp=True,
+                            filter_space_sigma=None, filter_time_sigma=None, noise_amp_sigma=None):
+    disp_fields = abaqus_data.disp_fields
+    accel_field = abaqus_data.accel_fields
     times = abaqus_data.times
     plate_len_x = abaqus_data.plate_len_x
     plate_len_y = abaqus_data.plate_len_y
 
     if downsample and not bin_downsamples:
-        disp_fields = disp_fields[::downsample,:,:]
-        accel_field = accel_field[::downsample,:,:]
+        disp_fields = disp_fields[::downsample, :, :]
+        accel_field = accel_field[::downsample, :, :]
         times = times[::downsample]
     elif downsample and bin_downsamples:
-        n_frames,n_x,n_y = disp_fields.shape
-        n_bins = np.floor(n_frames/downsample)
+        n_frames, n_x, n_y = disp_fields.shape
+        n_bins = np.floor(n_frames / downsample)
         n_data_pts = int(n_bins * downsample)
-        print("Binning data, losing the %i last data points"%(n_frames-n_data_pts))
+        print("Binning data, losing the %i last data points" % (n_frames - n_data_pts))
 
-        disp_fields = np.reshape(disp_fields[:n_data_pts,:,:],(-1,downsample,n_x,n_y)).mean(axis=1)
-        accel_field = np.reshape(accel_field[:n_data_pts,:,:],(-1,downsample,n_x,n_y)).mean(axis=1)
+        disp_fields = np.reshape(disp_fields[:n_data_pts, :, :], (-1, downsample, n_x, n_y)).mean(axis=1)
+        accel_field = np.reshape(accel_field[:n_data_pts, :, :], (-1, downsample, n_x, n_y)).mean(axis=1)
         times = times[:n_data_pts:downsample]
 
+    if noise_amp_sigma:
+        disp_fields = disp_fields + np.random.random(disp_fields.shape) * noise_amp_sigma
+
     if filter_time_sigma:
         print("Filtering in time with sigma=%f" % float(filter_time_sigma))
         disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0)
@@ -126,43 +118,42 @@ def fields_from_abaqus_rpts(abaqus_data, downsample=False,bin_downsamples=False,
     if filter_space_sigma:
         for i in range(len(disp_fields)):
             print("Filtering frame %i" % i)
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma,mode="nearest")
+            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma, mode="nearest")
 
     if accel_from_disp:
-        return field_from_displacement(disp_fields, None, times, plate_len_x, plate_len_y)
+        return fieldStack_from_disp_fields(disp_fields, None, times, plate_len_x, plate_len_y)
     else:
-        return field_from_displacement(disp_fields, accel_field, times, plate_len_x, plate_len_y)
+        return fieldStack_from_disp_fields(disp_fields, accel_field, times, plate_len_x, plate_len_y)
 
 
-def fields_from_experiments(abaqus_data, filter_space_sigma=None, filter_time_sigma=None):
+def fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_space_sigma=None,
+                            filter_time_sigma=None):
 
-    disp_fields = np.moveaxis(abaqus_data,-1,0)
+    # Copy to make in-place operations safe
+    disp_fields = copy(exp_disp_field)
 
-    n_times = disp_fields.shape[0]
-    times = np.arange(n_times) * 1./75000.
-    plate_len_x = 90 * 2.94/1000.
-    plate_len_y = 90 * 2.94/1000.
+    n_times, n_pts_x, n_pts_y = disp_fields.shape
 
+    times = np.arange(n_times) * 1. / sampling_rate
+    field_len_x = n_pts_x * pixel_size
+    field_len_y = n_pts_y * pixel_size
 
     if filter_time_sigma:
         print("Filtering in time with sigma=%f" % float(filter_time_sigma))
-        disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0)
+        disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0, mode="nearest")
 
     if filter_space_sigma:
         for i in range(len(disp_fields)):
             print("Filtering frame %i" % i)
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma,mode="nearest")
-    return field_from_displacement(disp_fields, None, times, plate_len_x, plate_len_y)
+            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma,
+                                                   mode="nearest")
+    return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
 
 
-
-def field_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
+def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
     # calculate out-of-plane displacements
     xs, ys = np.meshgrid(np.linspace(0., 1., npts_x), np.linspace(0., 1., npts_y))
     deflection = disp_func(xs, ys)
-
-    press = pressure_sinusoidal(100, xs, ys)
-    # press = np.zeros_like(deflection)
 
     # Calculate slopes
     slope_x = -dF_complex_y(disp_func, xs, ys) / plate_x
@@ -172,44 +163,11 @@ def field_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
     curv_yy = (-ddF_complex_x(disp_func, xs, ys) / (plate_x ** 2.))
     curv_xx = (-ddF_complex_y(disp_func, xs, ys) / (plate_x ** 2.))
     curv_xy = (-ddF_complex_xy(disp_func, xs, ys) / (plate_x ** 2.))
-    return FrameStack(deflection, press, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection))
+    return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection))
 
 
-def field_from_displacement_old(disp_field, acceleration_field, times, plate_x, plate_y):
-    npts_x, npts_y = disp_field.shape
-    odx = plate_x / npts_x
-    ody = plate_y / npts_y
-
-    # calculate out-of-plane displacements
-    xs, ys = np.meshgrid(np.linspace(0., 1., npts_x), np.linspace(0., 1., npts_y))
-    deflection = disp_field
-
-    # press = pressure_sinusoidal(100, xs, ys)
-    press = np.zeros_like(deflection)
-
-    # calculate slopes
-    slope_x, slope_y = np.gradient(-deflection, odx, ody)
-
-    ###
-    # calculate curvatures
-    aux_k_xx, aux_k_s12 = np.gradient(slope_x, odx, ody)
-    aux_k_s21, aux_k_yy = np.gradient(slope_y, odx, ody)
-    aux_k_xy = .5 * (aux_k_s12 + aux_k_s21)
-
-    slope_x = slope_x[1:-1, 1:-1]
-    slope_y = slope_y[1:-1, 1:-1]
-
-    curv_xx = aux_k_xx[1:-1, 1:-1]
-    curv_yy = aux_k_yy[1:-1, 1:-1]
-    curv_xy = aux_k_xy[1:-1, 1:-1]
-
-    deflection = disp_field[1:-1, 1:-1]
-    accel_field = acceleration_field[1:-1, 1:-1]
-
-    return FrameStack(deflection, press, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), accel_field, times)
-
-
-def field_from_displacement(disp_fields, acceleration_fields, times, plate_x, plate_y):
+def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x, plate_y):
+    # This function removes the outer most pixels around the whole field
     n_frames = disp_fields.shape[0]
     deflection = []
 
@@ -222,19 +180,15 @@ def field_from_displacement(disp_fields, acceleration_fields, times, plate_x, pl
     for i in range(n_frames):
         disp_field = disp_fields[i]
         npts_x, npts_y = disp_field.shape
-        odx = plate_x / npts_x
-        ody = plate_y / npts_y
-
-        # calculate out-of-plane displacements
-        xs, ys = np.meshgrid(np.linspace(0., 1., npts_x), np.linspace(0., 1., npts_y))
+        pixel_size_x = plate_x / npts_x
+        pixels_size_y = plate_y / npts_y
 
         # calculate slopes
-        slope_x, slope_y = np.gradient(-disp_field, odx, ody)
+        slope_x, slope_y = np.gradient(-disp_field, pixel_size_x, pixels_size_y)
 
-        ###
         # calculate curvatures
-        aux_k_xx, aux_k_s12 = np.gradient(slope_x, odx, ody)
-        aux_k_s21, aux_k_yy = np.gradient(slope_y, odx, ody)
+        aux_k_xx, aux_k_s12 = np.gradient(slope_x, pixel_size_x, pixels_size_y)
+        aux_k_s21, aux_k_yy = np.gradient(slope_y, pixel_size_x, pixels_size_y)
         aux_k_xy = .5 * (aux_k_s12 + aux_k_s21)
 
         slopes_x.append(slope_x[1:-1, 1:-1])
@@ -247,9 +201,8 @@ def field_from_displacement(disp_fields, acceleration_fields, times, plate_x, pl
         deflection.append(disp_field[1:-1, 1:-1])
 
     if acceleration_fields is None:
-        analysis_time = times[-1]
-        n_time_frames = len(times)
-        time_step_size = float(analysis_time) / float(n_time_frames)
+        # Assuming constant time-step size
+        time_step_size = float(times[1])-float(times[0])
 
         vel_fields = np.gradient(deflection, axis=0) / time_step_size
         accel_field = np.gradient(vel_fields, axis=0) / time_step_size
@@ -266,5 +219,4 @@ def field_from_displacement(disp_fields, acceleration_fields, times, plate_x, pl
     accel_field = np.array(accel_field)
     times = np.array(times)
 
-
-    return FrameStack(deflection, (slopes_x, slopes_y), (curv_xx, curv_yy, curv_xy), accel_field, times)
+    return FieldStack(deflection, (slopes_x, slopes_y), (curv_xx, curv_yy, curv_xy), accel_field, times)
