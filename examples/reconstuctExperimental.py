@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from recon import plate_iso_qs_lin, fields_from_experiments
 import recon
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -18,7 +17,7 @@ def read_exp_press_data():
     return press - press[0], time
 
 
-data = -np.moveaxis(np.load("disps_sindre.npy"), 0, -1)
+data = -np.load("disps_sindre.npy")
 
 # plate and model parameters
 mat_E = 190.e9  # Young's modulus [Pa]
@@ -30,19 +29,20 @@ plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
 
 # pressure reconstruction parameters
 win_size = 30
-pixel_size_x = 2.94 / 1000.
+pixel_size = 2.94 / 1000.
+sampling_rate = 75000.
 
 # Results are stored in these lists
 times = []
 presses = []
 
-fields = fields_from_experiments(data, filter_time_sigma=0, filter_space_sigma=0)
+fields = recon.fields_from_experiments(data, pixel_size,sampling_rate, filter_time_sigma=0, filter_space_sigma=0)
 
-virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_x)
+virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
 for i, field in enumerate(fields):
     print("Processing frame %i" % i)
-    recon_press = plate_iso_qs_lin(field, plate, virtual_field)
+    recon_press = recon.plate_iso_qs_lin(field, plate, virtual_field)
 
     presses.append(recon_press)
     times.append(field.time)
