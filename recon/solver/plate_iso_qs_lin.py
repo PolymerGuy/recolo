@@ -33,7 +33,7 @@ def neighbour_map(iprw, size_with_pads_y, size_with_pads_x):
     return aux_neighbour + stencil
 
 
-def plate_iso_qs_lin(fields, iD11, iD12, vfields, rho, thickness):
+def plate_iso_qs_lin(fields,  plate,vfields):
 
     A11 = convolve2d(fields.curv_xx, vfields.okxxfield, mode="valid") + convolve2d(fields.curv_yy, vfields.okyyfield,
                                                                                    mode="valid") + 2. * convolve2d(
@@ -45,11 +45,11 @@ def plate_iso_qs_lin(fields, iD11, iD12, vfields, rho, thickness):
         fields.curv_xy, vfields.okxyfield, mode="valid")
     A12 = np.real(A12)
 
-    a_u3 = rho * thickness * convolve2d(fields.acceleration, vfields.owfield, mode="valid")
+    a_u3 = plate.density * plate.thickness * convolve2d(fields.acceleration, vfields.owfield, mode="valid")
     a_u3 = np.real(a_u3)
 
     U3 = np.sum(vfields.owfield)
 
-    op = (A11 * iD11 + A12 * iD12 + a_u3) / U3
+    op = (A11 * plate.bend_stiff_11 + A12 * plate.bend_stiff_12 + a_u3) / U3
 
     return op, 0
