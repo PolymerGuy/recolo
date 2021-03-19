@@ -146,6 +146,7 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy):
     # solve linear system
     sa1, sa2 = np.shape(A)
     aux_a1 = np.linalg.lstsq(A[:, 1:sa2], b2)
+    #aux_a1 = np.linalg.solve(A[:, 1:sa2], b2)
 
     aux_a2 = aux_a1[0]
     iconst = np.array([iconst])

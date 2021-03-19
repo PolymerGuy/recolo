@@ -1,9 +1,7 @@
-from recon import sparce_integration
+from recon.slope_integration import sparce_integration
 from scipy.io import loadmat
 import numpy as np
 import os
-from scipy.ndimage import gaussian_filter
-import matplotlib.pyplot as plt
 
 data = loadmat("/home/sindreno/Rene/dataset/slopes.txt") #x,y,frame
 
@@ -17,7 +15,7 @@ size = 2.94/1000. #mm (5.88mm)
 
 disps = []
 
-for i in np.arange(90,130):
+for i in np.arange(0,90):
     print("Integrating frame %i"%i)
     slope_y = slopes_x[i,:,:90]
     slope_x = slopes_y[i,:,:90]
@@ -29,4 +27,4 @@ for i in np.arange(90,130):
     disp = sparce_integration.int2D(slope_x, slope_y, 0., size, size)
     disps.append(disp)
 disps = np.array(disps)
-np.save(os.getcwd()+"/disps_sindre",disps)
+np.save(os.getcwd()+"/disps_shake_sindre",disps)
