@@ -1,9 +1,6 @@
 from unittest import TestCase
 import numpy as np
 from recon.slope_integration import int2D
-import matplotlib.pyplot as plt
-from scipy.ndimage import gaussian_filter
-
 
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2)) ** 2.)
