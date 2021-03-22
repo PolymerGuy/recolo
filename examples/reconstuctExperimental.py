@@ -38,6 +38,8 @@ presses = []
 
 fields = recon.fields_from_experiments(data, pixel_size,sampling_rate, filter_time_sigma=0, filter_space_sigma=0)
 
+
+
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
 for i, field in enumerate(fields):
@@ -59,7 +61,7 @@ plt.plot(real_time, real_press * 1.e6, '--', label="Transducer")
 plt.plot(real_time, gaussian_filter(real_press, sigma=2. * 500. / 75.) * 1.e6, '--',
          label="We should get this curve for sigma=2")
 plt.xlim(left=0.000, right=0.0006)
-plt.ylim(top=80000, bottom=0)
+plt.ylim(top=80000, bottom=-15000)
 plt.xlabel("Time [Sec]")
 plt.ylabel("Pressure [Pa]")
 
