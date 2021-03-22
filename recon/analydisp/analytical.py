@@ -7,11 +7,14 @@ def sinusoidal_load(peak_press, plate_x, plate_y, D_p):
             np.pi * norm_x) * np.sin(np.pi * norm_y)
     return field
 
-def pressure_sinusoidal(peak_press, norm_x, norm_y):
+def pressure_sinusoidal(peak_press,n_pts_x,n_pts_y):
+    norm_x,norm_y = np.meshgrid(np.linspace(0,1,n_pts_x),np.linspace(0,1,n_pts_y))
+
     return peak_press * np.sin(np.pi * norm_x) * np.sin(np.pi * norm_y)
 
 
 def deflection_constant(peak_press, plate_x, plate_y, D_p):
+
     def field(norm_x, norm_y):
         ow_p = np.zeros_like(norm_x)
         for i in range(1, 40):
