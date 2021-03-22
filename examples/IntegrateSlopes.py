@@ -16,10 +16,19 @@ pixel_size = 2.94 / 1000.
 
 disp_fields = []
 
+crop_pts = -1
+
 for i in np.arange(90,130):
     print("Integrating frame %i" % i)
     slope_y = slopes_x[:, :90, i]
     slope_x = slopes_y[:, :90, i]
+
+    slope_x = np.pad(slope_x,pad_width=6,mode="edge")
+    slope_y = np.pad(slope_y,pad_width=6,mode="edge")
+
+    if crop_pts>0:
+        slope_y = slope_y[crop_pts:-crop_pts,crop_pts:-crop_pts]
+        slope_x = slope_x[crop_pts:-crop_pts,crop_pts:-crop_pts]
 
     disp_field = sparce_integration.int2D(slope_x, slope_y, 0., pixel_size, pixel_size)
     disp_fields.append(disp_field)
