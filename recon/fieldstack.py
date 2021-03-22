@@ -86,7 +86,7 @@ Fields = namedtuple("Fields",
                     ["deflection", "slope_x", "slope_y", "curv_xx", "curv_yy", "curv_xy", "acceleration", "time"])
 
 
-def fields_from_abaqus_rpts(abaqus_data, downsample=False, bin_downsamples=False, accel_from_disp=True,
+def fields_from_abaqus_rpts(abaqus_data, downsample=False,downsample_space=None, bin_downsamples=False, accel_from_disp=True,
                             filter_space_sigma=None, filter_time_sigma=None, noise_amp_sigma=None):
     disp_fields = abaqus_data.disp_fields
     accel_field = abaqus_data.accel_fields
@@ -107,6 +107,10 @@ def fields_from_abaqus_rpts(abaqus_data, downsample=False, bin_downsamples=False
         disp_fields = np.reshape(disp_fields[:n_data_pts, :, :], (-1, downsample, n_x, n_y)).mean(axis=1)
         accel_field = np.reshape(accel_field[:n_data_pts, :, :], (-1, downsample, n_x, n_y)).mean(axis=1)
         times = times[:n_data_pts:downsample]
+
+    if downsample_space:
+        disp_fields = disp_fields[:,::downsample_space,::downsample_space]
+        accel_field = accel_field[:,::downsample_space,::downsample_space]
 
     if noise_amp_sigma:
         disp_fields = disp_fields + np.random.random(disp_fields.shape) * noise_amp_sigma
@@ -163,7 +167,16 @@ def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
     curv_yy = (-ddF_complex_x(disp_func, xs, ys) / (plate_x ** 2.))
     curv_xx = (-ddF_complex_y(disp_func, xs, ys) / (plate_x ** 2.))
     curv_xy = (-ddF_complex_xy(disp_func, xs, ys) / (plate_x ** 2.))
-    return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection))
+
+    # Add an initial axis to make this the first frame in the stack
+    deflection = deflection[np.newaxis,:,:]
+    slope_x = slope_x[np.newaxis,:,:]
+    slope_y = slope_y[np.newaxis,:,:]
+    curv_yy = curv_yy[np.newaxis,:,:]
+    curv_xx = curv_xx[np.newaxis,:,:]
+    curv_xy = curv_xy[np.newaxis,:,:]
+
+    return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection),[0])
 
 
 def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x, plate_y):
