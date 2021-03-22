@@ -17,18 +17,18 @@ def read_exp_press_data():
     return press - press[0], time
 
 
-data = -np.load("disps_sindre.npy")
+data = -np.load("disp_fields.npy")
 
 # plate and model parameters
 mat_E = 190.e9  # Young's modulus [Pa]
 mat_nu = 0.3  # Poisson's ratio []
 plate_thick = 5e-3
-rho = 8000
+rho = 7540.
 
 plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
 
 # pressure reconstruction parameters
-win_size = 30
+win_size = 26
 pixel_size = 2.94 / 1000.
 sampling_rate = 75000.
 
@@ -36,7 +36,7 @@ sampling_rate = 75000.
 times = []
 presses = []
 
-fields = recon.fields_from_experiments(data, pixel_size,sampling_rate, filter_time_sigma=0, filter_space_sigma=0)
+fields = recon.fields_from_experiments(data, pixel_size,sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
 
 
 
