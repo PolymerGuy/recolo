@@ -9,7 +9,7 @@ Using linear indexing (very fast, limited by memory)
 # import pdb
 
 import numpy as np
-from scipy.ndimage import shift
+from scipy import ndimage
 from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
 
@@ -33,7 +33,7 @@ def neighbour_map(iprw, size_with_pads_y, size_with_pads_x):
     return aux_neighbour + stencil
 
 
-def plate_iso_qs_lin(fields, plate, virtual_field):
+def plate_iso_qs_lin(fields, plate, virtual_field,shift=False):
 
     A11 = convolve2d(fields.curv_xx, virtual_field.okxxfield, mode="valid") + convolve2d(fields.curv_yy, virtual_field.okyyfield,
                                                                                          mode="valid") + 2. * convolve2d(
@@ -51,5 +51,8 @@ def plate_iso_qs_lin(fields, plate, virtual_field):
     U3 = np.sum(virtual_field.owfield)
 
     op = (A11 * plate.bend_stiff_11 + A12 * plate.bend_stiff_12 + a_u3) / U3
+
+    if shift:
+        op =  ndimage.shift(op,(-0.5,-0.5),order=3)
 
     return op
