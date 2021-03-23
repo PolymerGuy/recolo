@@ -16,7 +16,7 @@ class Test_integration_accuracy(TestCase):
         tol_rms = 1.e-6
         tol_peak = 1.e-3
 
-        n_pts_x, n_pts_y = 31, 31
+        n_pts_x, n_pts_y = 31, 35
         amp = 1.
         plate_len_x, plate_len_y, = 1.5, 1.5
         dx = plate_len_x / n_pts_x
@@ -45,7 +45,7 @@ class Test_integration_accuracy(TestCase):
         tol_rms = 1.e-6
         tol_peak = 1.e-3
 
-        n_pts_x, n_pts_y = 31, 31
+        n_pts_x, n_pts_y = 31, 35
         amp = 1.
         plate_len_x, plate_len_y, = 1.5, 1.5
         dx = plate_len_x / n_pts_x
@@ -77,7 +77,7 @@ class Test_integration_accuracy(TestCase):
         n_periods_x = 3
         n_periods_y = 2
 
-        n_pts_x, n_pts_y = 31, 31
+        n_pts_x, n_pts_y = 31, 35
         amp = 1.
         plate_len_x, plate_len_y, = 1.5, 1.5
         dx = plate_len_x / n_pts_x

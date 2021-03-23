@@ -99,7 +99,7 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy):
     aux_A[np.arange(0, n_x) + current_length] = np.concatenate((np.transpose(ind_m), np.transpose(ind_n), diffopy),
                                                                axis=1)
 
-    b[np.arange(0, n_y, 1) + current_length] = igrad_y[:, 0]
+    b[np.arange(0, n_x, 1) + current_length] = igrad_y[:, 0]
     current_length = current_length + n_x
 
     # central differences in y-direction
@@ -161,6 +161,6 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy):
     iconst = np.array([iconst])
     aux_a3 = np.concatenate((iconst, aux_a2))
 
-    oa = np.reshape(aux_a3, (n_y, n_x))
+    oa = np.reshape(aux_a3, (n_x, n_y))
 
     return oa
