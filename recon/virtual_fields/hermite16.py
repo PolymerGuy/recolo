@@ -52,19 +52,19 @@ class Hermite16(object):
         i_1 = np.zeros(iprw*iprw)
         i_2 = np.zeros(iprw*iprw)
         aux_i_2 = np.zeros(iprw)
-        i_1[0:np.int(np.floor(iprw*iprw/2))] = \
-                np.ones(np.int(np.floor(iprw*iprw/2)))
+        i_1[0:int(np.floor(iprw*iprw/2))] = \
+                np.ones(int(np.floor(iprw*iprw/2)))
                 #
-        i_1[np.int(np.floor(iprw*iprw/2)):iprw*iprw] = \
-                2*np.ones(iprw*iprw-np.int(np.floor(iprw*iprw/2)))
+        i_1[int(np.floor(iprw*iprw/2)):iprw*iprw] = \
+                2*np.ones(iprw*iprw-int(np.floor(iprw*iprw/2)))
                 #
-        aux_i_2[0:np.int(np.floor(iprw/2))] = \
-                np.ones(np.int(np.floor(iprw/2)))
+        aux_i_2[0:int(np.floor(iprw/2))] = \
+                np.ones(int(np.floor(iprw/2)))
                 #
-        aux_i_2[np.int(np.floor(iprw/2)):iprw] = \
-                2*np.ones(iprw-np.int(np.floor(iprw/2)))
+        aux_i_2[int(np.floor(iprw/2)):iprw] = \
+                2*np.ones(iprw-int(np.floor(iprw/2)))
         i_2 = aux_i_2
-        for i in range(1, np.int(np.floor(iprw))):
+        for i in range(1, int(np.floor(iprw))):
             i_2 = np.concatenate((i_2, aux_i_2))
         del aux_i_2
         #
@@ -108,56 +108,56 @@ class Hermite16(object):
         wfield2 = np.reshape(w[3,:], (iprw, iprw), order='F')
         wfield3 = np.reshape(w[2,:], (iprw, iprw), order='F')
         wfield4 = np.reshape(w[1,:], (iprw, iprw), order='F')
-        owfield[0:np.int(iprw/2), 0:np.int(iprw/2)] = \
-            wfield3[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        owfield[np.int(iprw/2):iprw, 0:np.int(iprw/2)] = \
-            wfield2[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        owfield[0:np.int(iprw/2), np.int(iprw/2):iprw] = \
-            wfield4[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        owfield[np.int(iprw/2):iprw, np.int(iprw/2):iprw] = \
-            wfield1[0:np.int(iprw/2), 0:np.int(iprw/2)]
+        owfield[0:int(iprw/2), 0:int(iprw/2)] = \
+            wfield3[0:int(iprw/2), 0:int(iprw/2)]
+        owfield[int(iprw/2):iprw, 0:int(iprw/2)] = \
+            wfield2[0:int(iprw/2), 0:int(iprw/2)]
+        owfield[0:int(iprw/2), int(iprw/2):iprw] = \
+            wfield4[0:int(iprw/2), 0:int(iprw/2)]
+        owfield[int(iprw/2):iprw, int(iprw/2):iprw] = \
+            wfield1[0:int(iprw/2), 0:int(iprw/2)]
         #
         okxxfield = np.ones((iprw, iprw))
         kxxfield1 = np.reshape(kxx[0,:], (iprw, iprw), order='F')
         kxxfield2 = np.reshape(kxx[3,:], (iprw, iprw), order='F')
         kxxfield3 = np.reshape(kxx[2,:], (iprw, iprw), order='F')
         kxxfield4 = np.reshape(kxx[1,:], (iprw, iprw), order='F')
-        okxxfield[0:np.int(iprw/2), 0:np.int(iprw/2)] = \
-            kxxfield3[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okxxfield[np.int(iprw/2):iprw, 0:np.int(iprw/2)] = \
-            kxxfield2[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okxxfield[0:np.int(iprw/2), np.int(iprw/2):iprw] = \
-            kxxfield4[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okxxfield[np.int(iprw/2):iprw, np.int(iprw/2):iprw] = \
-            kxxfield1[0:np.int(iprw/2), 0:np.int(iprw/2)]
+        okxxfield[0:int(iprw/2), 0:int(iprw/2)] = \
+            kxxfield3[0:int(iprw/2), 0:int(iprw/2)]
+        okxxfield[int(iprw/2):iprw, 0:int(iprw/2)] = \
+            kxxfield2[0:int(iprw/2), 0:int(iprw/2)]
+        okxxfield[0:int(iprw/2), int(iprw/2):iprw] = \
+            kxxfield4[0:int(iprw/2), 0:int(iprw/2)]
+        okxxfield[int(iprw/2):iprw, int(iprw/2):iprw] = \
+            kxxfield1[0:int(iprw/2), 0:int(iprw/2)]
         #
         okyyfield = np.ones((iprw, iprw))
         kyyfield1 = np.reshape(kyy[0,:], (iprw, iprw), order='F')
         kyyfield2 = np.reshape(kyy[3,:], (iprw, iprw), order='F')
         kyyfield3 = np.reshape(kyy[2,:], (iprw, iprw), order='F')
         kyyfield4 = np.reshape(kyy[1,:], (iprw, iprw), order='F')
-        okyyfield[0:np.int(iprw/2), 0:np.int(iprw/2)] = \
-            kyyfield3[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okyyfield[np.int(iprw/2):iprw, 0:np.int(iprw/2)] = \
-            kyyfield2[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okyyfield[0:np.int(iprw/2), np.int(iprw/2):iprw] = \
-            kyyfield4[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okyyfield[np.int(iprw/2):iprw, np.int(iprw/2):iprw] = \
-            kyyfield1[0:np.int(iprw/2), 0:np.int(iprw/2)]
+        okyyfield[0:int(iprw/2), 0:int(iprw/2)] = \
+            kyyfield3[0:int(iprw/2), 0:int(iprw/2)]
+        okyyfield[int(iprw/2):iprw, 0:int(iprw/2)] = \
+            kyyfield2[0:int(iprw/2), 0:int(iprw/2)]
+        okyyfield[0:int(iprw/2), int(iprw/2):iprw] = \
+            kyyfield4[0:int(iprw/2), 0:int(iprw/2)]
+        okyyfield[int(iprw/2):iprw, int(iprw/2):iprw] = \
+            kyyfield1[0:int(iprw/2), 0:int(iprw/2)]
         #
         okxyfield = np.ones((iprw, iprw))
         kxyfield1 = np.reshape(kxy[0,:], (iprw, iprw))
         kxyfield2 = np.reshape(kxy[3,:], (iprw, iprw))
         kxyfield3 = np.reshape(kxy[2,:], (iprw, iprw))
         kxyfield4 = np.reshape(kxy[1,:], (iprw, iprw))
-        okxyfield[0:np.int(iprw/2), 0:np.int(iprw/2)] = \
-            kxyfield3[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okxyfield[np.int(iprw/2):iprw, 0:np.int(iprw/2)] = \
-            kxyfield2[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okxyfield[0:np.int(iprw/2), np.int(iprw/2):iprw] = \
-            kxyfield4[0:np.int(iprw/2), 0:np.int(iprw/2)]
-        okxyfield[np.int(iprw/2):iprw, np.int(iprw/2):iprw] = \
-            kxyfield1[0:np.int(iprw/2), 0:np.int(iprw/2)]
+        okxyfield[0:int(iprw/2), 0:int(iprw/2)] = \
+            kxyfield3[0:int(iprw/2), 0:int(iprw/2)]
+        okxyfield[int(iprw/2):iprw, 0:int(iprw/2)] = \
+            kxyfield2[0:int(iprw/2), 0:int(iprw/2)]
+        okxyfield[0:int(iprw/2), int(iprw/2):iprw] = \
+            kxyfield4[0:int(iprw/2), 0:int(iprw/2)]
+        okxyfield[int(iprw/2):iprw, int(iprw/2):iprw] = \
+            kxyfield1[0:int(iprw/2), 0:int(iprw/2)]
         ###
         return okxxfield, okyyfield, okxyfield, owfield
                 

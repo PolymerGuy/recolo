@@ -28,8 +28,10 @@ win_size = 30
 # Load data from abaqus
 abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
 
-fields = recon.fields_from_abaqus_rpts(abq_sim_fields, downsample=None, accel_from_disp=True, filter_time_sigma=0,
+
+fields = recon.fields_from_abaqus_rpts(abq_sim_fields, downsample=5,downsample_space=2, accel_from_disp=True, filter_time_sigma=0,
                                        noise_amp_sigma=None)
+
 
 # Define a piece-wise virtual field
 n_pts_x, n_pts_y = fields(0).deflection.shape
