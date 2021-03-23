@@ -31,8 +31,8 @@ def crop_and_integrate_exp_data(crop_factor):
 
     for i in np.arange(80, 160):
         print("Integrating frame %i cropped by %i pixels" % (i,crop_factor))
-        slope_y = slopes_x[:, :90, i]
-        slope_x = slopes_y[:, :90, i]
+        slope_y = slopes_x[:, :, i]
+        slope_x = slopes_y[:, :, i]
 
         if crop_factor > 0:
             slope_y = slope_y[crop_factor:-crop_factor, crop_factor:-crop_factor]
@@ -46,26 +46,26 @@ def crop_and_integrate_exp_data(crop_factor):
 
     return np.array(disp_fields)
 
-
+# Parameters for parameter study
 crop_pixels = range(-6,6,2)
-#crop_pixels = [-6]
+
+# plate and model parameters
+mat_E = 210.e9  # Young's modulus [Pa]
+mat_nu = 0.3  # Poisson's ratio []
+plate_thick = 5e-3
+rho = 7540.
+
+plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
+
+# pressure reconstruction parameters
+win_size = 30
+pixel_size = 2.94 / 1000.
+sampling_rate = 75000.
+
 
 for crop_pixel in crop_pixels:
 
     data = -crop_and_integrate_exp_data(crop_pixel)
-
-    # plate and model parameters
-    mat_E = 210.e9  # Young's modulus [Pa]
-    mat_nu = 0.3  # Poisson's ratio []
-    plate_thick = 5e-3
-    rho = 7540.
-
-    plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
-
-    # pressure reconstruction parameters
-    win_size = 30
-    pixel_size = 2.94 / 1000.
-    sampling_rate = 75000.
 
     # Results are stored in these lists
     times = []
@@ -93,7 +93,6 @@ for crop_pixel in crop_pixels:
                  label="Padded by %i pixels" % (-crop_pixel))
 
 real_press, real_time = read_exp_press_data()
-
 plt.plot(real_time, real_press * 1.e6, '--', label="Transducer")
 plt.plot(real_time, gaussian_filter(real_press, sigma=2. * 500. / 75.) * 1.e6, '--',
          label="We should get this curve for sigma=2")
