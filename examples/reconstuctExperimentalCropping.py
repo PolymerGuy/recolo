@@ -34,12 +34,17 @@ def crop_and_integrate_exp_data(crop_factor):
         slope_y = slopes_x[:, :, i]
         slope_x = slopes_y[:, :, i]
 
+        slope_y = gaussian_filter(slope_y,sigma=2)
+        slope_x = gaussian_filter(slope_x,sigma=2)
+
         if crop_factor > 0:
             slope_y = slope_y[crop_factor:-crop_factor, crop_factor:-crop_factor]
             slope_x = slope_x[crop_factor:-crop_factor, crop_factor:-crop_factor]
         elif crop_factor < 0:
             slope_x = np.pad(slope_x, pad_width=-crop_factor, mode="edge")
             slope_y = np.pad(slope_y, pad_width=-crop_factor, mode="edge")
+
+
 
         disp_field = sparce_integration.int2D(slope_x, slope_y, 0., pixel_size, pixel_size)
         disp_fields.append(disp_field)
@@ -48,6 +53,7 @@ def crop_and_integrate_exp_data(crop_factor):
 
 # Parameters for parameter study
 crop_pixels = range(-6,6,2)
+crop_pixels = [-6]
 
 # plate and model parameters
 mat_E = 210.e9  # Young's modulus [Pa]
