@@ -149,8 +149,8 @@ def fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_sp
     if filter_space_sigma:
         for i in range(len(disp_fields)):
             print("Filtering frame %i" % i)
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma,
-                                                   mode="nearest")
+            raise Warning("This filter somehow messes up the edges and this shows up in curvature")
+            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
     return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
 
 

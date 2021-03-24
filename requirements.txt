@@ -1,0 +1,8 @@
+numpy
+scipy
+pytest
+coverage
+pytest-cov
+codecov
+matplotlib
+natsort
