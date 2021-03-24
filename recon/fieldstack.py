@@ -1,6 +1,5 @@
-from recon.diff_tools import dF_complex_x, dF_complex_y, ddF_complex_x, ddF_complex_xy, ddF_complex_y
+from recon.analydisp.diff_tools import dF_complex_x, dF_complex_y, ddF_complex_x, ddF_complex_xy, ddF_complex_y
 import numpy as np
-from .analydisp import pressure_sinusoidal
 from scipy.ndimage import gaussian_filter, gaussian_filter1d
 from copy import copy
 from collections import namedtuple
