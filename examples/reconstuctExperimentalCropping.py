@@ -30,14 +30,12 @@ def crop_and_integrate_exp_data(crop_factor):
     disp_fields = []
 
     for i in np.arange(80, 149):
-        print("Integrating frame %i cropped by %i pixels" % (i,crop_factor))
+        print("Integrating frame %i cropped by %i pixels" % (i, crop_factor))
         slope_y = slopes_x[:, :, i]
         slope_x = slopes_y[:, :, i]
 
-
-
-        slope_y = gaussian_filter(slope_y,sigma=2)
-        slope_x = gaussian_filter(slope_x,sigma=2)
+        slope_y = gaussian_filter(slope_y, sigma=2)
+        slope_x = gaussian_filter(slope_x, sigma=2)
 
         if crop_factor > 0:
             slope_y = slope_y[crop_factor:-crop_factor, crop_factor:-crop_factor]
@@ -46,15 +44,14 @@ def crop_and_integrate_exp_data(crop_factor):
             slope_x = np.pad(slope_x, pad_width=-crop_factor, mode="edge")
             slope_y = np.pad(slope_y, pad_width=-crop_factor, mode="edge")
 
-
-
         disp_field = sparce_integration.int2D(slope_x, slope_y, 0., pixel_size, pixel_size)
         disp_fields.append(disp_field)
 
     return np.array(disp_fields)
 
+
 # Parameters for parameter study
-crop_pixels = range(-2,6,2)
+crop_pixels = range(-2, 6, 2)
 crop_pixels = [-2]
 
 # plate and model parameters
@@ -70,7 +67,6 @@ win_size = 30
 pixel_size = 2.94 / 1000.
 sampling_rate = 75000.
 
-
 for crop_pixel in crop_pixels:
 
     raw_disp_field = -crop_and_integrate_exp_data(crop_pixel)
@@ -79,8 +75,8 @@ for crop_pixel in crop_pixels:
     times = []
     presses = []
 
-    fields = recon.fields_from_experiments(raw_disp_field, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
-
+    fields = recon.fields_from_experiments(raw_disp_field, pixel_size, sampling_rate, filter_time_sigma=0,
+                                           filter_space_sigma=0)
     virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
     for i, field in enumerate(fields):
@@ -95,10 +91,11 @@ for crop_pixel in crop_pixels:
     center = int(presses.shape[1] / 2)
 
     # Plot the results
-    if crop_pixel>=0:
-        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1], '-o', label="Cropped by %i pixels"%crop_pixel)
+    if crop_pixel >= 0:
+        plt.plot(np.array(times[:]) - 0.00007, presses[:, center - 2, center + 1], '-o',
+                 label="Cropped by %i pixels" % crop_pixel)
     else:
-        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1], '-o',
+        plt.plot(np.array(times[:]) - 0.00007, presses[:, center - 2, center + 1], '-o',
                  label="Padded by %i pixels" % (-crop_pixel))
 
 real_press, real_time = read_exp_press_data()
