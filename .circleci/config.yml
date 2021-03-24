@@ -42,7 +42,7 @@ jobs:
           command: |
             . venv/bin/activate
             pytest --pyargs recon --cov=./
-            # codecov -t $CODECOV_TOKEN
+          # codecov -t $CODECOV_TOKEN
 
       - store_artifacts:
           path: test-reports
