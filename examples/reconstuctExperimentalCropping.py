@@ -20,7 +20,7 @@ def crop_and_integrate_exp_data(crop_factor):
     from scipy.io import loadmat
 
     # Integrate slopes to obtain displacement fields
-    data = loadmat("/home/sindreno/Rene/dataset/slopes.txt")  # x,y,frame
+    data = loadmat("/home/sindreno/Downloads/Rene/slopes_5_0_set1_full3.mat")
 
     slopes_x = data["slope_x"]
     slopes_y = data["slope_y"]
@@ -29,10 +29,12 @@ def crop_and_integrate_exp_data(crop_factor):
 
     disp_fields = []
 
-    for i in np.arange(80, 160):
+    for i in np.arange(80, 149):
         print("Integrating frame %i cropped by %i pixels" % (i,crop_factor))
         slope_y = slopes_x[:, :, i]
         slope_x = slopes_y[:, :, i]
+
+
 
         slope_y = gaussian_filter(slope_y,sigma=2)
         slope_x = gaussian_filter(slope_x,sigma=2)
@@ -52,14 +54,14 @@ def crop_and_integrate_exp_data(crop_factor):
     return np.array(disp_fields)
 
 # Parameters for parameter study
-crop_pixels = range(-6,6,2)
-crop_pixels = [-6]
+crop_pixels = range(-2,6,2)
+crop_pixels = [-2]
 
 # plate and model parameters
 mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.3  # Poisson's ratio []
 plate_thick = 5e-3
-rho = 7540.
+rho = 7850.
 
 plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
 
@@ -77,7 +79,7 @@ for crop_pixel in crop_pixels:
     times = []
     presses = []
 
-    fields = recon.fields_from_experiments(data, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=2)
+    fields = recon.fields_from_experiments(data, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
 
     virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
@@ -86,6 +88,7 @@ for crop_pixel in crop_pixels:
         recon_press = recon.solver.plate_iso_qs_lin(field, plate, virtual_field)
 
         presses.append(recon_press)
+
         times.append(field.time)
 
     presses = np.array(presses)
@@ -93,9 +96,9 @@ for crop_pixel in crop_pixels:
 
     # Plot the results
     if crop_pixel>=0:
-        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1], '-o', label="Cropped by %i pixels"%crop_pixel)
+        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1]+1000., '-o', label="Cropped by %i pixels"%crop_pixel)
     else:
-        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1], '-o',
+        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1]+1000, '-o',
                  label="Padded by %i pixels" % (-crop_pixel))
 
 real_press, real_time = read_exp_press_data()
