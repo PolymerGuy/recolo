@@ -1,5 +1,5 @@
 
-[![codecov](https://codecov.io/gh/PolymerGuy/recon/branch/master/graph/badge.svg)](https://codecov.io/gh/PolymerGuy/recon)
+[![codecov](https://codecov.io/gh/PolymerGuy/recon/branch/master/graph/badge.svg?token=7J4EH3C399)](https://codecov.io/gh/PolymerGuy/recon)
 [![CircleCI](https://circleci.com/gh/PolymerGuy/recon.svg?style=svg&circle-token=badgeToken)](https://circleci.com/gh/PolymerGuy/recon)
 [![MIT License][license-shield]][license-url]
 
