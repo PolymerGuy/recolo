@@ -73,13 +73,13 @@ sampling_rate = 75000.
 
 for crop_pixel in crop_pixels:
 
-    data = -crop_and_integrate_exp_data(crop_pixel)
+    raw_disp_field = -crop_and_integrate_exp_data(crop_pixel)
 
     # Results are stored in these lists
     times = []
     presses = []
 
-    fields = recon.fields_from_experiments(data, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
+    fields = recon.fields_from_experiments(raw_disp_field, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
 
     virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
@@ -96,9 +96,9 @@ for crop_pixel in crop_pixels:
 
     # Plot the results
     if crop_pixel>=0:
-        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1]+1000., '-o', label="Cropped by %i pixels"%crop_pixel)
+        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1], '-o', label="Cropped by %i pixels"%crop_pixel)
     else:
-        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1]+1000, '-o',
+        plt.plot(np.array(times[:])-0.00007 , presses[:, center - 2, center + 1], '-o',
                  label="Padded by %i pixels" % (-crop_pixel))
 
 real_press, real_time = read_exp_press_data()
