@@ -11,6 +11,9 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy):
     Requires integration constant (= reference value at position [1,1] = iconst)
     Assumes uniform spacing
 
+    Based on:
+    https://math.stackexchange.com/questions/1340719/numerically-find-a-potential-field-from-gradient
+
     01.10.2019
 
     @author: Rene Kaufmann

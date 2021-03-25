@@ -1,7 +1,8 @@
-import matplotlib.pyplot as plt
 import recon
 import numpy as np
 from scipy.ndimage import gaussian_filter
+import matplotlib.pyplot as plt
+plt.style.use('science')
 
 
 def read_exp_press_data():
@@ -110,23 +111,22 @@ for crop_pixel in crop_pixels:
     center = int(presses.shape[1] / 2)
 
     # Plot the results
-    if crop_pixel >= 0:
-        plt.plot(np.array(times[:]) - 0.00007, presses[:, center,  center], '-o',
-                 label="Cropped by %i pixels" % crop_pixel)
-    else:
-        plt.plot(np.array(times[:]) - 0.00007, presses[:, center, center], '-o',
-                 label="Padded by %i pixels" % (-crop_pixel))
+
+    plt.plot((np.array(times[:]) - 0.00007)*1000., presses[:, center,  center]/1000., '-',
+             label="VFM")
+
 
 real_press, real_time = read_exp_press_data()
 
-plt.plot(real_time, real_press * 1.e6, '--', label="Transducer")
-plt.plot(real_time, gaussian_filter(real_press, sigma=2. * 500. / 75.) * 1.e6, '--',
-         label="We should get this curve for sigma=2")
+plt.plot(real_time*1000., real_press * 1.e3, '--', label="Transducer",alpha=0.7)
+#plt.plot(real_time, gaussian_filter(real_press, sigma=2. * 500. / 75.) * 1.e6, '--',
+#         label="We should get this curve for sigma=2")
 
-plt.xlim(left=0.000, right=0.0009)
-plt.ylim(top=80000, bottom=-15000)
-plt.xlabel("Time [Sec]")
-plt.ylabel("Pressure [Pa]")
+plt.xlim(left=0.000, right=0.9)
+plt.ylim(top=80, bottom=-15)
+plt.xlabel("T [ms]")
+plt.ylabel(r"$\Delta P$ [kPa]")
 
 plt.legend(frameon=False)
+plt.tight_layout()
 plt.show()
