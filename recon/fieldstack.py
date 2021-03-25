@@ -203,14 +203,13 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x
         aux_k_s21, aux_k_yy = np.gradient(slope_y, pixel_size_x, pixels_size_y)
         aux_k_xy = .5 * (aux_k_s12 + aux_k_s21)
 
-        slopes_x.append(slope_x[1:-1, 1:-1])
-        slopes_y.append(slope_y[1:-1, 1:-1])
+        slopes_x.append(slope_x)
+        slopes_y.append(slope_y)
+        curv_xx.append(aux_k_xx)
+        curv_yy.append(aux_k_yy)
+        curv_xy.append(aux_k_xy)
 
-        curv_xx.append(aux_k_xx[1:-1, 1:-1])
-        curv_yy.append(aux_k_yy[1:-1, 1:-1])
-        curv_xy.append(aux_k_xy[1:-1, 1:-1])
-
-        deflection.append(disp_field[1:-1, 1:-1])
+        deflection.append(disp_field)
 
     if acceleration_fields is None:
         # Assuming constant time-step size
