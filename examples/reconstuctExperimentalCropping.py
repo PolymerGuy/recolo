@@ -13,13 +13,13 @@ def read_exp_press_data():
 
     time = data[start:end, 0] * 1.e-3
     time = time - time[0]
-    press = data[start:end, 6] / 10.
-    return press-press[0], time
+    press = data[start:end, :] / 10.
+    return press-press[0,:], time
 
 
 def mean_of_array_frame(array):
     top = np.mean(array[0, :])
-    btm = np.mean(array[-1, :])
+    btm = np.mean(array[-1:, :])
     lft = np.mean(array[:, 0])
     right = np.mean(array[:, -1])
     # return np.mean([top,btm,lft,right])
@@ -118,7 +118,8 @@ for crop_pixel in crop_pixels:
 
 real_press, real_time = read_exp_press_data()
 
-plt.plot(real_time*1000., real_press * 1.e3, '--', label="Transducer",alpha=0.7)
+plt.plot(real_time*1000., real_press[:,6] * 1.e3, '--', label="Transducer",alpha=0.7)
+
 #plt.plot(real_time, gaussian_filter(real_press, sigma=2. * 500. / 75.) * 1.e6, '--',
 #         label="We should get this curve for sigma=2")
 
