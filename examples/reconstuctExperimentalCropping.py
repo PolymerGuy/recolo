@@ -113,7 +113,7 @@ for crop_pixel in crop_pixels:
     # Plot the results
 
     plt.plot((np.array(times[:]) - 0.00007)*1000., presses[:, center,  center]/1000., '-',
-             label="VFM")
+             label="Reconstruction")
 
 
 real_press, real_time = read_exp_press_data()
@@ -124,8 +124,8 @@ plt.plot(real_time*1000., real_press * 1.e3, '--', label="Transducer",alpha=0.7)
 
 plt.xlim(left=0.000, right=0.9)
 plt.ylim(top=80, bottom=-15)
-plt.xlabel("T [ms]")
-plt.ylabel(r"$\Delta P$ [kPa]")
+plt.xlabel("Time [ms]")
+plt.ylabel(r"Overpressure [kPa]")
 
 plt.legend(frameon=False)
 plt.tight_layout()
