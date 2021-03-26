@@ -83,11 +83,11 @@ class Test_integration_accuracy(TestCase):
         dx = plate_len_x / n_pts_x
         dy = plate_len_y / n_pts_y
 
-        int_const = 0.
+        int_const = 1.5
 
         xs, ys = np.meshgrid(np.linspace(0., 1., n_pts_x), np.linspace(0., 1., n_pts_y))
 
-        disp_field = amp * np.sin(n_periods_x * np.pi * xs) * np.sin(n_periods_y* np.pi * ys)
+        disp_field = amp * np.sin(n_periods_x * np.pi * xs) * np.sin(n_periods_y* np.pi * ys) +int_const
 
         gradient_x, gradient_y = np.gradient(disp_field, dx, dy)
 
