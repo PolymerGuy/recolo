@@ -33,5 +33,25 @@ To check that everything is working, run all tests:
 pytest recon
 ```
 
+Example
+-------
+
+
+
+How to contribute
+-----------------
+* Fork the repo
+* Add nice things to the code
+* Make a pull-request to the -dev branch
+* Celebrate!
+
+How to cite us
+--------------
+If you use this toolkit in your scientific work, consider citing one or more of the following:
+
+- Kaufmann,*et al.*, ["Virtual fields for load reconstuction in shock-tube experiments"](https://www.dead.link.com), *Impact Mechanics*, May 2021. ([open access](https://www.dead.link.com))
+
+
+
 [license-shield]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [license-url]: https://choosealicense.com/licenses/mit
