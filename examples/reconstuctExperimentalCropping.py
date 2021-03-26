@@ -17,13 +17,7 @@ def read_exp_press_data():
     return press-press[0,:], time
 
 
-def mean_of_array_frame(array):
-    top = np.mean(array[0, :])
-    btm = np.mean(array[-1:, :])
-    lft = np.mean(array[:, 0])
-    right = np.mean(array[:, -1])
-    # return np.mean([top,btm,lft,right])
-    return np.mean([btm])
+
 
 
 def crop_and_integrate_exp_data(crop_factor):
@@ -61,10 +55,8 @@ def crop_and_integrate_exp_data(crop_factor):
             slope_x = np.pad(slope_x, pad_width=(-crop_factor,-crop_factor), mode="edge")
             slope_y = np.pad(slope_y, pad_width=(-crop_factor,-crop_factor), mode="edge")
 
-        disp_field = sparce_integration.int2D(slope_x, slope_y, 0., pixel_size, pixel_size)
+        disp_field = sparce_integration.int2D(slope_x, slope_y, 0., pixel_size, pixel_size,const_at_edge="bottom")
 
-        border = mean_of_array_frame(disp_field)
-        disp_field = disp_field - border
 
         disp_fields.append(disp_field)
 
