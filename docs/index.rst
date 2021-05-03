@@ -4,17 +4,30 @@
    contain the root `toctree` directive.
 
 Welcome to Recon's documentation!
-=================================
+==================================
+
+This python package provides tools for reconstuction of pressure loads using the virtual fields method.
+
+
+
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting started:
+
+   install
+   quickstart
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: API:
 
-Indices and tables
-==================
+   API
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. toctree::
+   :maxdepth: 2
+   :caption: Theory:
+
+   VFM
+
