@@ -2,6 +2,7 @@ import recon
 import numpy as np
 from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
+
 plt.style.use('science')
 
 
@@ -10,15 +11,12 @@ def read_exp_press_data():
     end = 26200
 
     data = np.genfromtxt("./experimentalPressures/trans_open_1.txt", skip_header=20)
-    #data = np.genfromtxt("./experimentalPressures/trans_half_1.txt", skip_header=20)
+    # data = np.genfromtxt("./experimentalPressures/trans_half_1.txt", skip_header=20)
 
     time = data[start:end, 0] * 1.e-3
     time = time - time[0]
     press = data[start:end, :] / 10.
-    return press-press[0,:], time
-
-
-
+    return press - press[0, :], time
 
 
 def crop_and_integrate_exp_data(crop_factor):
@@ -26,27 +24,24 @@ def crop_and_integrate_exp_data(crop_factor):
     from scipy.io import loadmat
 
     # Integrate slopes to obtain displacement fields
-    #data = loadmat("/home/sindreno/Downloads/Rene/slopes_5_0_set1_full3.mat")
+    # data = loadmat("/home/sindreno/Downloads/Rene/slopes_5_0_set1_full3.mat")
     data = loadmat("/home/sindreno/Downloads/Rene/slopes_1_0_set1_full2.mat")
-    #data = loadmat("/home/sindreno/Downloads/Rene/slopes_5_0_set1_half1.mat")
-
+    # data = loadmat("/home/sindreno/Downloads/Rene/slopes_5_0_set1_half1.mat")
 
     slopes_x = data["slope_x"]
     slopes_y = data["slope_y"]
 
     print(slopes_x.shape)
 
-
     slopes_x = slopes_x - np.mean(slopes_x[:, :, 0])
     slopes_y = slopes_y - np.mean(slopes_y[:, :, 0])
 
-
-
-    pixel_size = 3.0 / 1000.
+    pixel_size = 3.0 / 1000./5.
 
     disp_fields = []
 
-    for i in np.arange(0, 100):
+    #for i in np.arange(0, 100):
+    for i in np.arange(10, 45):
         print("Integrating frame %i cropped by %i pixels" % (i, crop_factor))
         slope_y = slopes_x[:, :, i]
         slope_x = slopes_y[:, :, i]
@@ -54,18 +49,17 @@ def crop_and_integrate_exp_data(crop_factor):
         slope_y = gaussian_filter(slope_y, sigma=10)
         slope_x = gaussian_filter(slope_x, sigma=10)
 
-        slope_y = slope_y[::5,::5]
-        slope_x = slope_x[::5,::5]
+        slope_y = slope_y[:, :]
+        slope_x = slope_x[:, :]
 
         if crop_factor > 0:
             slope_y = slope_y[crop_factor:-crop_factor, crop_factor:-crop_factor]
             slope_x = slope_x[crop_factor:-crop_factor, crop_factor:-crop_factor]
         elif crop_factor < 0:
-            slope_x = np.pad(slope_x, pad_width=(-crop_factor,-crop_factor), mode="edge")
-            slope_y = np.pad(slope_y, pad_width=(-crop_factor,-crop_factor), mode="edge")
+            slope_x = np.pad(slope_x, pad_width=(-crop_factor, -crop_factor), mode="edge")
+            slope_y = np.pad(slope_y, pad_width=(-crop_factor, -crop_factor), mode="edge")
 
         disp_field = sparce_integration.int2D(slope_x, slope_y, pixel_size, pixel_size, const_at_edge="bottom_corners")
-
 
         disp_fields.append(disp_field)
 
@@ -73,8 +67,6 @@ def crop_and_integrate_exp_data(crop_factor):
 
 
 # Parameters for parameter study
-# crop_pixels = range(-2, 6, 2)
-#crop_pixels = [-2]
 crop_pixels = [-2]
 
 # plate and model parameters
@@ -87,7 +79,7 @@ plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
 
 # pressure reconstruction parameters
 win_size = 30
-pixel_size = 3.0 / 1000.
+pixel_size = 3.0 / 1000./5.
 sampling_rate = 75000.
 
 for crop_pixel in crop_pixels:
@@ -114,15 +106,14 @@ for crop_pixel in crop_pixels:
 
     # Plot the results
 
-    plt.plot((np.array(times[:]) + 0.000025)*1000., presses[:, center,  center]/1000., '-',
+    plt.plot((np.array(times[:]) + 0.000025) * 1000., presses[:, center, center] / 1000., '-',
              label="Reconstruction")
-
 
 real_press, real_time = read_exp_press_data()
 
-plt.plot(real_time*1000., real_press[:,7] * 1.e3, '--', label="Transducer",alpha=0.7)
+plt.plot(real_time * 1000., real_press[:, 7] * 1.e3, '--', label="Transducer", alpha=0.7)
 
-plt.plot(real_time*1000, gaussian_filter(real_press[:,7]* 1.e3, sigma=2. * 500. / 75.), '--',
+plt.plot(real_time * 1000, gaussian_filter(real_press[:, 7] * 1.e3, sigma=2. * 500. / 75.), '--',
          label="We should get this curve for sigma=2")
 
 plt.xlim(left=0.000, right=0.9)

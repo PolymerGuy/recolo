@@ -151,7 +151,7 @@ def int2D(igrad_x, igrad_y, idx, idy, const_at_edge=False):
     elif const_at_edge == "bottom":
         edge_mean = np.mean(aux_a3[-1, :])
     elif const_at_edge == "bottom_corners":
-        edge_mean = (np.mean(aux_a3[-3:, :3])+np.mean(aux_a3[-3:, -3:]))/2.
+        edge_mean = (np.mean(aux_a3[-3*5:, :3*5])+np.mean(aux_a3[-3*5:, -3*5:]))/2.
     else:
         edge_mean = 0.
     return aux_a3-edge_mean
