@@ -30,7 +30,7 @@ for i in np.arange(90,130):
         slope_y = slope_y[crop_pts:-crop_pts,crop_pts:-crop_pts]
         slope_x = slope_x[crop_pts:-crop_pts,crop_pts:-crop_pts]
 
-    disp_field = sparce_integration.int2D(slope_x, slope_y, 0., pixel_size, pixel_size)
+    disp_field = sparce_integration.int2D(slope_x, slope_y, pixel_size, pixel_size)
     disp_fields.append(disp_field)
 
 np.save(os.getcwd() + "/disp_fields", np.array(disp_fields))

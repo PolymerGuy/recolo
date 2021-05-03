@@ -27,7 +27,7 @@ gradient_x_cropped = gradient_x[crop:-crop,crop:-crop]
 gradient_y_cropped = gradient_y[crop:-crop,crop:-crop]
 
 # Reconstruct
-disp_field_from_slopes = sparce_integration.int2D(gradient_x_cropped, gradient_y_cropped, int_const, dx, dy)
+disp_field_from_slopes = sparce_integration.int2D(gradient_x_cropped, gradient_y_cropped, dx, dy)
 
 # Crop for comparison
 cropped_disp = disp_field[crop:-crop,crop:-crop]

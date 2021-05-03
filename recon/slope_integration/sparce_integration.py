@@ -5,11 +5,14 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import lsqr
 
 
-def int2D(igrad_x, igrad_y, iconst, idx, idy):
+def int2D(igrad_x, igrad_y, idx, idy, const_at_edge=False):
     """
     Sparse matrix integration to solve grad(a) = b for a
     Requires integration constant (= reference value at position [1,1] = iconst)
     Assumes uniform spacing
+
+    Based on:
+    https://math.stackexchange.com/questions/1340719/numerically-find-a-potential-field-from-gradient
 
     01.10.2019
 
@@ -106,7 +109,6 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy):
     ind_m = (current_length + np.arange(0, end_i, 1)) * np.ones((2, 1))
     ind_n = np.concatenate((flat_inds - 1, flat_inds + 1), axis=0)
 
-    # diffopy = 1. / (diffy[indy - 1, 0].flatten() + (diffy[indy, 0].flatten()))
     dfdy = 1. / (2. * idy) * np.ones_like(indy).flatten()
     dfdy = dfdy.transpose()[:, np.newaxis] * np.array([-1, 1])
 
@@ -134,13 +136,22 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy):
 
     # sparse matrix transformations
     A = csr_matrix((datas.flatten(), (cov_inds.flatten(), indptrs.flatten())), shape=(2 * n_x * n_y, n_x * n_y))  #
-    A_Arr = A.toarray()  #
-
-    # add integration constant
-    b2 = b - A_Arr[:, 0] * iconst
     # solve linear system, skipping the integration constant
-    aux_a2 = lsqr(A[:, 1:], b2)[0]
+    aux_a2 = lsqr(A[:, :], b)[0]
+    aux_a3 = aux_a2.reshape((n_x, n_y))
 
-    aux_a3 = np.concatenate(([iconst], aux_a2))
-
-    return aux_a3.reshape((n_x, n_y))
+    if const_at_edge == "top":
+        edge_mean =np.mean(aux_a3[0, :])
+    elif const_at_edge == "top_corners":
+        edge_mean = (np.mean(aux_a3[0, :5])+np.mean(aux_a3[0, -5:]))/2.
+    elif const_at_edge == "left":
+        edge_mean =np.mean(aux_a3[:, 0])
+    elif const_at_edge == "right":
+        edge_mean =np.mean(aux_a3[:, -1])
+    elif const_at_edge == "bottom":
+        edge_mean = np.mean(aux_a3[-1, :])
+    elif const_at_edge == "bottom_corners":
+        edge_mean = (np.mean(aux_a3[-3*5:, :3*5])+np.mean(aux_a3[-3*5:, -3*5:]))/2.
+    else:
+        edge_mean = 0.
+    return aux_a3-edge_mean
