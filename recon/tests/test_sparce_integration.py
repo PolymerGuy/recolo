@@ -30,7 +30,7 @@ class Test_integration_accuracy(TestCase):
 
         gradient_x, gradient_y = np.gradient(disp_field, dx, dy)
 
-        disp_field_from_slopes = int2D(gradient_x, gradient_y, int_const, dx, dy)
+        disp_field_from_slopes = int2D(gradient_x, gradient_y, dx, dy)
 
         rms_error = rms_diff(disp_field, disp_field_from_slopes)
         peak_error = peak_diff(disp_field, disp_field_from_slopes)
@@ -59,7 +59,7 @@ class Test_integration_accuracy(TestCase):
 
         gradient_x, gradient_y = np.gradient(disp_field, dx, dy)
 
-        disp_field_from_slopes = int2D(gradient_x, gradient_y, int_const, dx, dy)
+        disp_field_from_slopes = int2D(gradient_x, gradient_y, dx, dy)
 
         rms_error = rms_diff(disp_field, disp_field_from_slopes)
         peak_error = peak_diff(disp_field, disp_field_from_slopes)
@@ -91,7 +91,7 @@ class Test_integration_accuracy(TestCase):
 
         gradient_x, gradient_y = np.gradient(disp_field, dx, dy)
 
-        disp_field_from_slopes = int2D(gradient_x, gradient_y, int_const, dx, dy)
+        disp_field_from_slopes = int2D(gradient_x, gradient_y, dx, dy)
 
         rms_error = rms_diff(disp_field, disp_field_from_slopes)
         peak_error = peak_diff(disp_field, disp_field_from_slopes)

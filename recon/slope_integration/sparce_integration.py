@@ -4,15 +4,8 @@ from numpy import matlib
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import lsqr
 
-def mean_of_array_frame(array):
-    top = np.mean(array[0, :])
-    btm = np.mean(array[-1:, :])
-    lft = np.mean(array[:, 0])
-    right = np.mean(array[:, -1])
-    # return np.mean([top,btm,lft,right])
-    return np.mean([btm])
 
-def int2D(igrad_x, igrad_y, iconst, idx, idy,const_at_edge=False):
+def int2D(igrad_x, igrad_y, idx, idy, const_at_edge=False):
     """
     Sparse matrix integration to solve grad(a) = b for a
     Requires integration constant (= reference value at position [1,1] = iconst)
@@ -116,7 +109,6 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy,const_at_edge=False):
     ind_m = (current_length + np.arange(0, end_i, 1)) * np.ones((2, 1))
     ind_n = np.concatenate((flat_inds - 1, flat_inds + 1), axis=0)
 
-    # diffopy = 1. / (diffy[indy - 1, 0].flatten() + (diffy[indy, 0].flatten()))
     dfdy = 1. / (2. * idy) * np.ones_like(indy).flatten()
     dfdy = dfdy.transpose()[:, np.newaxis] * np.array([-1, 1])
 
@@ -144,23 +136,22 @@ def int2D(igrad_x, igrad_y, iconst, idx, idy,const_at_edge=False):
 
     # sparse matrix transformations
     A = csr_matrix((datas.flatten(), (cov_inds.flatten(), indptrs.flatten())), shape=(2 * n_x * n_y, n_x * n_y))  #
-    A_Arr = A.toarray()  #
-    # add integration constant
-    b2 = b - A_Arr[:, 0] * iconst
     # solve linear system, skipping the integration constant
-    aux_a2 = lsqr(A[:, 1:], b2)[0]
-
-    aux_a3 = np.concatenate(([iconst], aux_a2))
-    aux_a3 =  aux_a3.reshape((n_x, n_y))
+    aux_a2 = lsqr(A[:, :], b)[0]
+    aux_a3 = aux_a2.reshape((n_x, n_y))
 
     if const_at_edge == "top":
         edge_mean =np.mean(aux_a3[0, :])
+    elif const_at_edge == "top_corners":
+        edge_mean = (np.mean(aux_a3[0, :5])+np.mean(aux_a3[0, -5:]))/2.
     elif const_at_edge == "left":
         edge_mean =np.mean(aux_a3[:, 0])
     elif const_at_edge == "right":
         edge_mean =np.mean(aux_a3[:, -1])
     elif const_at_edge == "bottom":
         edge_mean = np.mean(aux_a3[-1, :])
+    elif const_at_edge == "bottom_corners":
+        edge_mean = (np.mean(aux_a3[-3:, :3])+np.mean(aux_a3[-3:, -3:]))/2.
     else:
         edge_mean = 0.
     return aux_a3-edge_mean
