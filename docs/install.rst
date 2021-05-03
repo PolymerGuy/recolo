@@ -1,6 +1,6 @@
 Installation
 =============
-In order to get started with AXITOM, you need to install it on your computer.
+In order to get started with Recon, you need to install it on your computer.
 There are two main ways to to this:
 
 *   You can install it via a package manager like PIP
@@ -15,21 +15,21 @@ and the toolkit installed.
 
 Prerequisites::
 
-    This toolkit is tested on Python 3.6
+    This toolkit is tested on Python 3.7
     We recommend the use of virtualenv
 
 Installing::
 
-    virtualenv -p python3.6 env
+    python -m venv env
     source ./env/bin/activate #On Linux and Mac OS
     env\Scripts\activate.bat #On Windows
-    pip install axitom
+    pip install recon
 
 Now the toolkit is installed and ready for use.
 
 Run the tests::
 
-    nosetests axitom
+    nosetests recon
 
 If you want to check out the examples, then download the files in the examples folder and run the examples.
 
@@ -41,12 +41,11 @@ local machine for development and testing purposes.
 
 Prerequisites::
 
-    This toolkit is tested on Python 3.6
+    This toolkit is tested on Python 3.7
     We recommend the use of virtualenv
 
 Start to clone this repo to your preferred location::
 
-   git init
    git clone https://github.com/PolymerGuy/axitom.git
 
 
@@ -55,7 +54,7 @@ We recommend that you always use virtual environments, either by virtualenv or b
 
 Virtual env::
 
-    virtualenv -p python3.6 env
+    python -m venv env
     source ./env/bin/activate #On Linux and Mac OS
     env\Scripts\activate.bat #On Windows
     pip install -r requirements.txt
@@ -63,7 +62,7 @@ Virtual env::
 
 You can now run an example::
 
-    $ python path_to_axitom/examples/comparison_to_Nikon.py
+    $ python ./examples/quickstart.py
 
 
 
@@ -74,4 +73,4 @@ These tests are integration and unit tests
 
 If you cloned the repo, you have to call pytest from within the folder::
 
-    pytest
+    pytest recon
