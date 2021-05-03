@@ -7,12 +7,10 @@ plt.style.use('science')
 
 
 def read_exp_press_data():
-    start = 25500  # + 38
+    start = 25500
     end = 26200
 
     data = np.genfromtxt("./experimentalPressures/trans_open_1.txt", skip_header=20)
-    # data = np.genfromtxt("./experimentalPressures/trans_half_1.txt", skip_header=20)
-
     time = data[start:end, 0] * 1.e-3
     time = time - time[0]
     press = data[start:end, :] / 10.
@@ -40,8 +38,7 @@ def crop_and_integrate_exp_data(crop_factor):
 
     disp_fields = []
 
-    #for i in np.arange(0, 100):
-    for i in np.arange(10, 45):
+    for i in np.arange(0, 100):
         print("Integrating frame %i cropped by %i pixels" % (i, crop_factor))
         slope_y = slopes_x[:, :, i]
         slope_x = slopes_y[:, :, i]
@@ -105,7 +102,6 @@ for crop_pixel in crop_pixels:
     center = int(presses.shape[1] / 2)
 
     # Plot the results
-
     plt.plot((np.array(times[:]) + 0.000025) * 1000., presses[:, center, center] / 1000., '-',
              label="Reconstruction")
 
