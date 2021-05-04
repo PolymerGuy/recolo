@@ -1,10 +1,5 @@
-.. AXITOM documentation master file, created by
-   sphinx-quickstart on Tue Jun 25 21:12:55 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Quick start
-==========
+===========
 
 Let's now go through the necessary steps for doing reconstruction of a tomogram based on a single image.
 First, we need to import the tools::
