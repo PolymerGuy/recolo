@@ -36,7 +36,7 @@ sampling_rate = 75000.
 times = []
 presses = []
 
-fields = recon.fields_from_experiments(data, pixel_size,sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
+fields = recon.kinematic_fields_from_experiments(data, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
 
 
 

@@ -129,8 +129,8 @@ def fields_from_abaqus_rpts(abaqus_data, downsample=False,downsample_space=None,
         return fieldStack_from_disp_fields(disp_fields, accel_field, times, plate_len_x, plate_len_y)
 
 
-def fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_space_sigma=None,
-                            filter_time_sigma=None):
+def kinematic_fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_space_sigma=None,
+                                      filter_time_sigma=None):
 
     # Copy to make in-place operations safe
     disp_fields = copy(exp_disp_field)
