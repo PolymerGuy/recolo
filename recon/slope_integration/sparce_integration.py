@@ -140,18 +140,5 @@ def int2D(igrad_x, igrad_y, idx, idy, const_at_edge=False):
     aux_a2 = lsqr(A[:, :], b)[0]
     aux_a3 = aux_a2.reshape((n_x, n_y))
 
-    if const_at_edge == "top":
-        edge_mean =np.mean(aux_a3[0, :])
-    elif const_at_edge == "top_corners":
-        edge_mean = (np.mean(aux_a3[0, :5])+np.mean(aux_a3[0, -5:]))/2.
-    elif const_at_edge == "left":
-        edge_mean =np.mean(aux_a3[:, 0])
-    elif const_at_edge == "right":
-        edge_mean =np.mean(aux_a3[:, -1])
-    elif const_at_edge == "bottom":
-        edge_mean = np.mean(aux_a3[-1, :])
-    elif const_at_edge == "bottom_corners":
-        edge_mean = (np.mean(aux_a3[-3*5:, :3*5])+np.mean(aux_a3[-3*5:, -3*5:]))/2.
-    else:
-        edge_mean = 0.
-    return aux_a3-edge_mean
+
+    return aux_a3
