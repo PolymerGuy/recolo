@@ -53,8 +53,8 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapola
         slope_x = slope_x[::downsample, ::downsample]
 
         if extrapolate_edge > 0:
-            slope_x = np.pad(slope_x, pad_width=(-extrapolate_edge, -extrapolate_edge), mode="edge")
-            slope_y = np.pad(slope_y, pad_width=(-extrapolate_edge, -extrapolate_edge), mode="edge")
+            slope_x = np.pad(slope_x, pad_width=(extrapolate_edge, extrapolate_edge), mode="edge")
+            slope_y = np.pad(slope_y, pad_width=(extrapolate_edge, extrapolate_edge), mode="edge")
 
         disp_field = int2D(slope_x, slope_y, pixel_size * downsample, pixel_size * downsample)
 
