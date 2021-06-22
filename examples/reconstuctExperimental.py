@@ -17,7 +17,7 @@ def read_exp_press_data():
     return press - press[0], time
 
 
-data = -np.load("disp_fields.npy")
+abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
 
 # plate and model parameters
 mat_E = 190.e9  # Young's modulus [Pa]

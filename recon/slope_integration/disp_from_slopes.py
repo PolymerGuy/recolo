@@ -60,8 +60,8 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapola
 
         if zero_at == "top":
             edge_mean = np.mean(disp_field[0, :])
-        elif zero_at == "top_corners":
-            edge_mean = (np.mean(disp_field[0, :5]) + np.mean(disp_field[0, -5:])) / 2.
+        elif zero_at == "top corners":
+            edge_mean = (np.mean(disp_field[:3, :3]) + np.mean(disp_field[:3, -3:])) / 2.
         elif zero_at == "left":
             edge_mean = np.mean(disp_field[:, 0])
         elif zero_at == "right":
