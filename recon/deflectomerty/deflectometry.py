@@ -6,6 +6,7 @@ from scipy.ndimage import map_coordinates
 import matplotlib.pyplot as plt
 import muDIC as dic
 from skimage.restoration import unwrap_phase
+from scipy.signal.windows import triang
 
 
 def gaussian_window(win_size):
@@ -15,12 +16,22 @@ def gaussian_window(win_size):
     return conv_matrix / conv_matrix.sum()
 
 
-def detect_phase(img, grid_pitch, boundary="symm"):
+def triangular_window(win_size):
+    t_noy = np.floor(win_size)
+    g1 = triang(2 * t_noy - 1)
+    conv_matrix = np.outer(g1, g1)
+    raise NotImplementedError("The triangular window does not yield valid results")
+    return conv_matrix / conv_matrix.sum()
+
+
+def detect_phase(img, grid_pitch, window="gaussian", boundary="symm"):
     s_x, s_y = np.shape(img)
     fc = 2. * np.pi / float(grid_pitch)
 
-    # Gaussian window
-    conv_matrix = gaussian_window(grid_pitch)
+    if window == "triangular":
+        conv_matrix = triangular_window(grid_pitch)
+    else:
+        conv_matrix = gaussian_window(grid_pitch)
 
     xs, ys = np.meshgrid(np.arange(s_y), np.arange(s_x))
 
@@ -64,6 +75,44 @@ def disp_from_phase(phase, phase_0, grid_pitch, small_disp=True, maxit=10, axis=
         return u_first
 
 
+def disp_from_phase_both(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, small_disp=True, maxit=10, axis=None,
+                         tol=1e-5, unwrap=True):
+    if unwrap is False:
+        def unwrap_phase(x, *args, **kwargs):
+            return x
+
+    if small_disp:
+        u_x = -grid_pitch * unwrap_phase(2 * np.angle(phase_x / phase_x_0), wrap_around=True, seed=0) / 2. / 2. / np.pi
+        u_y = -grid_pitch * unwrap_phase(2 * np.angle(phase_y / phase_y_0), wrap_around=True, seed=0) / 2. / 2. / np.pi
+        return u_x, u_y
+
+    if not small_disp:
+        n_x, n_y = phase_x.shape
+        xs, ys = np.meshgrid(np.arange(n_y), np.arange(n_x))
+        u_x = -grid_pitch * unwrap_phase(2 * np.angle(phase_x / phase_x_0), wrap_around=True, seed=0) / 2. / 2. / np.pi
+        u_y = -grid_pitch * unwrap_phase(2 * np.angle(phase_y / phase_y_0), wrap_around=True, seed=0) / 2. / 2. / np.pi
+
+        u_x_first = u_x
+        u_y_first = u_y
+        for i in range(maxit):
+            phase_x_n = map_coordinates(phase_x, [ys + u_y, xs + u_x], order=4, mode="mirror")
+            phase_y_n = map_coordinates(phase_y, [ys + u_y, xs + u_x], order=4, mode="mirror")
+
+            u_x_last = u_x.copy()
+            u_y_last = u_y.copy()
+            u_x = -grid_pitch * unwrap_phase(2 * np.angle(phase_x_n / phase_x_0), wrap_around=True,
+                                             seed=0) / 2. / 2. / np.pi
+            u_y = -grid_pitch * unwrap_phase(2 * np.angle(phase_y_n / phase_y_0), wrap_around=True,
+                                             seed=0) / 2. / 2. / np.pi
+            if np.max(np.abs(u_x - u_x_last)) < tol and np.max(np.abs(u_y - u_y_last)) < tol:
+                print("Phase correction converged in %i iterations with %.6f and %.6f pixels" % (
+                i, np.max(np.abs(u_x_first - u_x)), np.max(np.abs(u_y_first - u_y))))
+                return u_x, u_y
+
+        print("Large displacement correction diverged, returning uncorrected frame")
+        return u_x_first, u_x_first
+
+
 def angle_from_disp(disp, mirror_grid_dist):
     return np.arctan(disp / mirror_grid_dist) / 2.
 
@@ -100,10 +149,15 @@ def slopes_from_grid_imgs(path_to_grid_imgs, grid_pitch, pixel_size_on_grid_plan
 
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
 
-        disp_x_from_phase = pixel_size_on_grid_plane * disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=True,
-                                                                       axis=0)
-        disp_y_from_phase = pixel_size_on_grid_plane * disp_from_phase(phase_y, phase_y0, grid_pitch, small_disp=True,
-                                                                       axis=1)
+        # disp_x_from_phase = pixel_size_on_grid_plane * disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=False,
+        #                                                                axis=0)
+        # disp_y_from_phase = pixel_size_on_grid_plane * disp_from_phase(phase_y, phase_y0, grid_pitch, small_disp=False,
+        #                                                                axis=1)
+
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
+                                                                    small_disp=False, unwrap=True)
+        disp_x_from_phase = disp_x_from_phase * pixel_size_on_grid_plane
+        disp_y_from_phase = disp_y_from_phase * pixel_size_on_grid_plane
 
         print("Largest displacement is %f pixels" % disp_from_phase(phase_y, phase_y0, grid_pitch).max())
 
