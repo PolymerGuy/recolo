@@ -1,45 +1,44 @@
-from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase, disp_from_phase_both
-
+from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase
 from unittest import TestCase
 import numpy as np
 import matplotlib.pyplot as plt
-import muDIC as dic
 
 
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2)) ** 2.)
 
-def harmonic_disp_field(disp_amp,disp_n_periodes):
+
+def harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="Lagrangian"):
+    x = np.arange(disp_n_periodes * disp_period, dtype=float)
+    y = np.arange(disp_n_periodes * disp_period, dtype=float)
+
+    xs, ys = np.meshgrid(x, y)
+    Xs, Ys = np.meshgrid(x, y)
+
     displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
     displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
 
-    grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=pixel_size)
+    if formulation == "eulerian":
+        return xs, ys, (xs - displacement_x), (ys - displacement_y)
 
-    xs_disp = xs - displacement_x
-    ys_disp = ys - displacement_y
+    if formulation == "lagrangian":
+        tol = 1.e-12
+        for i in range(20):
+            Xs = Xs - (xs - Xs - disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max())) / (
+                    -1 - disp_amp * np.cos(
+                disp_n_periodes * 2. * np.pi * Xs / xs.max()) / xs.max() / disp_n_periodes)
+            Ys = Ys - (ys - Ys - disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / ys.max())) / (
+                    -1 - disp_amp * np.cos(
+                disp_n_periodes * 2. * np.pi * Ys / ys.max()) / ys.max() / disp_n_periodes)
 
-    tol = 1.e-12
-    for i in range(20):
-        Xs = Xs - (xs - Xs - disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max())) / (
-                -1 - disp_amp * np.cos(
-            disp_n_periodes * 2. * np.pi * Xs / xs.max()) / xs.max() / disp_n_periodes)
-        Ys = Ys - (ys - Ys - disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / ys.max())) / (
-                -1 - disp_amp * np.cos(
-            disp_n_periodes * 2. * np.pi * Ys / ys.max()) / ys.max() / disp_n_periodes)
+            errors_x = np.max(np.abs(Xs + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max()) - xs))
+            errors_y = np.max(np.abs(Ys + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / xs.max()) - ys))
 
-        errors_x = np.max(np.abs(Xs + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max()) - xs))
-        errors_y = np.max(np.abs(Ys + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / xs.max()) - ys))
-        # print(errors_x)
-        # print(errors_y)
+            if errors_x < tol and errors_y < tol:
+                print("Coordinate correction converged in %i iterations" % i)
+                break
+        return xs, ys, Xs, Ys
 
-        if errors_x < tol and errors_y < tol:
-            print("Coordinate correction converged in %i iterations" % i)
-            break
-
-    print("Lagrange vs Eulerian correction is %f" % np.max(np.abs(xs_disp - Xs)))
-
-    xs_disp = Xs
-    ys_disp = Ys
 
 def grid_grey_scales(xs, ys, pitch, pixel_size=1, oversampling=1):
     if np.mod(oversampling, 2) == 0:
@@ -82,8 +81,8 @@ class Test_PhaseDetection(TestCase):
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                    small_disp=True)
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
+                                                               small_disp=True)
 
         max_rel_error_x = np.max(np.abs(disp_x_from_phase - displacement_x)) / displacement_x
         max_rel_error_y = np.max(np.abs(disp_y_from_phase - displacement_y)) / displacement_y
@@ -118,8 +117,8 @@ class Test_PhaseDetection(TestCase):
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                    small_disp=False)
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
+                                                               small_disp=False)
 
         max_rel_error_x = np.max(np.abs(disp_x_from_phase - displacement_x)) / displacement_x
         max_rel_error_y = np.max(np.abs(disp_y_from_phase - displacement_y)) / displacement_y
@@ -140,26 +139,17 @@ class Test_PhaseDetection(TestCase):
         disp_period = 100
         disp_n_periodes = 2
 
-        x = np.arange(disp_n_periodes * disp_period, dtype=float)
-        y = np.arange(disp_n_periodes * disp_period, dtype=float)
-
-        xs, ys = np.meshgrid(x, y)
-
-        displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
-        displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
+        xs, ys, xs_disp, ys_disp = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="eulerian")
 
         grid_undeformed = grid_grey_scales(xs, ys, grid_pitch)
-
-        xs_disp = xs - displacement_x
-        ys_disp = ys - displacement_y
 
         grid_displaced_eulr = grid_grey_scales(xs_disp, ys_disp, grid_pitch)
 
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                    small_disp=True)
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
+                                                               small_disp=True)
 
         peak_disp_x = np.max(np.abs(disp_x_from_phase))
         peak_disp_y = np.max(np.abs(disp_y_from_phase))
@@ -179,42 +169,18 @@ class Test_PhaseDetection(TestCase):
         disp_period = 200
         disp_n_periodes = 1
 
-        x = np.arange(disp_n_periodes * disp_period, dtype=float)
-        y = np.arange(disp_n_periodes * disp_period, dtype=float)
+        xs, ys, xs_disp, ys_disp = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="lagrangian")
 
-        pixel_size = x[1] - x[0]
-
-        xs, ys = np.meshgrid(x, y)
-
-        displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
-        displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
-
-        grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=pixel_size)
-
-        xs_disp = xs - displacement_x
-        ys_disp = ys - displacement_y
+        grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
         grid_displaced_eulr = grid_grey_scales(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
-                                               pixel_size=pixel_size)
+                                               pixel_size=1)
 
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                    small_disp=True)
-
-        disp_x_from_phase_uncor = disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=True, axis=0)
-
-        print("Correction is %f" % np.max(np.abs(disp_x_from_phase_uncor - disp_x_from_phase)))
-
-        plt.imshow(disp_x_from_phase)
-        plt.show()
-
-        plt.imshow(disp_x_from_phase_uncor)
-        plt.show()
-
-        plt.imshow(disp_y_from_phase)
-        plt.show()
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
+                                                               small_disp=False)
 
         peak_disp_x = np.max(np.abs(disp_x_from_phase))
         peak_disp_y = np.max(np.abs(disp_y_from_phase))
@@ -232,37 +198,20 @@ class Test_PhaseDetection(TestCase):
 
         disp_amp = 1.7
         disp_period = 500
-        disp_n_periodes = 1.0
+        disp_n_periodes = 0.5
 
-        x = np.arange(disp_n_periodes * disp_period, dtype=float)
-        y = np.arange(disp_n_periodes * disp_period, dtype=float)
+        xs, ys, xs_disp, ys_disp = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="lagrangian")
 
-        pixel_size = x[1] - x[0]
-
-        xs, ys = np.meshgrid(x, y)
-
-        displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
-        displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
-
-        grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=pixel_size)
-
-        xs_disp = xs - displacement_x
-        ys_disp = ys - displacement_y
+        grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
         grid_displaced_eulr = grid_grey_scales(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
-                                               pixel_size=pixel_size)
+                                               pixel_size=1)
 
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-        # disp_y_from_phase = disp_from_phase(phase_y, phase_y0, grid_pitch, small_disp=True, axis=1)
-        # disp_x_from_phase = disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=True, axis=0)
-
-        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                    small_disp=False)
-
-        plt.imshow(disp_x_from_phase)
-        plt.show()
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
+                                                               small_disp=False)
 
         peak_disp_x = np.max(np.abs(disp_x_from_phase))
         peak_disp_y = np.max(np.abs(disp_y_from_phase))
@@ -273,8 +222,6 @@ class Test_PhaseDetection(TestCase):
             self.fail("Amplitude loss of %f" % (1. - peak_disp_x / disp_amp))
 
     def test_phase_correction(self):
-        acceptable_amp_loss = 0.02
-
         grid_pitch = 5
         oversampling = 15
 
@@ -283,49 +230,28 @@ class Test_PhaseDetection(TestCase):
         amp_uncor = []
         diff = []
         for disp_amp in disp_amps:
-            # disp_amp = 3.57
             disp_period = 200
             disp_n_periodes = 1
 
-            x = np.arange(disp_n_periodes * disp_period, dtype=float)
-            y = np.arange(disp_n_periodes * disp_period, dtype=float)
+            xs, ys, xs_disp, ys_disp = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
+                                                           formulation="lagrangian")
 
-            pixel_size = x[1] - x[0]
-
-            xs, ys = np.meshgrid(x, y)
-
-            displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
-            displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
-
-            grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=pixel_size)
-
-            xs_disp = xs - displacement_x
-            ys_disp = ys - displacement_y
+            grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
             grid_displaced_eulr = grid_grey_scales(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
-                                                   pixel_size=pixel_size)
+                                                   pixel_size=1)
 
             phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
             phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-            # disp_x_from_phase = disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=False, axis=0)
-            # disp_y_from_phase = disp_from_phase(phase_y, phase_y0, grid_pitch, small_disp=False, axis=1)
+            disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
+                                                                   grid_pitch, small_disp=False)
 
-            disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0,
-                                                                        grid_pitch, small_disp=False)
-
-            disp_x_from_phase_uncor = disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=True, axis=0)
+            disp_x_from_phase_uncor, disp_y_from_phase_uncor = disp_from_phase(phase_x, phase_x0, phase_y,
+                                                                               phase_y0,
+                                                                               grid_pitch, small_disp=True)
 
             print("Correction is %f" % np.max(np.abs(disp_x_from_phase_uncor - disp_x_from_phase)))
-
-            # plt.imshow(disp_x_from_phase)
-            # plt.show()
-
-            # plt.imshow(disp_x_from_phase_uncor)
-            # plt.show()
-
-            # plt.imshow(disp_y_from_phase)
-            # plt.show()
 
             peak_disp_x = np.max(np.abs(disp_x_from_phase))
             peak_disp_x_uncor = np.max(np.abs(disp_x_from_phase_uncor))
@@ -345,79 +271,58 @@ class Test_PhaseDetection(TestCase):
         # plt.plot(disp_amps,amp_uncor,label="Uncorrected")
         plt.show()
 
-        # if np.abs((peak_disp_x / disp_amp) - 1.) > acceptable_amp_loss:
-        #     self.fail("Amplitude loss of  %f" % np.abs((peak_disp_x / disp_amp) - 1.))
-        # if np.abs((peak_disp_y / disp_amp) - 1.) > acceptable_amp_loss:
-        #     self.fail("Amplitude loss of %f" % peak_disp_y)
-
     def test_Euler_vs_Lagrange(self):
         acceptable_amp_loss = 0.1
 
         grid_pitch = 5
         oversampling = 9
 
-        disp_amp = 1.
+        disp_amps = np.arange(0.1,2.0,0.1)
         disp_period = 500
         disp_n_periodes = 0.5
 
-        x = np.arange(disp_n_periodes * disp_period, dtype=float)
-        y = np.arange(disp_n_periodes * disp_period, dtype=float)
+        diff = []
+        for disp_amp in disp_amps:
 
-        pixel_size = x[1] - x[0]
+            xs, ys, xs_disp_eulr, ys_disp_eulr = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
+                                                           formulation="eulerian")
 
-        xs, ys = np.meshgrid(x, y)
-        Xs, Ys = np.meshgrid(x, y)
+            xs, ys, xs_disp_lagr, ys_disp_lagr = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
+                                                           formulation="lagrangian")
 
-        displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
-        displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
+            grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-        grid_undeformed = grid_grey_scales(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=pixel_size)
+            grid_displaced_eulr = grid_grey_scales(xs_disp_eulr, ys_disp_eulr, grid_pitch, oversampling=oversampling,
+                                                   pixel_size=1)
+            grid_displaced_lagr = grid_grey_scales(xs_disp_lagr, ys_disp_lagr, grid_pitch, oversampling=oversampling,
+                                                   pixel_size=1)
 
-        xs_disp = xs - displacement_x
-        ys_disp = ys - displacement_y
+            phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+            phase_x_eulr, phase_y_eulr = detect_phase(grid_displaced_eulr, grid_pitch)
+            phase_x_lagr, phase_y_lagr = detect_phase(grid_displaced_lagr, grid_pitch)
 
-        tol = 1.e-12
-        for i in range(20):
-            Xs = Xs - (xs - Xs - disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max())) / (
-                    -1 - disp_amp * np.cos(
-                disp_n_periodes * 2. * np.pi * Xs / xs.max()) / xs.max() / disp_n_periodes)
-            Ys = Ys - (ys - Ys - disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / ys.max())) / (
-                    -1 - disp_amp * np.cos(
-                disp_n_periodes * 2. * np.pi * Ys / ys.max()) / ys.max() / disp_n_periodes)
 
-            errors_x = np.max(np.abs(Xs + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max()) - xs))
-            errors_y = np.max(np.abs(Ys + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / xs.max()) - ys))
-            # print(errors_x)
-            # print(errors_y)
+            disp_x_eulr, disp_y_eulr = disp_from_phase(phase_x_eulr, phase_x0, phase_y_eulr, phase_y0, grid_pitch,
+                                                       small_disp=False)
 
-            if errors_x < tol and errors_y < tol:
-                print("Coordinate correction converged in %i iterations" % i)
-                break
+            disp_x_lagr, disp_y_lagr = disp_from_phase(phase_x_lagr, phase_x0, phase_y_eulr, phase_y0, grid_pitch,
+                                                       small_disp=False)
 
-        print("Lagrange vs Eulerian correction is %f" % np.max(np.abs(xs_disp - Xs)))
+            peak_disp_x_eulr = np.max(np.abs(disp_x_eulr))
+            peak_disp_y_eulr = np.max(np.abs(disp_y_eulr))
 
-        xs_disp = Xs
-        ys_disp = Ys
+            peak_disp_x_lagr = np.max(np.abs(disp_x_lagr))
+            peak_disp_y_lagr = np.max(np.abs(disp_y_lagr))
 
-        grid_displaced_eulr = grid_grey_scales(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
-                                               pixel_size=pixel_size)
+            diff.append(np.mean(np.abs(peak_disp_x_eulr-peak_disp_x_lagr)))
 
-        phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
-        phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
-
-        disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                    small_disp=False)
-
-        plt.imshow(disp_x_from_phase)
+        plt.plot(disp_amps,diff)
         plt.show()
 
-        peak_disp_x = np.max(np.abs(disp_x_from_phase))
-        peak_disp_y = np.max(np.abs(disp_y_from_phase))
-
-        if np.abs((peak_disp_x / disp_amp) - 1.) > acceptable_amp_loss:
-            self.fail("Amplitude loss of  %f" % (1. - peak_disp_x / disp_amp))
-        if np.abs((peak_disp_y / disp_amp) - 1.) > acceptable_amp_loss:
-            self.fail("Amplitude loss of %f" % (1. - peak_disp_x / disp_amp))
+        # if np.abs((peak_disp_x_eulr / disp_amp) - 1.) > acceptable_amp_loss:
+        #     self.fail("Amplitude loss of  %f" % (1. - peak_disp_x_eulr / disp_amp))
+        # if np.abs((peak_disp_y_eulr / disp_amp) - 1.) > acceptable_amp_loss:
+        #     self.fail("Amplitude loss of %f" % (1. - peak_disp_x_eulr / disp_amp))
 
     def test_bandwidth(self):
 
@@ -448,9 +353,9 @@ class Test_PhaseDetection(TestCase):
             phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
             phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-            disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0,
-                                                                        grid_pitch,
-                                                                        small_disp=False)
+            disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
+                                                                   grid_pitch,
+                                                                   small_disp=False)
 
             peak_disp_x.append(np.max(disp_x_from_phase))
             peak_disp_y.append(np.max(disp_y_from_phase))
@@ -496,9 +401,9 @@ class Test_PhaseDetection(TestCase):
                 phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
                 phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-                disp_x_from_phase, disp_y_from_phase = disp_from_phase_both(phase_x, phase_x0, phase_y, phase_y0,
-                                                                            grid_pitch,
-                                                                            small_disp=False)
+                disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
+                                                                       grid_pitch,
+                                                                       small_disp=False)
 
                 peak_disp_x.append(np.max(disp_x_from_phase))
                 peak_disp_y.append(np.max(disp_y_from_phase))
@@ -553,8 +458,9 @@ class Test_PhaseDetection(TestCase):
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch_assumed)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch_assumed)
 
-        disp_x_from_phase = disp_from_phase(phase_x, phase_x0, grid_pitch_assumed)
-        disp_y_from_phase = disp_from_phase(phase_y, phase_y0, grid_pitch_assumed)
+        disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
+                                                               grid_pitch_assumed,
+                                                               small_disp=False)
 
         plt.imshow(disp_x_from_phase)
         plt.show()

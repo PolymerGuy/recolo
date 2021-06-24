@@ -35,7 +35,7 @@ pixel_size_on_grid_plane = grid_pitch_len / grid_pitch
 pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
 
 ref_img_ids = range(50, 60)
-use_imgs = range(80, 150)
+use_imgs = range(90, 130)
 
 slopes_x, slopes_y = recon.deflectomerty.slopes_from_grid_imgs(path, grid_pitch, pixel_size_on_grid_plane,
                                                                mirror_grid_distance, ref_img_ids=ref_img_ids,
@@ -45,13 +45,12 @@ disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel
                                                        zero_at="bottom corners",
                                                        extrapolate_edge=0, filter_sigma=2, downsample=1)
 
-
 # Results are stored in these lists
 times = []
 presses = []
 
 fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=0,
-                                                 filter_space_sigma=0)
+                                                 filter_space_sigma=10)
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
 
 for i, field in enumerate(fields):
