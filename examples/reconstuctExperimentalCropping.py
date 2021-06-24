@@ -18,14 +18,13 @@ rho = 7934.
 plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
 
 # pressure reconstruction parameters
-win_size = 12
+win_size = 30
 sampling_rate = 75000.
 
 # Load slope fields and calculate displacement fields
 
 
 path = "/home/sindreno/gridmethod_Rene/images_full_2"
-img_paths = recon.utils.list_files_in_folder(path, file_type=".tif", abs_path=True)
 
 grid_pitch = 5.08  # pixels
 grid_pitch_len = 5.88 / 1000.  # m
@@ -33,19 +32,19 @@ grid_pitch_len = 5.88 / 1000.  # m
 mirror_grid_distance = 1.37  # m
 
 pixel_size_on_grid_plane = grid_pitch_len / grid_pitch
-pixel_size_on_mirror = grid_pitch_len/grid_pitch * 0.5
+pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
 
+ref_img_ids = range(50, 60)
+use_imgs = range(80, 150)
 
-ref_img_ids = range(50,60)
-use_imgs = range(50, 150)
-
-slopes_y, slopes_x = recon.deflectomerty.slopes_from_grid_imgs_dic(path, grid_pitch, pixel_size_on_grid_plane,
+slopes_x, slopes_y = recon.deflectomerty.slopes_from_grid_imgs(path, grid_pitch, pixel_size_on_grid_plane,
                                                                mirror_grid_distance, ref_img_ids=ref_img_ids,
-                                                               only_img_ids=use_imgs)
-pixel_size_on_mirror = pixel_size_on_mirror * 12.3
+                                                               only_img_ids=use_imgs, crop=(10, -10, 0, -1))
 
-disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror, zero_at="top corners",
+disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
+                                                       zero_at="bottom corners",
                                                        extrapolate_edge=0, filter_sigma=2, downsample=1)
+
 
 # Results are stored in these lists
 times = []
