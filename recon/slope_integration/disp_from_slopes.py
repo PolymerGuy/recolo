@@ -69,7 +69,7 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapola
         elif zero_at == "bottom":
             edge_mean = np.mean(disp_field[-1, :])
         elif zero_at == "bottom corners":
-            edge_mean = (np.mean(disp_field[-3:, :3]) + np.mean(disp_field[-3:, -3:])) / 2.
+            edge_mean = (np.mean(disp_field[-15:, :15]) + np.mean(disp_field[-15:, -15:])) / 2.
         else:
             raise ValueError("No valid zero_at received")
 
