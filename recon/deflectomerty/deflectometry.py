@@ -51,14 +51,14 @@ def disp_from_phases(phase, phase0, grid_pitch, unwrap=True):
         return -grid_pitch * np.angle(phase / phase0) / 2. / np.pi
 
 
-def disp_from_phase(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, small_disp=True, maxit=10, tol=1e-5,
+def disp_from_phase(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, correct_phase=True, maxit=10, tol=1e-5,
                     unwrap=True):
-    if small_disp:
+    if not correct_phase:
         u_x = disp_from_phases(phase_x, phase_x_0, grid_pitch, unwrap)
         u_y = disp_from_phases(phase_y, phase_y_0, grid_pitch, unwrap)
         return u_x, u_y
 
-    if not small_disp:
+    if correct_phase:
         n_x, n_y = phase_x.shape
         xs, ys = np.meshgrid(np.arange(n_y), np.arange(n_x))
         u_x = disp_from_phases(phase_x, phase_x_0, grid_pitch, unwrap)
@@ -120,7 +120,7 @@ def slopes_from_grid_imgs(path_to_grid_imgs, grid_pitch, pixel_size_on_grid_plan
         phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                               small_disp=False, unwrap=True)
+                                                               correct_phase=False, unwrap=True)
         disp_x_from_phase = disp_x_from_phase * pixel_size_on_grid_plane
         disp_y_from_phase = disp_y_from_phase * pixel_size_on_grid_plane
 

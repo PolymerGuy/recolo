@@ -77,9 +77,9 @@ phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
 
 
-disp_x_from_phase = disp_from_phase(phase_x, phase_x0, grid_pitch, small_disp=True, axis=0)
-disp_X_from_phase = disp_from_phase(phase_X, phase_x0, grid_pitch, small_disp=True, axis=0)
-disp_y_from_phase = disp_from_phase(phase_y, phase_y0, grid_pitch, small_disp=True, axis=1)
+disp_x_from_phase = disp_from_phase(phase_x, phase_x0, grid_pitch, correct_phase=True, axis=0)
+disp_X_from_phase = disp_from_phase(phase_X, phase_x0, grid_pitch, correct_phase=True, axis=0)
+disp_y_from_phase = disp_from_phase(phase_y, phase_y0, grid_pitch, correct_phase=True, axis=1)
 
 plt.plot(disp_x_from_phase[50,:],label="x")
 plt.plot(disp_X_from_phase[50,:],label="X")
