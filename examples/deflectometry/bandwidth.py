@@ -1,0 +1,54 @@
+from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase
+from recon.artificial_grid_deformation import harmonic_disp_field, make_grid
+import numpy as np
+import matplotlib.pyplot as plt
+
+grid_pitch = 5
+rel_error_tol = 1e-3
+peak_disp_x = []
+peak_disp_y = []
+disp_periodes = np.arange(25, 200, 5)
+for disp_period in disp_periodes:
+    disp_amp = 0.01
+    disp_n_periodes = 2
+
+    x = np.arange(disp_n_periodes * disp_period, dtype=float)
+    y = np.arange(disp_n_periodes * disp_period, dtype=float)
+
+    xs, ys = np.meshgrid(x, y)
+
+    displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * xs / xs.max())
+    displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * ys / ys.max())
+
+    grid_undeformed = make_grid(xs, ys, grid_pitch)
+
+    xs_disp = xs - displacement_x
+    ys_disp = ys - displacement_y
+
+    grid_displaced_eulr = make_grid(xs_disp, ys_disp, grid_pitch)
+
+    phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
+    phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+
+    disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
+                                                           grid_pitch,
+                                                           correct_phase=True)
+
+    peak_disp_x.append(np.max(disp_x_from_phase))
+    peak_disp_y.append(np.max(disp_y_from_phase))
+
+peak_disp_x = np.array(peak_disp_x)
+peak_disp_y = np.array(peak_disp_y)
+
+theoretical_bias = np.exp(-2. * np.pi ** 2. * grid_pitch ** 2. * (1. / np.array(disp_periodes)) ** 2.)
+
+plt.plot(disp_periodes, peak_disp_x / disp_amp, label="Grid pitch: %i" % grid_pitch)
+plt.plot(disp_periodes, theoretical_bias, label="Theoretical bias")
+
+plt.xlabel("Displacement periode [pix]")
+plt.ylabel("Normalized displacement amplitude [-]")
+plt.title("Displacement bandwidth for an amplitude of %.4f pixels " % disp_amp)
+
+plt.hlines(0.9, np.min(disp_periodes), np.max(disp_periodes), linestyles="--")
+plt.legend()
+plt.show()
