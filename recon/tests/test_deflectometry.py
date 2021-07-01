@@ -148,10 +148,10 @@ class Test_PhaseDetection(TestCase):
         u_x = u_x[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
         u_y = u_y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
 
-        plt.imshow(disp_x_from_phase)
-        plt.show()
-        plt.imshow(u_x)
-        plt.show()
+        # plt.imshow(disp_x_from_phase)
+        # plt.show()
+        # plt.imshow(u_x)
+        # plt.show()
 
         rms_error_u_x = rms_diff(u_x, disp_x_from_phase)
         rms_error_u_y = rms_diff(u_y, disp_y_from_phase)
@@ -171,7 +171,7 @@ class Test_PhaseDetection(TestCase):
         disp_period = 500
         disp_n_periodes = 0.5
 
-        xs, ys, xs_disp, ys_disp = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="lagrangian")
+        xs, ys, xs_disp, ys_disp,_,_ = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="lagrangian")
 
         grid_undeformed = make_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
