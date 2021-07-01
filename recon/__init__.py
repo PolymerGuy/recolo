@@ -7,3 +7,4 @@ from .data_import import *
 from recon.fieldstack import *
 from .plate import calculate_plate_stiffness
 from .slope_integration import sparce_integration
+from .artificial_grid_deformation import *
