@@ -2,6 +2,7 @@ from unittest import TestCase
 import numpy as np
 from recon.slope_integration import int2D
 
+
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2)) ** 2.)
 
@@ -21,7 +22,6 @@ class Test_integration_accuracy(TestCase):
         plate_len_x, plate_len_y, = 1.5, 1.5
         dx = plate_len_x / n_pts_x
         dy = plate_len_y / n_pts_y
-
 
         xs, ys = np.meshgrid(np.linspace(0., 1., n_pts_x), np.linspace(0., 1., n_pts_y))
 
@@ -70,7 +70,7 @@ class Test_integration_accuracy(TestCase):
             disp_field = disp_field + noise_field * noise_amp
             gradient_x, gradient_y = np.gradient(disp_field, dx, dy)
 
-            disp_field_from_slopes = int2D(gradient_x, gradient_y, int_const, dx, dy)
+            disp_field_from_slopes = int2D(gradient_x, gradient_y, dx, dy)
 
             rms_error = rms_diff(disp_field, disp_field_from_slopes)
             peak_error = peak_diff(disp_field, disp_field_from_slopes)
@@ -130,7 +130,7 @@ class Test_integration_accuracy(TestCase):
 
         xs, ys = np.meshgrid(np.linspace(0., 1., n_pts_x), np.linspace(0., 1., n_pts_y))
 
-        disp_field = amp * np.sin(n_periods_x * np.pi * xs) * np.sin(n_periods_y* np.pi * ys)
+        disp_field = amp * np.sin(n_periods_x * np.pi * xs) * np.sin(n_periods_y * np.pi * ys)
 
         gradient_x, gradient_y = np.gradient(disp_field, dx, dy)
 

@@ -4,7 +4,23 @@ import matplotlib.pyplot as plt
 
 
 def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
-    # Solves x =X +u(X) for X
+    """
+    Solves x = X + u(X) for X.
+    This is done by solving  x - X - u(X) = 0 using a Newton scheme with numerically calculated gradients.
+
+    Parameters
+    ----------
+    xs
+    ys
+    disp_func
+    tol
+    maxit
+
+    Returns
+    -------
+    Xs, Ys
+    """
+    #
     # Note that disp_func is now a smooth function
     Xs = xs.copy()
     Ys = ys.copy()
@@ -47,6 +63,28 @@ def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
 
 
 def interpolated_disp_field(u_x, u_y, dx, dy, order=3, mode="nearest"):
+    """
+    Interpolate fields given by u_x and u_y by means of B-splines
+    Parameters
+    ----------
+    u_x : ndarray
+        The displacement field along the x-axis
+    u_y : ndarray
+        The displacement field along the y-axis
+    dx : float
+        Step size along the x-axis
+    dy : float
+        Step size along the y-axis
+    order : int
+        Interpolation order
+    mode : string
+        Interpolation mode.
+
+    Returns
+    -------
+    interp_u_x, interp_u_y : func
+        The B-spline interpolators for u_x and u_y
+    """
     def interpolated_disp_func(xs, ys):
         int_u_x = map_coordinates(u_x, [ys / dy, xs / dx], mode=mode, order=order)
         int_u_y = map_coordinates(u_y, [ys / dy, xs / dx], mode=mode, order=order)

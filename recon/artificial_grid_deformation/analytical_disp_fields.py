@@ -24,11 +24,14 @@ def harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="Lag
                 disp_n_periodes * 2. * np.pi * Ys / ys.max()) / ys.max() / disp_n_periodes)
 
             errors_x = np.max(np.abs(Xs + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max()) - xs))
-            errors_y = np.max(np.abs(Ys + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / xs.max()) - ys))
+            errors_y = np.max(np.abs(Ys + disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / ys.max()) - ys))
 
             if errors_x < tol and errors_y < tol:
                 print("Coordinate correction converged in %i iterations" % i)
                 break
+        displacement_x = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Xs / xs.max())
+        displacement_y = disp_amp * np.sin(disp_n_periodes * 2. * np.pi * Ys / ys.max())
+
         return xs, ys, Xs, Ys, displacement_x, displacement_y
     else:
         raise ValueError("formulation has to be lagrangian or eulerian")

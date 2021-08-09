@@ -1,17 +1,14 @@
 from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase
-from recon.artificial_grid_deformation import harmonic_disp_field, make_grid
+from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
 from unittest import TestCase
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2) ** 2.))
 
 
-
-
-class Test_PhaseDetection(TestCase):
+class Test_PixelDisplacementMeasurement(TestCase):
 
     def test_rigid_body_motion_small_disp(self):
 
@@ -28,14 +25,15 @@ class Test_PhaseDetection(TestCase):
 
         xs, ys = np.meshgrid(x, y)
 
-        grid_undeformed = make_grid(xs, ys, grid_pitch)
+        grid_undeformed = make_dotted_grid(xs, ys, grid_pitch)
 
+        # x = X + u(X) can be solved directly as u(X) is a constant
         xs_disp = xs - displacement_x
         ys_disp = ys - displacement_y
 
-        grid_displaced_eulr = make_grid(xs_disp, ys_disp, grid_pitch)
+        grid_deformed = make_dotted_grid(xs_disp, ys_disp, grid_pitch)
 
-        phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
+        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
@@ -64,14 +62,15 @@ class Test_PhaseDetection(TestCase):
 
         xs, ys = np.meshgrid(x, y)
 
-        grid_undeformed = make_grid(xs, ys, grid_pitch)
+        grid_undeformed = make_dotted_grid(xs, ys, grid_pitch)
 
+        # x = X + u(X) can be solved directly as u(X) is a constant
         xs_disp = xs - displacement_x
         ys_disp = ys - displacement_y
 
-        grid_displaced_eulr = make_grid(xs_disp, ys_disp, grid_pitch)
+        grid_deformed = make_dotted_grid(xs_disp, ys_disp, grid_pitch)
 
-        phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
+        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
@@ -81,14 +80,12 @@ class Test_PhaseDetection(TestCase):
         max_rel_error_y = np.max(np.abs(disp_y_from_phase - displacement_y)) / displacement_y
 
         if max_rel_error_x > rel_error_tol:
-            plt.imshow(disp_x_from_phase)
-            plt.show()
             self.fail("Maximum error was %f" % max_rel_error_x)
         if max_rel_error_y > rel_error_tol:
             self.fail("Maximum error was %f" % max_rel_error_y)
 
     def test_sine_small_disp(self):
-        relative_error = 5e-3
+        relative_error = 1e-2
         oversampling = 9
 
         grid_pitch = 5
@@ -97,24 +94,24 @@ class Test_PhaseDetection(TestCase):
         disp_period = 400
         disp_n_periodes = 1
 
-        xs, ys, xs_disp, ys_disp, u_x, u_y = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
+        x_undef, y_undef, Xs, Ys, u_X, u_Y = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                                  formulation="lagrangian")
 
-        grid_undeformed = make_grid(xs, ys, grid_pitch, oversampling=oversampling)
+        grid_undeformed = make_dotted_grid(x_undef, y_undef, grid_pitch, oversampling=oversampling)
 
-        grid_displaced_eulr = make_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling)
+        grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling)
 
-        phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
+        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
                                                                correct_phase=False)
 
-        u_x = u_x[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
-        u_y = u_y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
+        u_X = u_X[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
+        u_Y = u_Y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
 
-        rms_error_u_x = rms_diff(u_x, disp_x_from_phase)
-        rms_error_u_y = rms_diff(u_y, disp_y_from_phase)
+        rms_error_u_x = rms_diff(u_X, disp_x_from_phase)
+        rms_error_u_y = rms_diff(u_Y, disp_y_from_phase)
 
         if rms_error_u_x / disp_amp > relative_error:
             self.fail("RMS error in u_x is %f" % (rms_error_u_x / disp_amp))
@@ -122,39 +119,34 @@ class Test_PhaseDetection(TestCase):
             self.fail("RMS error in u_x is %f" % (rms_error_u_y / disp_amp))
 
     def test_sine_large_disp(self):
-        relative_error = 5e-3
+        relative_error = 1e-2
 
         grid_pitch = 5
-        oversampling = 15
+        oversampling = 9
 
-        disp_amp = 3.57
+        disp_amp = 1.57
         disp_period = 400
         disp_n_periodes = 1
 
-        xs, ys, xs_disp, ys_disp, u_x, u_y = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
+        xs_undef, ys_undef, Xs, Ys, u_X, u_Y = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                                  formulation="lagrangian")
 
-        grid_undeformed = make_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
+        grid_undeformed = make_dotted_grid(xs_undef, ys_undef, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-        grid_displaced_eulr = make_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
+        grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
                                                pixel_size=1)
 
-        phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
+        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
                                                                correct_phase=True)
 
-        u_x = u_x[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
-        u_y = u_y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
+        u_X = u_X[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
+        u_Y = u_Y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
 
-        # plt.imshow(disp_x_from_phase)
-        # plt.show()
-        # plt.imshow(u_x)
-        # plt.show()
-
-        rms_error_u_x = rms_diff(u_x, disp_x_from_phase)
-        rms_error_u_y = rms_diff(u_y, disp_y_from_phase)
+        rms_error_u_x = rms_diff(u_X, disp_x_from_phase)
+        rms_error_u_y = rms_diff(u_Y, disp_y_from_phase)
 
         if rms_error_u_x / disp_amp > relative_error:
             self.fail("RMS error in u_x is %f" % (rms_error_u_x / disp_amp))
@@ -171,14 +163,15 @@ class Test_PhaseDetection(TestCase):
         disp_period = 500
         disp_n_periodes = 0.5
 
-        xs, ys, xs_disp, ys_disp,_,_ = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes, formulation="lagrangian")
+        xs_undef, ys_undef, Xs, Ys, _, _ = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
+                                                             formulation="lagrangian")
 
-        grid_undeformed = make_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
+        grid_undeformed = make_dotted_grid(xs_undef, ys_undef, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-        grid_displaced_eulr = make_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
+        grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
                                                pixel_size=1)
 
-        phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
+        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
         phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
@@ -191,5 +184,3 @@ class Test_PhaseDetection(TestCase):
             self.fail("Amplitude loss of  %f" % (1. - peak_disp_x / disp_amp))
         if np.abs((peak_disp_y / disp_amp) - 1.) > acceptable_amp_loss:
             self.fail("Amplitude loss of %f" % (1. - peak_disp_x / disp_amp))
-
-
