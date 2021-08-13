@@ -218,7 +218,7 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x
         accel_field = np.gradient(vel_fields, axis=0) / time_step_size
 
     else:
-        accel_field = np.array(acceleration_fields)[:, 1:-1, 1:-1]
+        accel_field = np.array(acceleration_fields)#[:, 1:-1, 1:-1]
 
     deflection = np.array(deflection)
     slopes_x = np.array(slopes_x)

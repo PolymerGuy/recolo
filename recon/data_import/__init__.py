@@ -23,7 +23,7 @@ def list_files_in_folder(path, file_type=".rpt"):
 
 AbaqusData = namedtuple("AbaqusSimulation",["disp_fields", "accel_fields", "times", "plate_len_x", "plate_len_y","npts_x","npts_y"])
 
-def load_abaqus_rpts(path_to_rpts):
+def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
 
     rpt_file_paths = list_files_in_folder(path_to_rpts,file_type=".rpt")
     print("Reading %i Abaqus .rpt files"%len(rpt_file_paths))
@@ -31,7 +31,12 @@ def load_abaqus_rpts(path_to_rpts):
     disp_fields = []
     accel_fields = []
     times = []
+
+    if use_only_img_ids is not None:
+        rpt_file_paths = [path for i,path in enumerate(rpt_file_paths) if i in use_only_img_ids]
+
     for file_name in rpt_file_paths:
+        print("Reading: %s "%file_name)
         path_to_rpt = os.path.join(path_to_rpts,file_name)
         field_data = np.genfromtxt(path_to_rpt, dtype=float,
                                    skip_header=19)

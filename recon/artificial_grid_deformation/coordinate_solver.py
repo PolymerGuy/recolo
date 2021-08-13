@@ -20,8 +20,7 @@ def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
     -------
     Xs, Ys
     """
-    #
-    # Note that disp_func is now a smooth function
+
     Xs = xs.copy()
     Ys = ys.copy()
 
@@ -46,7 +45,6 @@ def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
     for i in range(maxit):
         jac_inv = np.linalg.inv(jacobian(Xs, Ys, dx, dy))
         res = np.einsum('ijkl,kij->ijl', jac_inv, np.array(func(Xs, Ys)))
-        u, _ = func(Xs, Ys)
         dXs = res[:, :, 0]
         dYs = res[:, :, 1]
 

@@ -134,3 +134,6 @@ def slopes_from_grid_imgs(path_to_grid_imgs, grid_pitch, pixel_size_on_grid_plan
     slopes_y = np.moveaxis(slopes_y, 0, -1)
 
     return slopes_x, slopes_y
+
+
+
