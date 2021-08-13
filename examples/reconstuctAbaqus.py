@@ -5,9 +5,9 @@ import numpy as np
 def read_exp_press_data():
     import numpy as np
 
-    start = 25550
+    start = 25550+38
     end = 26200
-    data = np.genfromtxt("./examples/experimentalPressures/trans_open_1.txt", skip_header=20)
+    data = np.genfromtxt("/home/sindreno/Downloads/Rene/Valid_0.125_3.txt", skip_header=20)
 
     time = data[start:end, 0] * 1.e-3
     time = time - time[0]
@@ -29,7 +29,7 @@ win_size = 30
 abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
 
 
-fields = recon.fields_from_abaqus_rpts(abq_sim_fields, downsample=5,downsample_space=2, accel_from_disp=True, filter_time_sigma=0,
+fields = recon.fields_from_abaqus_rpts(abq_sim_fields, downsample=1,downsample_space=1, accel_from_disp=True, filter_time_sigma=0,
                                        noise_amp_sigma=None)
 
 
