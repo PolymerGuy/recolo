@@ -3,7 +3,7 @@ from recon.slope_integration.sparce_integration import int2D
 from scipy.ndimage import gaussian_filter
 
 
-def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapolate_edge=0, filter_sigma=0, downsample=1):
+def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom",zero_at_size=1, extrapolate_edge=0, filter_sigma=0, downsample=1):
     """ Calculate displacement fields by integrating slope fields using sparse matrix integration.
         The slopes can be filtered by a gaussian low-pass filter, downsampled and extrapolated before integration.
         Parameters
@@ -19,6 +19,8 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapola
             Note that the boundary condition is not enforced exactly.
             Keywords:
                 "top", "top_corners", "left", "right", "bottom", "bottom_corners"
+        zero_at_size : int
+            If zero_at is set to a corner, a rectangluar window with side lengths of zero_at_size  are used.
         extrapolate_edge : int
             Extrapolate edge by n-pixels by padding with the boundary values
         filter_sigma : float
@@ -61,7 +63,7 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapola
         if zero_at == "top":
             edge_mean = np.mean(disp_field[0, :])
         elif zero_at == "top corners":
-            edge_mean = (np.mean(disp_field[:3, :3]) + np.mean(disp_field[:3, -3:])) / 2.
+            edge_mean = (np.mean(disp_field[:zero_at_size, :zero_at_size]) + np.mean(disp_field[:zero_at_size, -zero_at_size:])) / 2.
         elif zero_at == "left":
             edge_mean = np.mean(disp_field[:, 0])
         elif zero_at == "right":
@@ -69,7 +71,7 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom", extrapola
         elif zero_at == "bottom":
             edge_mean = np.mean(disp_field[-1, :])
         elif zero_at == "bottom corners":
-            edge_mean = (np.mean(disp_field[-15:, :15]) + np.mean(disp_field[-15:, -15:])) / 2.
+            edge_mean = (np.mean(disp_field[-zero_at_size:, :zero_at_size]) + np.mean(disp_field[-zero_at_size:, -zero_at_size:])) / 2.
         else:
             raise ValueError("No valid zero_at received")
 
