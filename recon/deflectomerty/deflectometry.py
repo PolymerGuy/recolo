@@ -5,7 +5,7 @@ from matplotlib.pyplot import imread
 from scipy.ndimage import map_coordinates
 from scipy.signal.windows import triang
 from skimage.restoration import unwrap_phase
-
+import logging
 
 def gaussian_window(win_size):
     t_noy = np.ceil(4 * win_size)
@@ -53,6 +53,8 @@ def disp_from_phases(phase, phase0, grid_pitch, unwrap=True):
 
 def disp_from_phase(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, correct_phase=True, maxit=10, tol=1e-5,
                     unwrap=True):
+    logger = logging.getLogger(__name__)
+
     if not correct_phase:
         u_x = disp_from_phases(phase_x, phase_x_0, grid_pitch, unwrap)
         u_y = disp_from_phases(phase_y, phase_y_0, grid_pitch, unwrap)
@@ -75,11 +77,11 @@ def disp_from_phase(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, correct_
             u_x = disp_from_phases(phase_x_n, phase_x_0, grid_pitch, unwrap)
             u_y = disp_from_phases(phase_y_n, phase_y_0, grid_pitch, unwrap)
             if np.max(np.abs(u_x - u_x_last)) < tol and np.max(np.abs(u_y - u_y_last)) < tol:
-                print("Phase correction converged in %i iterations correcting %.6f and %.6f pixels" % (
+                logger.info("Phase correction converged in %i iterations correcting %.6f and %.6f pixels" % (
                     i, np.max(np.abs(u_x_first - u_x)), np.max(np.abs(u_y_first - u_y))))
                 return u_x, u_y
 
-        print("Large displacement correction diverged, returning uncorrected frame")
+        logger.info("Large displacement correction diverged, returning uncorrected frame")
         return u_x_first, u_x_first
 
 
@@ -137,3 +139,14 @@ def slopes_from_grid_imgs(path_to_grid_imgs, grid_pitch, pixel_size_on_grid_plan
 
 
 
+def deflectometry_from_grid(grid_undeformed, grid_deformed, mirror_grid_dist, grid_pitch):
+    phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
+    phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+
+    disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
+                                                                               grid_pitch, correct_phase=True)
+
+    slopes_x = angle_from_disp(disp_x_from_phase, mirror_grid_dist)
+    slopes_y = angle_from_disp(disp_y_from_phase, mirror_grid_dist)
+
+    return slopes_x, slopes_y

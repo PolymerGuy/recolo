@@ -44,7 +44,7 @@ times = []
 presses = []
 for i, field in enumerate(fields):
     print("Processing frame %i" % i)
-    recon_press = recon.solver.plate_iso_qs_lin(field, plate, virtual_field)
+    recon_press = recon.solver.pressure_elastic_thin_plate(field, plate, virtual_field)
     presses.append(recon_press)
     times.append(field.time)
 

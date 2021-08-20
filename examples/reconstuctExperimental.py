@@ -36,7 +36,7 @@ sampling_rate = 75000.
 times = []
 presses = []
 
-fields = recon.kinematic_fields_from_experiments(data, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
+fields = recon.kinematic_fields_from_deflections(data, pixel_size, sampling_rate, filter_time_sigma=2, filter_space_sigma=0)
 
 
 
@@ -44,7 +44,7 @@ virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
 for i, field in enumerate(fields):
     print("Processing frame %i" % i)
-    recon_press = recon.solver.plate_iso_qs_lin(field, plate, virtual_field)
+    recon_press = recon.solver.pressure_elastic_thin_plate(field, plate, virtual_field)
 
     presses.append(recon_press)
     times.append(field.time)

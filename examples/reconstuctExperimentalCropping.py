@@ -49,13 +49,13 @@ disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel
 times = []
 presses = []
 
-fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=2,
+fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=2,
                                                  filter_space_sigma=10)
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
 
 for i, field in enumerate(fields):
     print("Processing frame %i" % i)
-    recon_press = recon.solver.plate_iso_qs_lin(field, plate, virtual_field)
+    recon_press = recon.solver.pressure_elastic_thin_plate(field, plate, virtual_field)
     presses.append(recon_press)
     times.append(field.time)
 

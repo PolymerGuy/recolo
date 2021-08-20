@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from scipy.ndimage import map_coordinates
 
@@ -19,6 +21,8 @@ def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
     -------
     Xs, Ys
     """
+
+    logger = logging.getLogger(__name__)
 
     Xs = xs.copy()
     Ys = ys.copy()
@@ -51,8 +55,7 @@ def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
         Ys = Ys - dYs
 
         if np.max(np.abs(dXs)) < tol and np.max(np.abs(dYs)) < tol:
-            print("Converged in %i iterations with a final residual of: " % i)
-            print(np.max(np.abs(np.array(func(Xs, Ys)))))
+            logger.info("Converged in %i iterations with a final residual of: " % np.max(np.abs(np.array(func(Xs, Ys)))))
             return Xs, Ys
 
     raise ValueError("Did not converge to %f in %i iterations" % (tol, i))

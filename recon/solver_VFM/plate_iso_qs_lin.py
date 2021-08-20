@@ -3,7 +3,7 @@ from scipy import ndimage
 from scipy.signal import convolve2d
 
 
-def plate_iso_qs_lin(fields, plate, virtual_field, shift=False):
+def pressure_elastic_thin_plate(fields, plate, virtual_field, shift=False):
     A11 = convolve2d(fields.curv_xx, virtual_field.okxxfield, mode="valid") + convolve2d(fields.curv_yy,
                                                                                          virtual_field.okyyfield,
                                                                                          mode="valid") + 2. * convolve2d(

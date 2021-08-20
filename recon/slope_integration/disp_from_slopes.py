@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from recon.slope_integration.sparce_integration import int2D
 from scipy.ndimage import gaussian_filter
@@ -9,9 +11,9 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom",zero_at_si
         Parameters
         ----------
         slopes_x : np.ndarray
-            Slope field with shape (n_pix_x,n_pix_y,n_frames)
+            Slope field with shape (n_frames,n_pix_x,n_pix_y)
         slopes_y : np.ndarray
-            Slope field with shape (n_pix_x,n_pix_y,n_frames)
+            Slope field with shape (n_frames,n_pix_x,n_pix_y)
         pixel_size : float
             The size of a pixel in slopes_x and slopes_y
         zero_at : string
@@ -31,12 +33,13 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom",zero_at_si
         Returns
         -------
         ndarray
-            The displacement fields with shape (n_pix_x,n_pix_y,n_frames)
+            The displacement fields with shape (n_frames,n_pix_x,n_pix_y)
         """
+    logger = logging.getLogger(__name__)
 
     if slopes_x.ndim != 3 or slopes_y.ndim != 3:
-        raise ValueError("The slope fields have to have the shape (n_pix_x,n_pix_y,n_frames)")
-    n_pix_x, n_pix_y, n_frames = slopes_x.shape
+        raise ValueError("The slope fields have to have the shape (n_frames,n_pix_x,n_pix_y)")
+    n_frames,n_pix_x, n_pix_y = slopes_x.shape
 
     if type(downsample) != int or downsample < 1:
         raise ValueError("The downsampling factor has to be an integer larger or equal to 1")
@@ -44,9 +47,9 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom",zero_at_si
     disp_fields = []
 
     for i in range(n_frames):
-        print("Integrating frame %i cropped by %i pixels" % (i, extrapolate_edge))
-        slope_y = slopes_y[:, :, i]
-        slope_x = slopes_x[:, :, i]
+        logger.info("Integrating frame %i cropped by %i pixels" % (i, extrapolate_edge))
+        slope_y = slopes_y[i,:, :]
+        slope_x = slopes_x[i,:, :]
 
         slope_y = gaussian_filter(slope_y, sigma=filter_sigma)
         slope_x = gaussian_filter(slope_x, sigma=filter_sigma)

@@ -3,6 +3,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter, gaussian_filter1d
 from copy import copy
 from collections import namedtuple
+import logging
 
 
 class FieldStack(object):
@@ -129,9 +130,9 @@ def fields_from_abaqus_rpts(abaqus_data, downsample=False,downsample_space=None,
         return fieldStack_from_disp_fields(disp_fields, accel_field, times, plate_len_x, plate_len_y)
 
 
-def kinematic_fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_space_sigma=None,
+def kinematic_fields_from_deflections(exp_disp_field, pixel_size, sampling_rate,acceleration_field=None, filter_space_sigma=None,
                                       filter_time_sigma=None):
-
+    logger = logging.getLogger(__name__)
     # Copy to make in-place operations safe
     disp_fields = copy(exp_disp_field)
 
@@ -142,14 +143,19 @@ def kinematic_fields_from_experiments(exp_disp_field, pixel_size, sampling_rate,
     field_len_y = n_pts_y * pixel_size
 
     if filter_time_sigma:
-        print("Filtering in time with sigma=%f" % float(filter_time_sigma))
+        logger.info("Filtering in time with sigma=%f" % float(filter_time_sigma))
         disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0, mode="nearest")
 
     if filter_space_sigma:
         for i in range(len(disp_fields)):
-            print("Filtering frame %i" % i)
+            logger.info("Filtering frame %i" % i)
             disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
-    return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
+
+    if acceleration_field is not None:
+        logger.info("Acceleration fields were given by the user and does not correspond to filtered displacements")
+        return fieldStack_from_disp_fields(disp_fields, acceleration_field, times, field_len_x, field_len_y)
+    else:
+        return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
 
 
 def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
