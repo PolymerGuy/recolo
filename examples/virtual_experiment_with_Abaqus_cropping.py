@@ -24,7 +24,7 @@ def deform_grid_from_deflection(deflection_field, pixel_size, mirror_grid_dist, 
     else:
         disp_fields = deflection_field
 
-    slopes_x, slopes_y = np.gradient(disp_fields, pixel_size)
+    slopes_x, slopes_y = np.gradient(disp_fields, pixel_size/float(upscale))
     u_x = slopes_x * mirror_grid_dist * 2.
     u_y = slopes_y * mirror_grid_dist * 2.
 
@@ -64,18 +64,18 @@ plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
 
 mirror_grid_dist = 500.
 
+
 #crops = [0, 2, 4]
 crops = np.arange(0,5)
+crops = [0]
 peak_presses = []
 for crop in crops:
 
-    use_img_ids = np.arange(0, 300)
-    abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/", use_only_img_ids=use_img_ids)
+    abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
 
     upscale = 4
-    n_frames, n_pix_x, n_pix_y = abq_sim_fields.disp_fields.shape
-    n_pix_x *= upscale
-    n_pix_y *= upscale
+
+    pixel_size = abq_sim_fields.pixel_size_x/upscale
 
     disp_fields = abq_sim_fields.disp_fields
 
@@ -88,28 +88,27 @@ for crop in crops:
 
     # Load slope fields and calculate displacement fields
     grid_pitch = 5.  # pixels
-    pixel_size_x = abq_sim_fields.plate_len_x / n_pix_x  # m
 
     if deflectometry:
-        undeformed_grid = deform_grid_from_deflection(disp_fields[0, :, :], pixel_size_x, mirror_grid_dist, grid_pitch,
+        undeformed_grid = deform_grid_from_deflection(disp_fields[0, :, :], abq_sim_fields.pixel_size_x, mirror_grid_dist, grid_pitch,
                                                       upscale=upscale)
         sloppes_x = []
         sloppes_y = []
-        for i in range(n_frames):
-            print(i)
-            deformed_grid = deform_grid_from_deflection(disp_fields[i, :, :], pixel_size_x, mirror_grid_dist,
+        for disp_field in disp_fields:
+            deformed_grid = deform_grid_from_deflection(disp_field[:, :], abq_sim_fields.pixel_size_x, mirror_grid_dist,
                                                         grid_pitch,
                                                         upscale=upscale)
             slopes_x, slopes_y = deflectometry_from_grid(undeformed_grid, deformed_grid, mirror_grid_dist, grid_pitch)
             sloppes_x.append(slopes_x)
             sloppes_y.append(slopes_y)
+
         slopes_x = np.array(sloppes_x)
         slopes_y = np.array(sloppes_y)
 
     slopes_x = np.moveaxis(slopes_x, 0, -1)
     slopes_y = np.moveaxis(slopes_y, 0, -1)
 
-    disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_x,
+    disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
                                                            zero_at="bottom corners", zero_at_size=5,
                                                            extrapolate_edge=0, filter_sigma=0, downsample=1)
 
@@ -117,11 +116,11 @@ for crop in crops:
     times = []
     presses = []
 
-    fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size_x, sampling_rate,
+    fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size, sampling_rate,
                                                      filter_time_sigma=2,
                                                      filter_space_sigma=0)
 
-    virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_x)
+    virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
 
     for i, field in enumerate(fields):
         print("Processing frame %i" % i)
