@@ -42,14 +42,14 @@ slopes_x, slopes_y = recon.deflectomerty.slopes_from_grid_imgs(path, grid_pitch,
                                                                only_img_ids=use_imgs, crop=(10, -10, 0, -1))
 
 disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
-                                                       zero_at="bottom corners",
+                                                       zero_at="bottom corners",zero_at_size=5,
                                                        extrapolate_edge=0, filter_sigma=2, downsample=1)
 
 # Results are stored in these lists
 times = []
 presses = []
 
-fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=0,
+fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=2,
                                                  filter_space_sigma=10)
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
 

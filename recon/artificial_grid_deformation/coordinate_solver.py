@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.ndimage import map_coordinates
-import matplotlib.pyplot as plt
 
 
 def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):

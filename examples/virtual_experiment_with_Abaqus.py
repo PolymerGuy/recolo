@@ -17,13 +17,18 @@ def read_exp_press_data(experiment="open channel"):
     press = data[start:end, :] / 10.
     return press - press[0, :], time
 
-def deform_grid_from_deflection(deflection_field, pixel_size, mirror_grid_dist, grid_pitch, upscale=1,oversampling=5):
-    disp_fields = zoom(deflection_field, upscale, prefilter=True, order=3)
+
+def deform_grid_from_deflection(deflection_field, pixel_size, mirror_grid_dist, grid_pitch, upscale=4, oversampling=5):
+    if upscale > 1:
+        disp_fields = zoom(deflection_field, upscale, prefilter=True, order=3)
+    else:
+        disp_fields = deflection_field
 
     slopes_x, slopes_y = np.gradient(disp_fields, pixel_size)
     u_x = slopes_x * mirror_grid_dist * 2.
     u_y = slopes_y * mirror_grid_dist * 2.
 
+    n_pix_x, n_pix_y = disp_fields.shape
     xs, ys = np.meshgrid(np.arange(n_pix_x), np.arange(n_pix_y))
 
     interp_u = recon.artificial_grid_deformation.interpolated_disp_field(u_x, u_y, dx=1, dy=1, order=3, mode="nearest")
@@ -34,7 +39,8 @@ def deform_grid_from_deflection(deflection_field, pixel_size, mirror_grid_dist, 
 
     return grid_deformed
 
-def deflectometry_from_grid(grid_undeformed,grid_deformed,mirror_grid_dist,grid_pitch):
+
+def deflectometry_from_grid(grid_undeformed, grid_deformed, mirror_grid_dist, grid_pitch):
     phase_x, phase_y = recon.deflectomerty.detect_phase(grid_deformed, grid_pitch)
     phase_x0, phase_y0 = recon.deflectomerty.detect_phase(grid_undeformed, grid_pitch)
 
@@ -44,7 +50,7 @@ def deflectometry_from_grid(grid_undeformed,grid_deformed,mirror_grid_dist,grid_
     slopes_x = recon.deflectomerty.angle_from_disp(disp_x_from_phase, mirror_grid_dist)
     slopes_y = recon.deflectomerty.angle_from_disp(disp_y_from_phase, mirror_grid_dist)
 
-    return slopes_x,slopes_y
+    return slopes_x, slopes_y
 
 
 deflectometry = True
@@ -61,22 +67,15 @@ mirror_grid_dist = 500.
 use_img_ids = np.arange(0, 300)
 abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/", use_only_img_ids=use_img_ids)
 
-upscale = 8
+upscale = 4
 n_frames, n_pix_x, n_pix_y = abq_sim_fields.disp_fields.shape
+n_pix_x *= upscale
+n_pix_y *= upscale
 
-disp_fields = []
-for i in range(n_frames):
-    disp_fields.append(zoom(abq_sim_fields.disp_fields[i, :, :], upscale, prefilter=True, order=3))
+disp_fields = abq_sim_fields.disp_fields
 
-disp_fields = np.array(disp_fields)
+#disp_fields = disp_fields[:,5:-5,5:-5]
 
-#disp_fields = disp_fields[:, 20:-20, 20:-20]
-
-n_frames, n_pix_x, n_pix_y = disp_fields.shape
-
-print(disp_fields.shape)
-
-print(n_pix_x, n_pix_y)
 
 # pressure reconstruction parameters
 win_size = 30
@@ -86,52 +85,34 @@ sampling_rate = 1. / (abq_sim_fields.times[1] - abq_sim_fields.times[0])
 grid_pitch = 5.  # pixels
 pixel_size_x = abq_sim_fields.plate_len_x / n_pix_x  # m
 
-pixel_size_on_mirror = 1
+#slopes_x, slopes_y = np.gradient(disp_fields, pixel_size_x, axis=(1, 2))
 
-slopes_x, slopes_y = np.gradient(disp_fields, pixel_size_x, axis=(1, 2))
+#sloppes_x = []
+#for i in range(n_frames):
+#    sloppes_x.append(zoom(slopes_x[i, :, :], upscale, prefilter=True, order=3))
+#slopes_x = np.array(sloppes_x)
 
-slopes_x_cp = slopes_x
-
-print("shape of slopes is ", slopes_x.shape)
+#sloppes_y = []
+#for i in range(n_frames):
+#    sloppes_y.append(zoom(slopes_y[i, :, :], upscale, prefilter=True, order=3))
+#slopes_y = np.array(sloppes_y)
 
 # Stuff
+
 if deflectometry:
-    xs, ys = np.meshgrid(np.arange(n_pix_x), np.arange(n_pix_y))
-
-    u_x = slopes_x * mirror_grid_dist * 2.
-    u_y = slopes_y * mirror_grid_dist * 2.
-    dx = 1
-
-    grid_undeformed = recon.artificial_grid_deformation.make_dotted_grid(xs, ys, grid_pitch, oversampling=5)
-
+    undeformed_grid = deform_grid_from_deflection(disp_fields[0, :, :], pixel_size_x, mirror_grid_dist, grid_pitch,
+                                                  upscale=upscale)
     sloppes_x = []
     sloppes_y = []
     for i in range(n_frames):
         print(i)
-        print("U_x peak is %f" % u_x[i, :, :].max())
-
-        interp_u = recon.artificial_grid_deformation.interpolated_disp_field(u_x[i, :, :], u_y[i, :, :], dx=dx, dy=dx,
-                                                                             order=3, mode="nearest")
-
-        Xs, Ys = recon.artificial_grid_deformation.find_coords_in_undef_conf(xs, ys, interp_u, tol=1e-9)
-
-        grid_deformed = recon.artificial_grid_deformation.make_dotted_grid(Xs, Ys, grid_pitch, oversampling=5)
-
-        phase_x, phase_y = recon.deflectomerty.detect_phase(grid_deformed, grid_pitch)
-        phase_x0, phase_y0 = recon.deflectomerty.detect_phase(grid_undeformed, grid_pitch)
-
-        disp_x_from_phase, disp_y_from_phase = recon.deflectomerty.disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
-                                                                                   grid_pitch, correct_phase=True)
-
-        slopes_x = recon.deflectomerty.angle_from_disp(disp_x_from_phase, mirror_grid_dist)
-        slopes_y = recon.deflectomerty.angle_from_disp(disp_y_from_phase, mirror_grid_dist)
-
+        deformed_grid = deform_grid_from_deflection(disp_fields[i, :, :], pixel_size_x, mirror_grid_dist, grid_pitch,
+                                                    upscale=upscale)
+        slopes_x, slopes_y = deflectometry_from_grid(undeformed_grid, deformed_grid, mirror_grid_dist, grid_pitch)
         sloppes_x.append(slopes_x)
         sloppes_y.append(slopes_y)
-
     slopes_x = np.array(sloppes_x)
     slopes_y = np.array(sloppes_y)
-    print("shape of slopes is ", slopes_x.shape)
 
 slopes_x = np.moveaxis(slopes_x, 0, -1)
 slopes_y = np.moveaxis(slopes_y, 0, -1)
@@ -140,12 +121,6 @@ disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel
                                                        zero_at="bottom corners", zero_at_size=5,
                                                        extrapolate_edge=0, filter_sigma=0, downsample=1)
 
-# plt.imshow(disp_fields[4])
-# plt.show()
-
-# disp_fields = abq_sim_fields.disp_fields
-
-
 # Results are stored in these lists
 times = []
 presses = []
@@ -153,8 +128,6 @@ presses = []
 fields = recon.kinematic_fields_from_experiments(disp_fields, pixel_size_x, sampling_rate,
                                                  filter_time_sigma=0 * 2. * 500. / 75.,
                                                  filter_space_sigma=0)
-
-
 
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_x)
 
@@ -172,7 +145,7 @@ plt.plot((np.array(times[:])) * 1000., presses[:, center, center], '-', )
 
 real_press, real_time = read_exp_press_data(experiment="open channel")
 
-plt.plot(real_time[::3] * 1000., real_press[::3, 8] * 1.e6, '--', label="Transducer", alpha=0.7)
+plt.plot(real_time[:] * 1000., real_press[:, 8] * 1.e6, '--', label="Transducer", alpha=0.7)
 
 plt.plot(real_time * 1000, gaussian_filter(real_press[:, 8] * 1.e6, sigma=2. * 500. / 75.), '--',
          label="We should get this curve for sigma=2")

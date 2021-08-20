@@ -21,7 +21,7 @@ def list_files_in_folder(path, file_type=".rpt"):
 
 
 
-AbaqusData = namedtuple("AbaqusSimulation",["disp_fields", "accel_fields", "times", "plate_len_x", "plate_len_y","npts_x","npts_y"])
+AbaqusData = namedtuple("AbaqusSimulation",["disp_fields", "accel_fields","slope_x_fields","slope_y_fields", "times", "plate_len_x", "plate_len_y","npts_x","npts_y"])
 
 def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
 
@@ -29,6 +29,8 @@ def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
     print("Reading %i Abaqus .rpt files"%len(rpt_file_paths))
 
     disp_fields = []
+    slope_x_fields = []
+    slope_y_fields = []
     accel_fields = []
     times = []
 
@@ -48,6 +50,8 @@ def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
         node_coord_y = field_data[:, 2]
         node_disp_z = field_data[:, 3]
         node_acceleration_z = field_data[:, 4]
+        node_slope_x = field_data[:, 5]
+        node_slope_y = field_data[:, 6]
 
         # All data is assumed to be sampled on a square grid
         seed = int(node_disp_z.size ** 0.5)
@@ -57,12 +61,16 @@ def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
 
         disp_field = -node_disp_z.reshape((seed, seed)) * 1e-3
         accel_field = -node_acceleration_z.reshape((seed, seed)) * 1e-3
+        slope_x_field = -node_slope_x.reshape((seed, seed)) * 1e-3
+        slope_y_field = -node_slope_y.reshape((seed, seed)) * 1e-3
+
 
         disp_fields.append(disp_field)
         accel_fields.append(accel_field)
         times.append(float(time))
+        slope_x_fields.append(slope_x_field)
+        slope_y_fields.append(slope_y_field)
     npts_x = np.shape(disp_fields)[1]
     npts_y = np.shape(disp_fields)[2]
 
-    #return np.array(disp_fields), np.array(accel_fields), times, plate_len_x, plate_len_y
-    return AbaqusData(np.array(disp_fields), np.array(accel_fields), times, plate_len_x, plate_len_y,npts_x,npts_y)
+    return AbaqusData(np.array(disp_fields), np.array(accel_fields),np.array(slope_x_fields),np.array(slope_y_fields), times, plate_len_x, plate_len_y,npts_x,npts_y)
