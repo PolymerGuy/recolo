@@ -21,7 +21,7 @@ def list_files_in_folder(path, file_type=".rpt"):
 
 
 
-AbaqusData = namedtuple("AbaqusSimulation",["disp_fields", "accel_fields","slope_x_fields","slope_y_fields", "times", "plate_len_x", "plate_len_y","npts_x","npts_y"])
+AbaqusData = namedtuple("AbaqusSimulation",["disp_fields", "accel_fields","slope_x_fields","slope_y_fields", "times", "plate_len_x", "plate_len_y","npts_x","npts_y","pixel_size_x","pixel_size_y"])
 
 def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
 
@@ -72,5 +72,7 @@ def load_abaqus_rpts(path_to_rpts,use_only_img_ids=None):
         slope_y_fields.append(slope_y_field)
     npts_x = np.shape(disp_fields)[1]
     npts_y = np.shape(disp_fields)[2]
+    pixel_size_x = plate_len_x/float(npts_x)
+    pixel_size_y = plate_len_y/float(npts_y)
 
-    return AbaqusData(np.array(disp_fields), np.array(accel_fields),np.array(slope_x_fields),np.array(slope_y_fields), times, plate_len_x, plate_len_y,npts_x,npts_y)
+    return AbaqusData(np.array(disp_fields), np.array(accel_fields),np.array(slope_x_fields),np.array(slope_y_fields), times, plate_len_x, plate_len_y,npts_x,npts_y,pixel_size_x,pixel_size_y)
