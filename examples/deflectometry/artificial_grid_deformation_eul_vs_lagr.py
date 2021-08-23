@@ -3,6 +3,14 @@ from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_g
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# Comparison of a Eulerian and Lagrangian formulation for the displacements used in artificial grid deformation. The
+# current coordinates x = X + u(X) is here referred to as the Lagrangian formulation the current coordinates x = X +
+# u(x) is here referred to as the Eulerian formulation. When the grid is to be deformed the grey scale values are
+# sampled at X and the sensor is fixed in space with coordinates x. Thisnecessitates solving x = X + u(X) for X when
+# the Lagrangian formulation is used.
+
+
 grid_pitch = 5
 oversampling = 9
 

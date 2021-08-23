@@ -3,6 +3,9 @@ from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_g
 import numpy as np
 import matplotlib.pyplot as plt
 
+# The displacement field is determined from the phase fields but has to be corrected for finite displacements.
+# This script compares the displacement results with and without this correction.
+
 grid_pitch = 5
 oversampling = 15
 

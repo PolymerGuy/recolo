@@ -3,6 +3,10 @@ from recon.artificial_grid_deformation import make_dotted_grid
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Test of the bandwith of the grid method. This is done by deforming a grid with a harmonic displacement field with
+# increasing frequency and determining the peak amplitude. This is here done for different grid pitches.
+
+
 grid_pitches = [5, 7, 9, 11]
 disp_amp = 0.01
 

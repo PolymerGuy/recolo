@@ -1,7 +1,11 @@
 from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase
-from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
+from recon.artificial_grid_deformation import make_dotted_grid
 import numpy as np
 import matplotlib.pyplot as plt
+
+# Test of the bandwith of the grid method. This is done by deforming a grid with a harmonic displacement field with
+# increasing frequency and determining the peak amplitude.
+
 
 grid_pitch = 5
 rel_error_tol = 1e-3
