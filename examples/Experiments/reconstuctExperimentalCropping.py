@@ -2,7 +2,7 @@ import recon
 import numpy as np
 from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
-from experimentalPressures.experimental_data import read_exp_press_data
+#from experimentalPressures.experimental_data import read_exp_press_data
 
 plt.style.use('science')
 
@@ -37,9 +37,9 @@ pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
 ref_img_ids = range(50, 60)
 use_imgs = range(90, 130)
 
-slopes_x, slopes_y = recon.deflectomerty.slopes_from_grid_imgs(path, grid_pitch, pixel_size_on_grid_plane,
-                                                               mirror_grid_distance, ref_img_ids=ref_img_ids,
-                                                               only_img_ids=use_imgs, crop=(10, -10, 0, -1))
+slopes_x, slopes_y = recon.deflectomerty.slopes_from_images(path, grid_pitch, pixel_size_on_grid_plane,
+                                                            mirror_grid_distance, ref_img_ids=ref_img_ids,
+                                                            only_img_ids=use_imgs, crop=(10, -10, 0, -1))
 
 disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
                                                        zero_at="bottom corners",zero_at_size=5,
@@ -66,12 +66,12 @@ center = int(presses.shape[1] / 2)
 plt.plot((np.array(times[:]) - 0.000500) * 1000., presses[:, center, center] / 1000., '-',
          label="Reconstruction")
 
-real_press, real_time = read_exp_press_data(experiment="open channel")
+#real_press, real_time = read_exp_press_data(experiment="open channel")
 
-plt.plot(real_time * 1000., real_press[:, 7] * 1.e3, '--', label="Transducer", alpha=0.7)
+#plt.plot(real_time * 1000., real_press[:, 7] * 1.e3, '--', label="Transducer", alpha=0.7)
 
-plt.plot(real_time * 1000, gaussian_filter(real_press[:, 7] * 1.e3, sigma=2. * 500. / 75.), '--',
-         label="We should get this curve for sigma=2")
+#plt.plot(real_time * 1000, gaussian_filter(real_press[:, 7] * 1.e3, sigma=2. * 500. / 75.), '--',
+#         label="We should get this curve for sigma=2")
 
 plt.xlim(left=0.000, right=0.9)
 plt.ylim(top=80, bottom=-15)

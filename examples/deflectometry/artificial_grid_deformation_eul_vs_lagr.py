@@ -1,4 +1,4 @@
-from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase
+from recon.deflectomerty.grid_method import detect_phase, disp_fields_from_phases
 from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,11 +36,11 @@ phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 phase_x_eulr, phase_y_eulr = detect_phase(grid_displaced_eulr, grid_pitch)
 phase_x_lagr, phase_y_lagr = detect_phase(grid_displaced_lagr, grid_pitch)
 
-disp_x_eulr, _ = disp_from_phase(phase_x_eulr, phase_x0, phase_y_eulr, phase_y0, grid_pitch,
-                                 correct_phase=True)
+disp_x_eulr, _ = disp_fields_from_phases(phase_x_eulr, phase_x0, phase_y_eulr, phase_y0, grid_pitch,
+                                         correct_phase=True)
 
-disp_x_lagr, _ = disp_from_phase(phase_x_lagr, phase_x0, phase_y_eulr, phase_y0, grid_pitch,
-                                 correct_phase=True)
+disp_x_lagr, _ = disp_fields_from_phases(phase_x_lagr, phase_x0, phase_y_eulr, phase_y0, grid_pitch,
+                                         correct_phase=True)
 
 peak_disp_x_eulr = np.max(np.abs(disp_x_eulr))
 

@@ -1,6 +1,4 @@
 import numpy as np
-from numpy import matlib
-
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import lsqr
 
