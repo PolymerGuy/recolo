@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 plt.style.use('science')
 
 
-def read_exp_press_data(experiment="open channel"):
+def read_exp_press_data():
     start = 25550 + 38
     end = 26200
 
@@ -34,7 +34,7 @@ for crop in crops:
 
     abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
 
-    upscale = 4
+    upscale = 8
 
     pixel_size = abq_sim_fields.pixel_size_x / upscale
 
@@ -98,7 +98,7 @@ for crop in crops:
     plt.plot((np.array(times)) * 1000., pressure_fields[:, center, center], '-',
              label="Crop factor=%f" % (crop * upscale / disp_fields.shape[-1]))
 
-real_press, real_time = read_exp_press_data(experiment="open channel")
+real_press, real_time = read_exp_press_data()
 
 plt.plot(real_time[:] * 1000., real_press[:, 8] * 1.e6, '--', label="Transducer", alpha=0.7)
 
