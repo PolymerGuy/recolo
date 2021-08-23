@@ -85,7 +85,7 @@ for crop in crops:
 
     for i, field in enumerate(fields):
         print("Processing frame %i" % i)
-        recon_press = recon.solver.pressure_elastic_thin_plate(field, plate, virtual_field)
+        recon_press = recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field)
 
         # Store results
         pressure_fields.append(recon_press)
