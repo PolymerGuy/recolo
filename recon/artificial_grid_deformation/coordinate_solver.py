@@ -6,20 +6,28 @@ from scipy.ndimage import map_coordinates
 
 def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
     """
-    Solves x = X + u(X) for X.
+    Solves x = X + u(X) for X for a given u().
     This is done by solving  x - X - u(X) = 0 using a Newton scheme with numerically calculated gradients.
+
 
     Parameters
     ----------
-    xs
-    ys
-    disp_func
-    tol
-    maxit
-
+    xs : ndarray
+        The x-coordinate field in the deformed configuration
+    ys : ndarray
+        The y-coordinate field in the deformed configuration
+    disp_func : func
+        The displacement field as a function.
+        The function must be on the form disp_x,disp_y = disp_func(xs,ys)
+    tol : float
+        The tolerance used for the residuals
+    maxit : int
+        The maximum number of iterations used
     Returns
     -------
-    Xs, Ys
+    Xs, Ys: ndarray
+        The coordinate components in the undeformed configurations
+
     """
 
     logger = logging.getLogger(__name__)
@@ -82,7 +90,7 @@ def interpolated_disp_field(u_x, u_y, dx, dy, order=3, mode="nearest"):
 
     Returns
     -------
-    interp_u_x, interp_u_y : func
+    disp_func: func
         The B-spline interpolators for u_x and u_y
     """
     def interpolated_disp_func(xs, ys):
