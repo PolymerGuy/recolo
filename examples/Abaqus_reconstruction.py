@@ -2,7 +2,8 @@ import recon
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Minimal example of pressure load reconstruction based on input from Abaqus
+# Minimal example of pressure load reconstruction based on input from Abaqus The mesh is very coarse 61x61 elements,
+# which necessitates the use of a small window size for the pressure reconstruction
 
 # plate and model parameters
 mat_E = 210.e9  # Young's modulus [Pa]
