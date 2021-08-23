@@ -1,6 +1,8 @@
 import recon
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+cwd = os.getcwd()
 
 # Minimal example of pressure load reconstruction based on input from Abaqus. The deflection field is used to
 # generate images used for deflectometry. This operation necessitates the images to be upscaled. Minor deviations
@@ -16,7 +18,7 @@ plate_thick = 5e-3
 plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
 
 # Reconstruction settings
-win_size = 6
+win_size = 6 # Should be increased when deflectometry is used
 
 # Deflectometry settings
 run_deflectometry = True
@@ -25,7 +27,7 @@ mirror_grid_dist = 500.
 grid_pitch = 5.  # pixels
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts("./AbaqusExampleData/")
+abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd,"AbaqusExperiments/AbaqusExampleData/"))
 
 # The deflectometry return the slopes of the plate which has to be integrated in order to determine the deflection
 if run_deflectometry:

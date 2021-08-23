@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2) ** 2.))
 
-
-
 # The grid pitch on the actual image is not exactly known and we need to make sure that
 # the phase detection works even when we don't hit the right value exactly.
 rel_error_tol = 1e-2

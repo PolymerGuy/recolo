@@ -1,7 +1,8 @@
 import recon
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
+cwd = os.getcwd()
 # Minimal example of pressure load reconstruction based on input from Abaqus The mesh is very coarse 61x61 elements,
 # which necessitates the use of a small window size for the pressure reconstruction
 
@@ -16,7 +17,7 @@ plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
 win_size = 6
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts("./AbaqusExampleData/")
+abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd,"AbaqusExperiments/AbaqusExampleData/"))
 
 # Kinematic fields from deflection field
 kin_fields = recon.kinematic_fields_from_deflections(abq_sim_fields.disp_fields, abq_sim_fields.pixel_size_x,
