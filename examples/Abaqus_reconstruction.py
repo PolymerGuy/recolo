@@ -15,7 +15,7 @@ plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
 win_size = 6
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
+abq_sim_fields = recon.load_abaqus_rpts("./AbaqusExampleData/")
 
 # Kinematic fields from deflection field
 kin_fields = recon.kinematic_fields_from_deflections(abq_sim_fields.disp_fields, abq_sim_fields.pixel_size_x,
@@ -31,11 +31,11 @@ pressure_fields = np.array(
 # Correct
 times = np.array([0.0, 0.00005, 0.00010, 0.0003, 0.001]) * 1000
 pressures = np.array([0.0, 0.0, 1.0, 0.0, 0.0]) * 1e5
-plt.plot(times, pressures, '--', label="Correct pressure")
+plt.plot(times, pressures, '-', label="Correct pressure")
 
 # Reconstructed
 center = int(pressure_fields.shape[1] / 2)
-plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], label="Reconstructed pressure")
+plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], "-o",label="Reconstructed pressure")
 
 plt.xlim(left=0.000, right=0.3)
 plt.ylim(top=110000, bottom=-15)
