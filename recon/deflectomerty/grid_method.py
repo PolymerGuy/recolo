@@ -1,10 +1,22 @@
-import logging
+"""
+Tools for performing displacement measurements using the grid method, see [1] for details and discussion.
 
+References
+----------
+    .. [1] The grid method for in-plane displacement and strain measurement: a review and analysis Michel Grediac,
+    Frédéric Sur, Benoît Blaysat
+
+"""
+
+
+import logging
 import numpy as np
 from scipy import signal
 from scipy.ndimage import map_coordinates
 from scipy.signal.windows import triang
 from skimage.restoration import unwrap_phase
+
+
 
 
 def gaussian_window(win_size):
