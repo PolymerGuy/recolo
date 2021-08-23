@@ -37,9 +37,9 @@ pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
 ref_img_ids = range(50, 60)
 use_imgs = range(90, 130)
 
-slopes_x, slopes_y = recon.deflectomerty.slopes_from_images(path, grid_pitch, pixel_size_on_grid_plane,
-                                                            mirror_grid_distance, ref_img_ids=ref_img_ids,
-                                                            only_img_ids=use_imgs, crop=(10, -10, 0, -1))
+slopes_x, slopes_y = recon.deflectomerty.slopes_from_images(path, grid_pitch, mirror_grid_distance,
+                                                            ref_img_ids=ref_img_ids, only_img_ids=use_imgs,
+                                                            crop=(10, -10, 0, -1))
 
 disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
                                                        zero_at="bottom corners",zero_at_size=5,

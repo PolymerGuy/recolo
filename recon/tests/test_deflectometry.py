@@ -1,4 +1,4 @@
-from recon.deflectomerty import detect_phase, disp_fields_from_phases
+from recon.deflectomerty import disp_from_grids
 from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
 from unittest import TestCase
 import numpy as np
@@ -8,7 +8,7 @@ def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2) ** 2.))
 
 
-class Test_PixelDisplacementMeasurement(TestCase):
+class Test_DeflectometryOnKnownDeformations(TestCase):
 
     def test_rigid_body_motion_small_disp(self):
 
@@ -33,11 +33,7 @@ class Test_PixelDisplacementMeasurement(TestCase):
 
         grid_deformed = make_dotted_grid(xs_disp, ys_disp, grid_pitch)
 
-        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
-        phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
-
-        disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                       correct_phase=False)
+        disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
         max_rel_error_x = np.max(np.abs(disp_x_from_phase - displacement_x)) / displacement_x
         max_rel_error_y = np.max(np.abs(disp_y_from_phase - displacement_y)) / displacement_y
@@ -70,11 +66,8 @@ class Test_PixelDisplacementMeasurement(TestCase):
 
         grid_deformed = make_dotted_grid(xs_disp, ys_disp, grid_pitch)
 
-        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
-        phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+        disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
-        disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                       correct_phase=True)
 
         max_rel_error_x = np.max(np.abs(disp_x_from_phase - displacement_x)) / displacement_x
         max_rel_error_y = np.max(np.abs(disp_y_from_phase - displacement_y)) / displacement_y
@@ -101,11 +94,8 @@ class Test_PixelDisplacementMeasurement(TestCase):
 
         grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling)
 
-        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
-        phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
-
-        disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                       correct_phase=False)
+        disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed, grid_deformed, grid_pitch,
+                                                               correct_phase=True)
 
         u_X = u_X[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
         u_Y = u_Y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
@@ -136,11 +126,8 @@ class Test_PixelDisplacementMeasurement(TestCase):
         grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
                                                pixel_size=1)
 
-        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
-        phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+        disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
-        disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                       correct_phase=True)
 
         u_X = u_X[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
         u_Y = u_Y[grid_pitch * 4:-grid_pitch * 4, grid_pitch * 4:-grid_pitch * 4]
@@ -171,11 +158,8 @@ class Test_PixelDisplacementMeasurement(TestCase):
         grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
                                                pixel_size=1)
 
-        phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
-        phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+        disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
-        disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0, grid_pitch,
-                                                                       correct_phase=True)
 
         peak_disp_x = np.max(np.abs(disp_x_from_phase))
         peak_disp_y = np.max(np.abs(disp_y_from_phase))

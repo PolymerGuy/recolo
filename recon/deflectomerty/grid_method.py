@@ -8,15 +8,12 @@ References
 
 """
 
-
 import logging
 import numpy as np
 from scipy import signal
 from scipy.ndimage import map_coordinates
 from scipy.signal.windows import triang
 from skimage.restoration import unwrap_phase
-
-
 
 
 def gaussian_window(win_size):
@@ -78,6 +75,10 @@ def detect_phase(img, grid_pitch, window="gaussian", boundary="symm"):
     phase_y = signal.convolve2d(img_complex_y, conv_matrix, boundary=boundary, mode='valid') / float(grid_pitch)
 
     return phase_x, phase_y
+
+
+def angle_from_disp(disp, mirror_grid_dist):
+    return np.arctan(disp / mirror_grid_dist) / 2.
 
 
 def disp_from_phases_single_component(phase, phase0, grid_pitch, unwrap=True):
@@ -188,5 +189,37 @@ def disp_fields_from_phases(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, 
         return u_x_first, u_x_first
 
 
-def angle_from_disp(disp, mirror_grid_dist):
-    return np.arctan(disp / mirror_grid_dist) / 2.
+def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=True):
+    """ Determine the displacements of every pixel based the image of an undeformed grid and a deformed grid. This is
+    done by determining the displacement from the phase modulation along two axes in two configurations,
+    see [1] for more details.
+
+    Parameters
+    ----------
+    grid_undeformed : ndarray
+        The phase modulation field along the x-axis in the deformed configuration as complex numbers
+    grid_deformed : ndarray
+        The phase modulation field along the x-axis in the undeformed configuration as complex numbers
+    grid_pitch : int
+        The grid pitch in pixels
+    correct_phase : bool
+        Correct the phases for finite displacements
+    Returns
+    -------
+    disp_x,disp_y : ndarray
+        The displacement field
+
+    References
+    ----------
+    ..  [1] Michel Grediac, Frédéric Sur, Benoît Blaysat. The grid method for in-plane displacement and
+    strain measurement: a review and analysis. Strain, Wiley-Blackwell, 2016, 52 (3), pp.205-243.
+    ff10.1111/str.12182ff. ffhal-01317145f
+    """
+
+    phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
+    phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
+
+    disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0,
+                                                                   grid_pitch, correct_phase=correct_phase)
+
+    return disp_x_from_phase, disp_y_from_phase

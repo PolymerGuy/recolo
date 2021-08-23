@@ -44,8 +44,8 @@ if run_deflectometry:
                                                                                       mirror_grid_dist,
                                                                                       grid_pitch,
                                                                                       upscale=deflecto_upscale)
-        slope_x, slope_y = recon.deflectomerty.slopes_from_grids(undeformed_grid, deformed_grid, mirror_grid_dist,
-                                                                 grid_pitch)
+        slope_x, slope_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, mirror_grid_dist,
+                                                               grid_pitch)
         slopes_x.append(slope_x)
         slopes_y.append(slope_y)
 
