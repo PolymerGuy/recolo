@@ -2,6 +2,7 @@ import recon
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+
 cwd = os.getcwd()
 
 # Minimal example of pressure load reconstruction based on input from Abaqus. The deflection field is used to
@@ -18,16 +19,16 @@ plate_thick = 5e-3
 plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
 
 # Reconstruction settings
-win_size = 6 # Should be increased when deflectometry is used
+win_size = 6  # Should be increased when deflectometry is used
 
 # Deflectometry settings
 run_deflectometry = True
-deflecto_upscale = 8
+deflecto_upscale = 4
 mirror_grid_dist = 500.
 grid_pitch = 5.  # pixels
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd,"AbaqusExperiments/AbaqusExampleData/"))
+abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd, "AbaqusExampleData/"))
 
 # The deflectometry return the slopes of the plate which has to be integrated in order to determine the deflection
 if run_deflectometry:
@@ -44,8 +45,10 @@ if run_deflectometry:
                                                                                       mirror_grid_dist,
                                                                                       grid_pitch,
                                                                                       upscale=deflecto_upscale)
-        slope_x, slope_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, mirror_grid_dist,
-                                                               grid_pitch)
+
+        disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
+        slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
+        slope_y = recon.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
         slopes_x.append(slope_x)
         slopes_y.append(slope_y)
 

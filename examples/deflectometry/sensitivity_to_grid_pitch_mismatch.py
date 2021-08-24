@@ -1,5 +1,5 @@
 from recon.deflectomerty import detect_phase, disp_fields_from_phases
-from recon.artificial_grid_deformation import make_dotted_grid
+from recon.artificial_grid_deformation import dotted_grid
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -30,12 +30,12 @@ for grid_pitch_real in real_grid_pitches:
 
     xs, ys = np.meshgrid(x, y)
 
-    grid_undeformed = make_dotted_grid(xs, ys, grid_pitch_real, 1, oversampling)
+    grid_undeformed = dotted_grid(xs, ys, grid_pitch_real, 1, oversampling)
 
     xs_disp = xs - displacement_x
     ys_disp = ys - displacement_y
 
-    grid_displaced_eulr = make_dotted_grid(xs_disp, ys_disp, grid_pitch_real, 1, oversampling)
+    grid_displaced_eulr = dotted_grid(xs_disp, ys_disp, grid_pitch_real, 1, oversampling)
 
     phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch_assumed)
     phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch_assumed)

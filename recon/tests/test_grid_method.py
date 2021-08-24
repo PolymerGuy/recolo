@@ -1,5 +1,5 @@
 from recon.deflectomerty import disp_from_grids
-from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
+from recon.artificial_grid_deformation import harmonic_disp_field, dotted_grid
 from unittest import TestCase
 import numpy as np
 
@@ -25,13 +25,13 @@ class Test_DeflectometryOnKnownDeformations(TestCase):
 
         xs, ys = np.meshgrid(x, y)
 
-        grid_undeformed = make_dotted_grid(xs, ys, grid_pitch)
+        grid_undeformed = dotted_grid(xs, ys, grid_pitch)
 
         # x = X + u(X) can be solved directly as u(X) is a constant
         xs_disp = xs - displacement_x
         ys_disp = ys - displacement_y
 
-        grid_deformed = make_dotted_grid(xs_disp, ys_disp, grid_pitch)
+        grid_deformed = dotted_grid(xs_disp, ys_disp, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
@@ -58,13 +58,13 @@ class Test_DeflectometryOnKnownDeformations(TestCase):
 
         xs, ys = np.meshgrid(x, y)
 
-        grid_undeformed = make_dotted_grid(xs, ys, grid_pitch)
+        grid_undeformed = dotted_grid(xs, ys, grid_pitch)
 
         # x = X + u(X) can be solved directly as u(X) is a constant
         xs_disp = xs - displacement_x
         ys_disp = ys - displacement_y
 
-        grid_deformed = make_dotted_grid(xs_disp, ys_disp, grid_pitch)
+        grid_deformed = dotted_grid(xs_disp, ys_disp, grid_pitch)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
@@ -90,9 +90,9 @@ class Test_DeflectometryOnKnownDeformations(TestCase):
         x_undef, y_undef, Xs, Ys, u_X, u_Y = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                                  formulation="lagrangian")
 
-        grid_undeformed = make_dotted_grid(x_undef, y_undef, grid_pitch, oversampling=oversampling)
+        grid_undeformed = dotted_grid(x_undef, y_undef, grid_pitch, oversampling=oversampling)
 
-        grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling)
+        grid_deformed = dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed, grid_deformed, grid_pitch,
                                                                correct_phase=True)
@@ -121,10 +121,10 @@ class Test_DeflectometryOnKnownDeformations(TestCase):
         xs_undef, ys_undef, Xs, Ys, u_X, u_Y = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                                  formulation="lagrangian")
 
-        grid_undeformed = make_dotted_grid(xs_undef, ys_undef, grid_pitch, oversampling=oversampling, pixel_size=1)
+        grid_undeformed = dotted_grid(xs_undef, ys_undef, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-        grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
-                                               pixel_size=1)
+        grid_deformed = dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
+                                    pixel_size=1)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 
@@ -153,10 +153,10 @@ class Test_DeflectometryOnKnownDeformations(TestCase):
         xs_undef, ys_undef, Xs, Ys, _, _ = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                              formulation="lagrangian")
 
-        grid_undeformed = make_dotted_grid(xs_undef, ys_undef, grid_pitch, oversampling=oversampling, pixel_size=1)
+        grid_undeformed = dotted_grid(xs_undef, ys_undef, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-        grid_deformed = make_dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
-                                               pixel_size=1)
+        grid_deformed = dotted_grid(Xs, Ys, grid_pitch, oversampling=oversampling,
+                                    pixel_size=1)
 
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed,grid_deformed,grid_pitch,correct_phase=True)
 

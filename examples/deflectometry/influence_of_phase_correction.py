@@ -1,5 +1,5 @@
 from recon.deflectomerty import detect_phase, disp_fields_from_phases
-from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
+from recon.artificial_grid_deformation import harmonic_disp_field, dotted_grid
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -20,10 +20,10 @@ for disp_amp in disp_amps:
     xs, ys, xs_disp, ys_disp, _, _ = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                          formulation="lagrangian")
 
-    grid_undeformed = make_dotted_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
+    grid_undeformed = dotted_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-    grid_displaced_eulr = make_dotted_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
-                                           pixel_size=1)
+    grid_displaced_eulr = dotted_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
+                                      pixel_size=1)
 
     phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
     phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)

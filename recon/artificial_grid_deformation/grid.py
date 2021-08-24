@@ -1,6 +1,6 @@
 import numpy as np
 
-def make_dotted_grid(xs, ys, pitch, pixel_size=1, oversampling=1):
+def dotted_grid(xs, ys, pitch, pixel_size=1, oversampling=1):
     if np.mod(oversampling, 2) == 0:
         raise ValueError("The oversampling has to be an odd number")
     if oversampling == 1:

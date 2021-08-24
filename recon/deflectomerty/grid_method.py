@@ -15,7 +15,6 @@ from scipy.ndimage import map_coordinates
 from scipy.signal.windows import triang
 from skimage.restoration import unwrap_phase
 
-
 def gaussian_window(win_size):
     t_noy = np.ceil(4 * win_size)
     xs, ys = np.meshgrid(np.arange(-t_noy, t_noy + 1), np.arange(-t_noy, t_noy + 1))
@@ -65,7 +64,6 @@ def detect_phase(img, grid_pitch, window="gaussian", boundary="symm"):
         conv_matrix = gaussian_window(grid_pitch)
 
     xs, ys = np.meshgrid(np.arange(s_y), np.arange(s_x))
-
     # x-direction
     img_complex_x = img * np.exp(-1j * fc * xs)
     phase_x = signal.convolve2d(img_complex_x, conv_matrix, boundary=boundary, mode='valid') / float(grid_pitch)
@@ -200,7 +198,7 @@ def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=Tr
         The phase modulation field along the x-axis in the deformed configuration as complex numbers
     grid_deformed : ndarray
         The phase modulation field along the x-axis in the undeformed configuration as complex numbers
-    grid_pitch : int
+    grid_pitch : float
         The grid pitch in pixels
     correct_phase : bool
         Correct the phases for finite displacements
@@ -215,10 +213,8 @@ def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=Tr
     strain measurement: a review and analysis. Strain, Wiley-Blackwell, 2016, 52 (3), pp.205-243.
     ff10.1111/str.12182ff. ffhal-01317145f
     """
-
     phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
     phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
-
     disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0,
                                                                    grid_pitch, correct_phase=correct_phase)
 

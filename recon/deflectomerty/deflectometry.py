@@ -1,9 +1,9 @@
 import numpy as np
 from recon.data_import import list_files_in_folder
-from matplotlib.pyplot import imread
+from imageio import imread
 import logging
 from recon.deflectomerty.grid_method import angle_from_disp, disp_from_grids
-
+import matplotlib.pyplot as plt
 
 def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref_img_ids=None, only_img_ids=None,
                        crop=None, correct_phase=True):
@@ -43,16 +43,19 @@ def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref
     """
 
     img_paths = list_files_in_folder(path_to_img_folder, file_type=".tif", abs_path=True)
+    if len(img_paths)==0:
+        raise IOError("No images found in %s"%path_to_img_folder)
 
     logger = logging.getLogger(__name__)
 
     if only_img_ids:
         img_paths = [img_paths[i] for i in only_img_ids]
 
-    if not ref_img_ids:
+    if ref_img_ids:
+        grid_undeformed = np.mean([imread(img_paths[i]) for i in ref_img_ids], axis=0)
+    else:
         logger.info("No reference images were specified, using first image as reference.")
-        ref_img_ids = [0]
-    grid_undeformed = np.mean([imread(img_paths[i]) for i in ref_img_ids], axis=0)
+        grid_undeformed = imread(img_paths[0])
 
     if crop:
         grid_undeformed = grid_undeformed[crop[0]:crop[1], crop[2]:crop[3]]
