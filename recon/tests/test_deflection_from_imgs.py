@@ -2,13 +2,15 @@ from recon.deflectomerty import slopes_from_images
 from recon.slope_integration import disp_from_slopes
 from unittest import TestCase
 import numpy as np
+import os
 
+cwd = os.getcwd()
 
 class Test_DeflectometryOnImages(TestCase):
 
     def test_half_sine_deflection_no_upscale(self):
         rel_tol = 0.01
-        path_to_imgs = "./ExampleGridImages/"
+        path_to_imgs = os.path.join(cwd,"ExampleGridImages/")
 
         pixel_size = 1
         mirror_grid_dist = 500.
