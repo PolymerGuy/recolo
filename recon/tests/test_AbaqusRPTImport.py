@@ -1,10 +1,14 @@
 from unittest import TestCase
 from recon.data_import import load_abaqus_rpts
+import os
 
+cwd = os.getcwd()
 
 class TestReadAbaqusField(TestCase):
     def setUp(self):
-        self.abaqus_fields = load_abaqus_rpts("./ExampleAbaqusRPT")
+        path_to_rpts = os.path.join(cwd,"ExampleAbaqusRPT/")
+
+        self.abaqus_fields = load_abaqus_rpts(path_to_rpts)
 
     def test_check_shapes(self):
         shape_deflection = self.abaqus_fields.disp_fields.shape
