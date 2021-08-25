@@ -70,7 +70,7 @@ class Hermite16(object):
 
         xsi2 = np.multiply(2 / Ly_el, (X2 - np.min(X2) + Ly_el / iprw)) \
                - np.multiply(2, i_2) + 1
-        
+
         ## isoparametric formulation for hermite 16 elements
         a = Lx_el / 2
         b = Ly_el / 2
