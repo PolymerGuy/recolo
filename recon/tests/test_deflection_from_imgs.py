@@ -2,9 +2,11 @@ from recon.deflectomerty import slopes_from_images
 from recon.slope_integration import disp_from_slopes
 from unittest import TestCase
 import numpy as np
+import pathlib
 import os
 
-cwd = os.getcwd()
+cwd = pathlib.Path(__file__).parent.resolve()
+
 
 class Test_DeflectometryOnImages(TestCase):
 
