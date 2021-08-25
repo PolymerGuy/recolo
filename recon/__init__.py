@@ -1,11 +1,10 @@
 from . import virtual_fields
 from . import solver_VFM
-from . import analydisp
+from . import math_tools
 from . import deflectomerty
 from .data_import import *
 from recon.fieldstack import *
-from .plate import calculate_plate_stiffness
-from .slope_integration import sparce_integration
+from .plate import make_plate
 from .artificial_grid_deformation import *
 from . import artificial_grid_deformation
 

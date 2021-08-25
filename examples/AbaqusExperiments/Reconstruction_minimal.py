@@ -11,7 +11,7 @@ mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.33  # Poisson's ratio []
 density = 7700
 plate_thick = 5e-3
-plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
+plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
 
 # Reconstruction settings
 win_size = 6

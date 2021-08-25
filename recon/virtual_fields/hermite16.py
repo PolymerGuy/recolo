@@ -8,22 +8,15 @@ Springer New York, 2012
 @author: Rene Kaufmann
 09.08.2019
 """
-###
-# iprw      : size of reconstruction window in # data points ( = side length of virtual field )
-# iL        : physical side length of entire window 
-
-# okxxfield, okyyfield, okxyfield, owfield   : curvature- and deflection fields
-###
 
 import numpy as np
-# import matplotlib.pyplot as plt
-###
+
 
 
 class Hermite16(object):
     def __init__(self,iprw, dx):
         iL = iprw * dx
-        self.okxxfield, self.okyyfield, self.okxyfield, self.owfield = self.__hermite_16_const__(iprw, iL)     
+        self.curv_xx, self.curv_yy, self.curv_xy, self.deflection = self.__hermite_16_const__(iprw, iL)
     
     
     def __hermite_16_const__(self,iprw, iL):

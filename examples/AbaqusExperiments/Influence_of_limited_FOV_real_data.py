@@ -23,7 +23,7 @@ mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.33  # Poisson's ratio []
 density = 7700
 plate_thick = 5e-3
-plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
+plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
 
 mirror_grid_dist = 500.
 
@@ -60,7 +60,7 @@ for crop in crops:
         deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field, abq_sim_fields.pixel_size_x, mirror_grid_dist,
                                                     grid_pitch,
                                                     upscale=upscale)
-        slopes_x, slopes_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, mirror_grid_dist, grid_pitch)
+        slopes_x, slopes_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
         sloppes_x.append(slopes_x)
         sloppes_y.append(slopes_y)
 

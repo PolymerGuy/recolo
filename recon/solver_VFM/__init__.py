@@ -1,1 +1,1 @@
-from .plate_iso_qs_lin import pressure_elastic_thin_plate
+from .dyn_thin_plate import pressure_elastic_thin_plate

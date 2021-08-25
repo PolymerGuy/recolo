@@ -5,10 +5,23 @@ import numpy as np
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1-array2))**2.)
 
+def deflection_due_to_sinus_load(peak_press, plate_x, plate_y, D_p):
+    def field(norm_x, norm_y):
+        return peak_press / (np.pi ** 4. * D_p) / (((1. / plate_x) ** 2. + (1. / plate_y) ** 2.) ** 2.) * np.sin(
+            np.pi * norm_x) * np.sin(np.pi * norm_y)
+    return field
+
+def pressure_sinusoidal(peak_press,n_pts_x,n_pts_y):
+    norm_x,norm_y = np.meshgrid(np.linspace(0,1,n_pts_x),np.linspace(0,1,n_pts_y))
+
+    return peak_press * np.sin(np.pi * norm_x) * np.sin(np.pi * norm_y)
+
+
+
 class Test_FullStaticReconstruction(TestCase):
 
     def test_analytical_sinusoidal(self):
-        # Tollerance set to 1 percent
+        # Tolerance set to 1 percent
         tol = 1e-2
 
         mat_E = 70.e9  # Young's modulus [Pa]
@@ -21,13 +34,13 @@ class Test_FullStaticReconstruction(TestCase):
         press = 100.
         dx = plate_len_x / float(n_pts_x)
 
-        plate = recon.calculate_plate_stiffness(mat_E,mat_nu,0.0,plate_thick)
+        plate = recon.make_plate(mat_E, mat_nu, 0.0, plate_thick)
 
 
         win_size = 8
         bend_stiff = mat_E * (plate_thick ** 3.) / (12. * (1. - mat_nu ** 2.))  # flexural rigidity [N m]
 
-        deflection = recon.analydisp.sinusoidal_load(press, plate_len_x, plate_len_y, bend_stiff)
+        deflection = deflection_due_to_sinus_load(press, plate_len_x, plate_len_y, bend_stiff)
 
 
         fields = recon.fieldStack_from_disp_func(deflection, n_pts_x, n_pts_y, plate_len_x, plate_len_y)
@@ -37,7 +50,7 @@ class Test_FullStaticReconstruction(TestCase):
         field = fields(0)
 
         recon_press = recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_fields, shift=True)
-        correct_press = recon.analydisp.pressure_sinusoidal(press,n_pts_x,n_pts_y)[3:-4:,3:-4]
+        correct_press = pressure_sinusoidal(press,n_pts_x,n_pts_y)[3:-4:,3:-4]
         error = rms_diff(recon_press, correct_press)
         if error/press >tol:
             self.fail("Reconstruction had a normalized RMS error of %f"%(error/press))

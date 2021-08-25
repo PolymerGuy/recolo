@@ -1,4 +1,4 @@
-from recon.analydisp.diff_tools import dF_complex_x, dF_complex_y, ddF_complex_x, ddF_complex_xy, ddF_complex_y
+from recon.math_tools.complex_step_diff import dF_complex_x, dF_complex_y, ddF_complex_x, ddF_complex_xy, ddF_complex_y
 import numpy as np
 from scipy.ndimage import gaussian_filter, gaussian_filter1d
 from copy import copy
@@ -102,19 +102,42 @@ def kinematic_fields_from_deflections(defl_fields, pixel_size, sampling_rate, ac
         return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
 
 
-def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
+def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_len_x, plate_len_y):
+    """
+    Make a FielsStack object from a function describing the deflection field.
+
+    The resulting stack contains a single frame.
+
+    Parameters
+    ----------
+    disp_func : func
+        The deflection field as a function on the form deflection = func(x,y)
+    npts_x : int
+        The number of evaluated points along the x-axis
+    npts_y : int
+        The number of evaluated points along the y-axis
+    plate_len_x : float
+        The plate length along the x-axis
+    plate_len_y : float
+        The plate length along the y-axis
+
+    Returns
+    -------
+    field_stack : FieldStack
+        The field stack
+    """
     # calculate out-of-plane displacements
     xs, ys = np.meshgrid(np.linspace(0., 1., npts_x), np.linspace(0., 1., npts_y))
     deflection = disp_func(xs, ys)
 
     # Calculate slopes
-    slope_x = -dF_complex_y(disp_func, xs, ys) / plate_x
-    slope_y = -dF_complex_x(disp_func, xs, ys) / plate_y
+    slope_x = -dF_complex_y(disp_func, xs, ys) / plate_len_x
+    slope_y = -dF_complex_x(disp_func, xs, ys) / plate_len_y
 
     # calculate curvatures
-    curv_yy = (-ddF_complex_x(disp_func, xs, ys) / (plate_x ** 2.))
-    curv_xx = (-ddF_complex_y(disp_func, xs, ys) / (plate_x ** 2.))
-    curv_xy = (-ddF_complex_xy(disp_func, xs, ys) / (plate_x ** 2.))
+    curv_yy = (-ddF_complex_x(disp_func, xs, ys) / (plate_len_x ** 2.))
+    curv_xx = (-ddF_complex_y(disp_func, xs, ys) / (plate_len_x ** 2.))
+    curv_xy = (-ddF_complex_xy(disp_func, xs, ys) / (plate_len_x ** 2.))
 
     # Add an initial axis to make this the first frame in the stack
     deflection = deflection[np.newaxis,:,:]
@@ -127,8 +150,31 @@ def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
     return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection),[0])
 
 
-def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x, plate_y):
-    # This function removes the outer most pixels around the whole field
+def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_len_x, plate_len_y):
+    """
+    Make a FielsStack object from deflection fields.
+
+    Parameters
+    ----------
+    disp_fields : ndarray
+        The deflection fields with shape (n_frames,x,y)
+    acceleration_fields : ndarray, None
+        The acceleration fields with shape (n_frames,x,y).
+        If "None", the accelerations are calculated from the displacements.
+    times : ndarray
+        The times at which the frames are sampled. Has the shape (n_frames)
+    plate_len_x : float
+        The plate length along the x-axis
+    plate_len_y : float
+        The plate length along the y-axis
+
+    Returns
+    -------
+    field_stack : FieldStack
+        The field stack
+    """
+
+
     n_frames = disp_fields.shape[0]
     deflection = []
 
@@ -141,8 +187,8 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x
     for i in range(n_frames):
         disp_field = disp_fields[i]
         npts_x, npts_y = disp_field.shape
-        pixel_size_x = plate_x / npts_x
-        pixels_size_y = plate_y / npts_y
+        pixel_size_x = plate_len_x / npts_x
+        pixels_size_y = plate_len_y / npts_y
 
         # calculate slopes
         slope_x, slope_y = np.gradient(-disp_field, pixel_size_x, pixels_size_y)
@@ -168,7 +214,7 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x
         accel_field = np.gradient(vel_fields, axis=0) / time_step_size
 
     else:
-        accel_field = np.array(acceleration_fields)#[:, 1:-1, 1:-1]
+        accel_field = np.array(acceleration_fields)
 
     deflection = np.array(deflection)
     slopes_x = np.array(slopes_x)
