@@ -1,22 +1,28 @@
-"""
-Definition of square Hermite 16 elements for VFM - assuming constant pressure
-output: 4-element field
-Based on pecewise VFM approach and Matlab code as presented in: 
-[8]	F. Pierron and M. Gédiac, 
-The virtual fields method. Extracting constitutive mechanical parameters from full-field deformation measurements, 
-Springer New York, 2012
-@author: Rene Kaufmann
-09.08.2019
-"""
-
 import numpy as np
 
-
-
 class Hermite16(object):
-    def __init__(self,iprw, dx):
-        iL = iprw * dx
-        self.curv_xx, self.curv_yy, self.curv_xy, self.deflection = self.__hermite_16_const__(iprw, iL)
+    def __init__(self, window_size, phys_pixel_size):
+        """
+        Definition of square Hermite 16 elements for VFM - assuming constant pressure
+        output: 4-element field
+        Based on pecewise VFM approach and Matlab code as presented in:
+        [8]	F. Pierron and M. Gédiac,
+        The virtual fields method. Extracting constitutive mechanical parameters from full-field deformation measurements,
+        Springer New York, 2012
+        @author: Rene Kaufmann
+        09.08.2019
+
+        Parameters
+        ----------
+        window_size : int
+            The size of the virtual field in pixels
+        phys_pixel_size : float
+            The physical pixel size
+        """
+
+
+        iL = window_size * phys_pixel_size
+        self.curv_xx, self.curv_yy, self.curv_xy, self.deflection = self.__hermite_16_const__(window_size, iL)
     
     
     def __hermite_16_const__(self,iprw, iL):
