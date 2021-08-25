@@ -17,7 +17,7 @@ plate = recon.calculate_plate_stiffness(mat_E, mat_nu, density, plate_thick)
 win_size = 6
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd,"AbaqusExperiments/AbaqusExampleData/"))
+abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd,"AbaqusExampleData/"))
 
 # Kinematic fields from deflection field
 kin_fields = recon.kinematic_fields_from_deflections(abq_sim_fields.disp_fields, abq_sim_fields.pixel_size_x,

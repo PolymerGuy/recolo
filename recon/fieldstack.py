@@ -145,7 +145,7 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x
         pixels_size_y = plate_y / npts_y
 
         # calculate slopes
-        slope_x, slope_y = np.gradient(disp_field, pixel_size_x, pixels_size_y)
+        slope_x, slope_y = np.gradient(-disp_field, pixel_size_x, pixels_size_y)
 
         # calculate curvatures
         aux_k_xx, aux_k_s12 = np.gradient(slope_x, pixel_size_x, pixels_size_y)

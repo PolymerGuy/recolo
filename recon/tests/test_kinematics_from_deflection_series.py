@@ -72,14 +72,14 @@ class TestHalfSineDeflection(TestCase):
         deflection_fields = deflection_field[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
 
         self.acceleration_field = self.acceleration * deflection_field
+        # Note the minus sign which is used for compliance with the formulation of the rotational degrees of freedom
+        self.slope_x_fields = -(np.cos(np.pi * xs) * np.sin(np.pi * ys) * (np.pi)/(n_pts_x))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
+        self.slope_y_fields = -(np.sin(np.pi * xs) * np.cos(np.pi * ys) * (np.pi)/(n_pts_x))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
 
-        self.slope_x_fields = (np.cos(np.pi * xs) * np.sin(np.pi * ys) * (np.pi)/(n_pts_x))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
-        self.slope_y_fields = (np.sin(np.pi * xs) * np.cos(np.pi * ys) * (np.pi)/(n_pts_x))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
-
-
-        self.curv_xx_fields = (- np.sin(np.pi * xs) * np.sin(np.pi * ys) * (np.pi**2.)/(n_pts_x**2.))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
-        self.curv_yy_fields = (- np.sin(np.pi * xs) * np.sin(np.pi * ys) * (np.pi**2.)/(n_pts_y**2.))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
-        self.curv_xy_fields = (np.cos(np.pi * xs) * np.cos(np.pi * ys) * (np.pi**2.)/(n_pts_y**2.))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
+        # Note the minus sign which is used for compliance with the formulation of the rotational degrees of freedom
+        self.curv_xx_fields = -(- np.sin(np.pi * xs) * np.sin(np.pi * ys) * (np.pi**2.)/(n_pts_x**2.))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
+        self.curv_yy_fields = -(- np.sin(np.pi * xs) * np.sin(np.pi * ys) * (np.pi**2.)/(n_pts_y**2.))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
+        self.curv_xy_fields = -(np.cos(np.pi * xs) * np.cos(np.pi * ys) * (np.pi**2.)/(n_pts_y**2.))[np.newaxis, :, :] * time_ramp[:, np.newaxis, np.newaxis]
 
         self.field_stack = kinematic_fields_from_deflections(deflection_fields, pixel_size, sampling_rate=sampling_rate)
 
