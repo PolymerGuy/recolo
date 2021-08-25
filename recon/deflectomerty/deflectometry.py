@@ -73,8 +73,8 @@ def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed, grid_displaced_eulr, grid_pitch,
                                                                correct_phase=correct_phase)
 
-        slope_x = angle_from_disp(disp_x_from_phase, mirror_grid_distance)
-        slope_y = angle_from_disp(disp_y_from_phase, mirror_grid_distance)
+        slope_y = angle_from_disp(disp_x_from_phase, mirror_grid_distance)
+        slope_x = angle_from_disp(disp_y_from_phase, mirror_grid_distance)
 
         slopes_y.append(slope_x)
         slopes_x.append(slope_y)
