@@ -36,7 +36,7 @@ class Test_FullStaticReconstruction(TestCase):
 
         field = fields(0)
 
-        recon_press = recon.solver.plate_iso_qs_lin(field,plate, virtual_fields,shift=True)
+        recon_press = recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_fields, shift=True)
         correct_press = recon.analydisp.pressure_sinusoidal(press,n_pts_x,n_pts_y)[3:-4:,3:-4]
         error = rms_diff(recon_press, correct_press)
         if error/press >tol:

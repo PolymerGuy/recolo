@@ -10,3 +10,8 @@ env/
 *.rpt
 *.png
 *.gif
+.pytest_cache
+
+docs/_build
+docs/_static
+docs/_templates

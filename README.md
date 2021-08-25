@@ -33,6 +33,19 @@ To check that everything is working, run all tests:
 pytest recon
 ```
 
+
+Building the documentation from source
+--------------------------------------
+```bash
+# Enter the documentation folder
+cd docs
+# Rebuild docs
+make html
+```
+
+The documentation is now found in ./_build_/html
+
+
 Example
 -------
 

@@ -3,6 +3,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter, gaussian_filter1d
 from copy import copy
 from collections import namedtuple
+import logging
 
 
 class FieldStack(object):
@@ -34,106 +35,50 @@ class FieldStack(object):
         else:
             return self.__call__(num)
 
-    def __filter_time__(self, field, sigma):
-        print("Filtering in time with sigma=%f" % float(sigma))
-        return gaussian_filter1d(field, sigma=sigma, axis=0)
-
-    def __filter_space__(self, field, sigma):
-        first_axis = gaussian_filter1d(field, sigma=sigma, axis=1)
-        return gaussian_filter1d(first_axis, sigma=sigma, axis=2)
 
     def shape(self):
         return np.shape(self._deflection_)
-
-    def filtered_time(self, sigma):
-        deflection = self.__filter_time__(self._deflection_, sigma)
-
-        slope_x = self.__filter_time__(self._slope_x_, sigma)
-        slope_y = self.__filter_time__(self._slope_y_, sigma)
-
-        curv_xx = self.__filter_time__(self._curv_xx_, sigma)
-        curv_yy = self.__filter_time__(self._curv_yy_, sigma)
-        curv_xy = self.__filter_time__(self._curv_xy_, sigma)
-
-        acceleration = self.__filter_time__(self._acceleration_, sigma)
-        times = self._times_
-        return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), acceleration, times)
-
-    def filtered_space(self, sigma):
-        deflection = self.__filter_space__(self._deflection_, sigma)
-
-        slope_x = self.__filter_space__(self._slope_x_, sigma)
-        slope_y = self.__filter_space__(self._slope_y_, sigma)
-
-        curv_xx = self.__filter_space__(self._curv_xx_, sigma)
-        curv_yy = self.__filter_space__(self._curv_yy_, sigma)
-        curv_xy = self.__filter_space__(self._curv_xy_, sigma)
-
-        acceleration = self.__filter_space__(self._acceleration_, sigma)
-        times = self._times_
-        return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), acceleration, times)
-
-    def down_sampled(self, every_n_frame):
-        return FieldStack(self._deflection_[::every_n_frame],
-                          (self._slope_x_[::every_n_frame], self._slope_y_[::every_n_frame]), (
-                              self._curv_xx_[::every_n_frame], self._curv_yy_[::every_n_frame],
-                              self._curv_xy_[::every_n_frame]), self._acceleration_[::every_n_frame],
-                          self._times_[::every_n_frame])
 
 
 Fields = namedtuple("Fields",
                     ["deflection", "slope_x", "slope_y", "curv_xx", "curv_yy", "curv_xy", "acceleration", "time"])
 
 
-def fields_from_abaqus_rpts(abaqus_data, downsample=False,downsample_space=None, bin_downsamples=False, accel_from_disp=True,
-                            filter_space_sigma=None, filter_time_sigma=None, noise_amp_sigma=None):
-    disp_fields = abaqus_data.disp_fields
-    accel_field = abaqus_data.accel_fields
-    times = abaqus_data.times
-    plate_len_x = abaqus_data.plate_len_x
-    plate_len_y = abaqus_data.plate_len_y
+def kinematic_fields_from_deflections(defl_fields, pixel_size, sampling_rate, acceleration_field=None, filter_space_sigma=None,
+                                      filter_time_sigma=None):
+    """
+    Calculate kinematic fields from a series of deflection fields.
+    The following fields are calculated are:
+        * Slopes
+        * Curvatures
+        * Out of plane acceleration
 
-    if downsample and not bin_downsamples:
-        disp_fields = disp_fields[::downsample, :, :]
-        accel_field = accel_field[::downsample, :, :]
-        times = times[::downsample]
-    elif downsample and bin_downsamples:
-        n_frames, n_x, n_y = disp_fields.shape
-        n_bins = np.floor(n_frames / downsample)
-        n_data_pts = int(n_bins * downsample)
-        print("Binning data, losing the %i last data points" % (n_frames - n_data_pts))
-
-        disp_fields = np.reshape(disp_fields[:n_data_pts, :, :], (-1, downsample, n_x, n_y)).mean(axis=1)
-        accel_field = np.reshape(accel_field[:n_data_pts, :, :], (-1, downsample, n_x, n_y)).mean(axis=1)
-        times = times[:n_data_pts:downsample]
-
-    if downsample_space:
-        disp_fields = disp_fields[:,::downsample_space,::downsample_space]
-        accel_field = accel_field[:,::downsample_space,::downsample_space]
-
-    if noise_amp_sigma:
-        disp_fields = disp_fields + np.random.random(disp_fields.shape) * noise_amp_sigma
-
-    if filter_time_sigma:
-        print("Filtering in time with sigma=%f" % float(filter_time_sigma))
-        disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0)
-
-    if filter_space_sigma:
-        for i in range(len(disp_fields)):
-            print("Filtering frame %i" % i)
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma, mode="nearest")
-
-    if accel_from_disp:
-        return fieldStack_from_disp_fields(disp_fields, None, times, plate_len_x, plate_len_y)
-    else:
-        return fieldStack_from_disp_fields(disp_fields, accel_field, times, plate_len_x, plate_len_y)
-
-
-def fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_space_sigma=None,
-                            filter_time_sigma=None):
-
+    Parameters
+    ----------
+    defl_fields : ndarray
+        The deflection fields with shape [frame,x,y]
+    pixel_size : float
+        The physical pixel size
+    sampling_rate : float
+        The sampling rate at which the fields are acquired
+    acceleration_field : ndarray (Optional)
+        The deflection fields with shape [frame,x,y]
+        If given, the acceleration fields are not determined by differentiation
+        of the deflection fields along the time axis.
+    filter_space_sigma : float
+        The standard deviation of the gaussian low-pass filter used to filter the deflection fields
+        spatially prior to differentiation.
+    filter_time_sigma : float
+        The standard deviation of the gaussian low-pass filter used to filter the deflection fields
+        temporally prior to differentiation.
+    Returns
+    -------
+    fieldstack : FieldStack
+        The kinematic fields
+    """
+    logger = logging.getLogger(__name__)
     # Copy to make in-place operations safe
-    disp_fields = copy(exp_disp_field)
+    disp_fields = copy(defl_fields)
 
     n_times, n_pts_x, n_pts_y = disp_fields.shape
 
@@ -142,14 +87,19 @@ def fields_from_experiments(exp_disp_field, pixel_size, sampling_rate, filter_sp
     field_len_y = n_pts_y * pixel_size
 
     if filter_time_sigma:
-        print("Filtering in time with sigma=%f" % float(filter_time_sigma))
+        logger.info("Filtering in time with sigma=%f" % float(filter_time_sigma))
         disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0, mode="nearest")
 
     if filter_space_sigma:
         for i in range(len(disp_fields)):
-            print("Filtering frame %i" % i)
+            logger.info("Filtering frame %i" % i)
             disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
-    return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
+
+    if acceleration_field is not None:
+        logger.info("Acceleration fields were given by the user and does not correspond to filtered displacements")
+        return fieldStack_from_disp_fields(disp_fields, acceleration_field, times, field_len_x, field_len_y)
+    else:
+        return fieldStack_from_disp_fields(disp_fields, None, times, field_len_x, field_len_y)
 
 
 def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_x, plate_y):
@@ -218,7 +168,7 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_x
         accel_field = np.gradient(vel_fields, axis=0) / time_step_size
 
     else:
-        accel_field = np.array(acceleration_fields)[:, 1:-1, 1:-1]
+        accel_field = np.array(acceleration_fields)#[:, 1:-1, 1:-1]
 
     deflection = np.array(deflection)
     slopes_x = np.array(slopes_x)
