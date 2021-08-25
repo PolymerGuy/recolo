@@ -2,7 +2,6 @@ from unittest import TestCase
 import numpy as np
 from recon.slope_integration import int2D
 
-
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2)) ** 2.)
 
@@ -91,7 +90,6 @@ class Test_integration_accuracy(TestCase):
         dx = plate_len_x / n_pts_x
         dy = plate_len_y / n_pts_y
 
-        int_const = 0.
 
         xs, ys = np.meshgrid(np.linspace(0., 1., n_pts_x), np.linspace(0., 1., n_pts_y))
 

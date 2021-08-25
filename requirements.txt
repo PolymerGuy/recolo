@@ -8,3 +8,4 @@ matplotlib
 natsort
 sphinx_rtd_theme
 sphinx
+scikit-image

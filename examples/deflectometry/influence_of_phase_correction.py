@@ -1,7 +1,10 @@
-from recon.deflectomerty.deflectometry import detect_phase, disp_from_phase
-from recon.artificial_grid_deformation import harmonic_disp_field, make_dotted_grid
+from recon.deflectomerty import detect_phase, disp_fields_from_phases
+from recon.artificial_grid_deformation import harmonic_disp_field, dotted_grid
 import numpy as np
 import matplotlib.pyplot as plt
+
+# The displacement field is determined from the phase fields but has to be corrected for finite displacements.
+# This script compares the displacement results with and without this correction.
 
 grid_pitch = 5
 oversampling = 15
@@ -17,20 +20,20 @@ for disp_amp in disp_amps:
     xs, ys, xs_disp, ys_disp, _, _ = harmonic_disp_field(disp_amp, disp_period, disp_n_periodes,
                                                          formulation="lagrangian")
 
-    grid_undeformed = make_dotted_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
+    grid_undeformed = dotted_grid(xs, ys, grid_pitch, oversampling=oversampling, pixel_size=1)
 
-    grid_displaced_eulr = make_dotted_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
-                                           pixel_size=1)
+    grid_displaced_eulr = dotted_grid(xs_disp, ys_disp, grid_pitch, oversampling=oversampling,
+                                      pixel_size=1)
 
     phase_x, phase_y = detect_phase(grid_displaced_eulr, grid_pitch)
     phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
 
-    disp_x_from_phase, disp_y_from_phase = disp_from_phase(phase_x, phase_x0, phase_y, phase_y0,
-                                                           grid_pitch, correct_phase=True)
+    disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0,
+                                                                   grid_pitch, correct_phase=True)
 
-    disp_x_from_phase_uncor, disp_y_from_phase_uncor = disp_from_phase(phase_x, phase_x0, phase_y,
-                                                                       phase_y0,
-                                                                       grid_pitch, correct_phase=False)
+    disp_x_from_phase_uncor, disp_y_from_phase_uncor = disp_fields_from_phases(phase_x, phase_x0, phase_y,
+                                                                               phase_y0,
+                                                                               grid_pitch, correct_phase=False)
 
     peak_disp_x = np.max(np.abs(disp_x_from_phase))
     peak_disp_x_uncor = np.max(np.abs(disp_x_from_phase_uncor))

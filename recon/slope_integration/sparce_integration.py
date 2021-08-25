@@ -1,6 +1,4 @@
 import numpy as np
-from numpy import matlib
-
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import lsqr
 
@@ -140,5 +138,7 @@ def int2D(igrad_x, igrad_y, idx, idy, const_at_edge=False):
     aux_a2 = lsqr(A[:, :], b)[0]
     aux_a3 = aux_a2.reshape((n_x, n_y))
 
+    # Set the value of the first point to zero
+    aux_a3 = aux_a3-aux_a3[0,0]
 
     return aux_a3
