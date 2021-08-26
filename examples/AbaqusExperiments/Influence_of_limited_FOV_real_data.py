@@ -52,14 +52,14 @@ for crop in crops:
 
     # Deflectometry
     undeformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_fields[0, :, :], abq_sim_fields.pixel_size_x, mirror_grid_dist,
-                                                  grid_pitch,
-                                                  upscale=upscale)
+                                                                                    grid_pitch,
+                                                                                    img_upscale=upscale)
     sloppes_x = []
     sloppes_y = []
     for disp_field in disp_fields:
         deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field, abq_sim_fields.pixel_size_x, mirror_grid_dist,
-                                                    grid_pitch,
-                                                    upscale=upscale)
+                                                                                      grid_pitch,
+                                                                                      img_upscale=upscale)
         slopes_x, slopes_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
         sloppes_x.append(slopes_x)
         sloppes_y.append(slopes_y)

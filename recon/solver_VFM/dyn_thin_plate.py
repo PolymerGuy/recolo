@@ -2,7 +2,7 @@ import numpy as np
 from scipy import ndimage
 from scipy.signal import convolve2d
 import recon
-
+import logging
 
 def pressure_elastic_thin_plate(fields, plate, virtual_fields, shift=False):
     """
@@ -24,7 +24,7 @@ def pressure_elastic_thin_plate(fields, plate, virtual_fields, shift=False):
         The reconstructed pressure field
     """
     # TODO: Insert the equation which is solved in the docstring.
-
+    logger = logging.getLogger(__name__)
     if not isinstance(fields,recon.Fields):
         raise IOError("The kinematic fields have to be given as an instance of the Fields class")
 
@@ -35,7 +35,7 @@ def pressure_elastic_thin_plate(fields, plate, virtual_fields, shift=False):
         # TODO: Make an abstract base class for the virtual fields
         raise IOError("The virtual fields have to be given as an instance of the Hermite16 class")
 
-
+    logger.info("Reconstructing pressure")
     A11 = convolve2d(fields.curv_xx, virtual_fields.curv_xx, mode="valid") + convolve2d(fields.curv_yy,
                                                                                         virtual_fields.curv_yy,
                                                                                         mode="valid") + 2. * convolve2d(

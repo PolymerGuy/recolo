@@ -92,7 +92,7 @@ def kinematic_fields_from_deflections(defl_fields, pixel_size, sampling_rate, ac
 
     if filter_space_sigma:
         for i in range(len(disp_fields)):
-            logger.info("Filtering frame %i" % i)
+            logger.info("Filtering frame %i with a gussian filter with a standard deviation of %f" %(i,filter_space_sigma))
             disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
 
     if acceleration_field is not None:

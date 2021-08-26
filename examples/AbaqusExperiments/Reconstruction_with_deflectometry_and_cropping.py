@@ -48,13 +48,13 @@ for remove_pixel in remove_n_pixels:
                                                                                     abq_sim_fields.pixel_size_x,
                                                                                     mirror_grid_dist,
                                                                                     grid_pitch,
-                                                                                    upscale=deflecto_upscale)
+                                                                                    img_upscale=deflecto_upscale)
     for disp_field in cropped_disp_field:
         deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
                                                                                       abq_sim_fields.pixel_size_x,
                                                                                       mirror_grid_dist,
                                                                                       grid_pitch,
-                                                                                      upscale=deflecto_upscale)
+                                                                                      img_upscale=deflecto_upscale)
 
         disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
         slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
