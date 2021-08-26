@@ -15,7 +15,7 @@ mat_nu = 0.3  # Poisson's ratio []
 plate_thick = 4.95e-3
 rho = 7934.
 
-plate = recon.calculate_plate_stiffness(mat_E, mat_nu, rho, plate_thick)
+plate = recon.make_plate(mat_E, mat_nu, rho, plate_thick)
 
 # pressure reconstruction parameters
 win_size = 30

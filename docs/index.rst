@@ -18,10 +18,22 @@ This python package provides tools for reconstuction of pressure loads using the
    install
    quickstart
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Virtual experiments:
+
+   minimalAbaqus
+   deflectometryAbaqus
 
 .. toctree::
    :maxdepth: 2
-   :caption: API:
+   :caption: RealExperiments:
+
+   impactHammer
+
+.. toctree::
+   :maxdepth: 2
+   :caption: AP
 
    API
 
