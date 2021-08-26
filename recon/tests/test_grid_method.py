@@ -2,10 +2,40 @@ from recon.deflectomerty import disp_from_grids
 from recon.artificial_grid_deformation import harmonic_disp_field, dotted_grid
 from unittest import TestCase
 import numpy as np
+from skimage.restoration import estimate_sigma
 
 
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1 - array2) ** 2.))
+
+
+class Test_NoiseAddition(TestCase):
+
+    def test_additive_gaussian_noise(self):
+
+        rel_error_tol = 1e-2
+
+        grid_pitch = 10
+        n_pitches = 20
+
+        # 1%, 5% and 10% noise
+        noise_levels = [0.01,0.05,0.1]
+
+        x = np.arange(grid_pitch * n_pitches, dtype=float)
+        y = np.arange(grid_pitch * n_pitches, dtype=float)
+
+        xs, ys = np.meshgrid(x, y)
+
+        for noise_level in noise_levels:
+            grid_undeformed = dotted_grid(xs, ys, grid_pitch,noise_std=noise_level)
+            estimated_sigma = estimate_sigma(grid_undeformed)
+
+            # Normalize to the amplitude of two
+            estimated_noise_level = estimated_sigma/2.
+
+            if np.abs(estimated_noise_level-noise_level)/noise_level> rel_error_tol:
+                self.fail("Correct noise amplitude was %f but the estimated was %f"%(noise_level,estimated_noise_level))
+
 
 
 class Test_DeflectometryOnKnownDeformations(TestCase):
