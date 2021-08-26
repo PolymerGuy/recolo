@@ -13,9 +13,11 @@ class Test_NoiseAddition(TestCase):
 
     def test_additive_gaussian_noise(self):
 
-        rel_error_tol = 1e-2
+        # Relatively slack tolerances as there is an inherent uncertainty in the the estimate of the noise level.
+        rel_error_tol = 5e-2
 
-        grid_pitch = 10
+        # Large pitches to help the noise estimation algorithm
+        grid_pitch = 20
         n_pitches = 20
 
         # 1%, 5% and 10% noise
