@@ -27,8 +27,8 @@ class Test_NoiseAddition(TestCase):
         xs, ys = np.meshgrid(x, y)
 
         for noise_level in noise_levels:
-            grid_undeformed = dotted_grid(xs, ys, grid_pitch,noise_std=noise_level)
-            estimated_sigma = estimate_sigma(grid_undeformed)
+            grid_with_noise = dotted_grid(xs, ys, grid_pitch,noise_std=noise_level)
+            estimated_sigma = estimate_sigma(grid_with_noise)
 
             # Normalize to the amplitude of two
             estimated_noise_level = estimated_sigma/2.
