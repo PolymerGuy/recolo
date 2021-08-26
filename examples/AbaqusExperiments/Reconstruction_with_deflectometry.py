@@ -18,12 +18,15 @@ density = 7700
 plate_thick = 5e-3
 plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
 
+# Image noise
+noise_std = 0.008 * 0
+
 # Reconstruction settings
-win_size = 6  # Should be increased when deflectometry is used
+win_size = 30  # Should be increased when deflectometry is used
 
 # Deflectometry settings
 run_deflectometry = True
-deflecto_upscale = 4
+upscale = 8
 mirror_grid_dist = 500.
 grid_pitch = 5.  # pixels
 
@@ -38,13 +41,15 @@ if run_deflectometry:
                                                                                     abq_sim_fields.pixel_size_x,
                                                                                     mirror_grid_dist,
                                                                                     grid_pitch,
-                                                                                    upscale=deflecto_upscale)
+                                                                                    img_upscale=upscale,
+                                                                                    img_noise_std=noise_std)
     for disp_field in abq_sim_fields.disp_fields:
         deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
                                                                                       abq_sim_fields.pixel_size_x,
                                                                                       mirror_grid_dist,
                                                                                       grid_pitch,
-                                                                                      upscale=deflecto_upscale)
+                                                                                      img_upscale=upscale,
+                                                                                      img_noise_std=noise_std)
 
         disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
         slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
@@ -54,19 +59,19 @@ if run_deflectometry:
 
     slopes_x = np.array(slopes_x)
     slopes_y = np.array(slopes_y)
-    pixel_size = abq_sim_fields.pixel_size_x / deflecto_upscale
+    pixel_size = abq_sim_fields.pixel_size_x / upscale
 else:
     pixel_size = abq_sim_fields.pixel_size_x
     slopes_x, slopes_y = np.gradient(abq_sim_fields.disp_fields, pixel_size, axis=(1, 2))
 
 # Integrate slopes to get deflection fields
 disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
-                                                       zero_at="bottom corners", zero_at_size=1,
-                                                       extrapolate_edge=0, filter_sigma=0, downsample=1)
+                                                       zero_at="bottom corners", zero_at_size=5,
+                                                       extrapolate_edge=0, downsample=1)
 
 # Kinematic fields from deflection field
 kin_fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size,
-                                                     abq_sim_fields.sampling_rate)
+                                                     abq_sim_fields.sampling_rate,filter_space_sigma=10)
 
 # Reconstruct pressure using the virtual fields method
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
