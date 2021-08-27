@@ -1,6 +1,6 @@
 Installation
 =============
-In order to get started with Recon, you need to install it on your computer.
+In order to get started with Recolo, you need to install it on your computer.
 There are two main ways to to this:
 
 *   You can install it via a package manager like PIP
@@ -23,13 +23,13 @@ Installing::
     python -m venv env
     source ./env/bin/activate #On Linux and Mac OS
     env\Scripts\activate.bat #On Windows
-    pip install recon
+    pip install recolo
 
 Now the toolkit is installed and ready for use.
 
 Run the tests::
 
-    nosetests recon
+    pytest recon
 
 If you want to check out the examples, then download the files in the examples folder and run the examples.
 
@@ -46,7 +46,7 @@ Prerequisites::
 
 Start to clone this repo to your preferred location::
 
-   git clone https://github.com/PolymerGuy/axitom.git
+   git clone https://github.com/PolymerGuy/recon.git
 
 
 
@@ -62,7 +62,7 @@ Virtual env::
 
 You can now run an example::
 
-    $ python ./examples/quickstart.py
+    $ python ./examples/AbaqusExperiments/Reconstruction_minimal.py
 
 
 
