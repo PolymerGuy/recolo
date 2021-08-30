@@ -7,7 +7,7 @@ import recon
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-cwd = os.getcwd()
+cwd = os.path.dirname(os.path.realpath(__file__))
 # Minimal example of pressure load reconstruction based on input from Abaqus The mesh is very coarse 61x61 elements,
 # which necessitates the use of a small window size for the pressure reconstruction
 
