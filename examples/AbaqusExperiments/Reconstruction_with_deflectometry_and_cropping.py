@@ -7,8 +7,7 @@ import recon
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-
-cwd = os.getcwd()
+cwd = os.path.dirname(os.path.realpath(__file__))
 
 # Minimal example of pressure load reconstruction based on input from Abaqus. The deflection field is used to
 # generate images used for deflectometry. This operation necessitates the images to be upscaled.
