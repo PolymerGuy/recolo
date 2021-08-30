@@ -1,3 +1,8 @@
+# This allows for running the example when the repo has been cloned
+import sys
+from os.path import abspath
+sys.path.extend([abspath(".")])
+
 import recon
 import numpy as np
 from scipy.ndimage import gaussian_filter, zoom
