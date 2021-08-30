@@ -24,7 +24,7 @@ Note that as we here use noise free data on a relatively coarse dataset, a very 
 
      win_size = 6
 
-We can inject noise to the grid images::
+Additive gaussian noise is added to the deformed grid images to mimic real world noise levels::
      
      noise_std = 0.009
 
