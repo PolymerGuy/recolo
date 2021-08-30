@@ -1,46 +1,77 @@
-Quick start
-===========
+Minimal example
+===============
 
-Let's now go through the necessary steps for doing reconstruction of a tomogram based on a single image.
+Let's now go through the necessary steps for doing pressure reconstruction.
 First, we need to import the tools::
 
-    import axitom as tom
-    from scipy.ndimage.filters import median_filter
+     import recon
+     import numpy as np
 
-The example data can be downloaded from the AXITOM/tests/example_data/ folder. The dataset was collected during tensile testing of a polymer specimen.
-Assuming that the example data from the repo is located in root folder, we can make a config object
-from the .xtekct file::
+The example data can be downloaded from the recon/examples/AbaqusExamples/AbaqusRPTs folder. 
+The dataset corresponds to a 300 x 300 mm  thin plate exposed to a sinusoidal pressure distribution in space and a saw-tooth shaped history in time.
+::
 
-    config = tom.config_from_xtekct("radiogram.xtekct")
+     mat_E = 210.e9  # Young's modulus [Pa]
+     mat_nu = 0.33  # Poisson's ratio []
+     density = 7700
+     plate_thick = 5e-3
+     plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
+     
 
-We now import the projection::
+We now set the pressure reconstuction window size. 
+Note that as we here use noise free data on a relatively coarse dataset, a very small window size is used::
 
-     projection = tom.read_image(r"radiogram.tif", flat_corrected=True)
+     win_size = 6
 
-As we will use a single projection only in this reconstruction, we will reduce the noise content of the projection by
-employing a median filter. This works fine since the density gradients within the specimen are relatively small.
-You may here choose any filter of your liking::
+We now load Abaqus data::
 
-     projection = median_filter(projection, size=21)
+     abq_sim_fields = recon.load_abaqus_rpts("path_to_abaqus_data"))
 
-Now, the axis of rotation has to be determined. This is done be binarization of the image into object and background
-and determining the center of gravity of the object::
+The Abaqus data contains the out-of-plane deflection and acceleration at each node of the plate for every time step.
+Based on these fields, the kinematic fields (slopes and curvatures) are calculated. By default the accelerations are determined from the 
+deflection fields directly, but we here choose to use the acceleration fields from Abaqus. This is done by setting the keyword argument "acceleration_field".
+::
 
-     _, center_offset = tom.object_center_of_rotation(projection, background_internsity=0.9)
+     kin_fields = recon.kinematic_fields_from_deflections(abq_sim_fields.disp_fields, 
+                                                            abq_sim_fields.pixel_size_x,
+                                                            abq_sim_fields.sampling_rate,
+                                                            acceleration_field=abq_sim_fields.accel_fields)
 
-The config object has to be updated with the correct values::
+Now, the pressure reconstuction can be initiated. First we define the Hermite16 virtual fields::
 
-     config = config.with_param(center_of_rot=center_offset)
+     virtual_field = recon.virtual_fields.Hermite16(win_size, abq_sim_fields.pixel_size_x)
 
-We are now ready to initiate the reconstruction::
+and initialize the pressure reconstruction::
 
-     tomo = tom.fdk(projection, config)
+     pressure_fields = np.array(
+     [recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field) 
+                                                      for field in kin_fields])
 
 
 The results can then be visualized::
 
-   import matplotlib.pyplot as plt
-   plt.title("Radial slice")
-   plt.imshow(tomo.transpose(), cmap=plt.cm.magma)
+     import matplotlib.pyplot as plt
+     # Plot the correct pressure in the center of the plate
+     times = np.array([0.0, 0.00005, 0.00010, 0.0003, 0.001]) * 1000
+     pressures = np.array([0.0, 0.0, 1.0, 0.0, 0.0]) * 1e5
+     plt.plot(times, pressures, '-', label="Correct pressure")
 
-and looks like this:
+     # Plot the coreconstructed pressure in the center of the plate
+     center = int(pressure_fields.shape[1] / 2)
+     plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], "-o",label="Reconstructed pressure")
+
+     plt.xlim(left=0.000, right=0.3)
+     plt.ylim(top=110000, bottom=-15)
+     plt.xlabel("Time [ms]")
+     plt.ylabel(r"Overpressure [kPa]")
+
+     plt.legend(frameon=False)
+     plt.tight_layout()
+     plt.show()
+
+The resulting plot looks like this:
+
+.. image:: ./figures/minimalExamplePressure.png
+   :scale: 80 %
+   :alt: The results
+   :align: center

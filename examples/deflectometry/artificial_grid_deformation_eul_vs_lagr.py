@@ -1,3 +1,8 @@
+# This allows for running the example when the repo has been cloned
+import sys
+from os.path import abspath
+sys.path.extend([abspath(".")])
+
 from recon.deflectomerty.grid_method import detect_phase, disp_fields_from_phases
 from recon.artificial_grid_deformation import harmonic_disp_field, dotted_grid
 import numpy as np

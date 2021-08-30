@@ -22,12 +22,11 @@ This python package provides tools for reconstuction of pressure loads using the
    :maxdepth: 2
    :caption: Virtual experiments:
 
-   minimalAbaqus
    deflectometryAbaqus
 
 .. toctree::
    :maxdepth: 2
-   :caption: RealExperiments:
+   :caption: Real experiments:
 
    impactHammer
 

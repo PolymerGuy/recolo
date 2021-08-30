@@ -1,7 +1,12 @@
+# This allows for running the example when the repo has been cloned
+import sys
+from os.path import abspath
+sys.path.extend([abspath(".")])
+
 import matplotlib.pyplot as plt
 
 from recon.deflectomerty import slopes_from_images
-from recon.utils import list_files_in_folder
+from recon.data_import import list_files_in_folder
 
 path = "/home/sindreno/gridmethod_Rene/images_full_2"
 img_paths = list_files_in_folder(path, file_type=".tif", abs_path=True)
