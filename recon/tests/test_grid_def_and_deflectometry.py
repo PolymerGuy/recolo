@@ -5,6 +5,37 @@ from unittest import TestCase
 import numpy as np
 
 
+class Test_DeformGridNoise(TestCase):
+
+    def test_noise_with_different_std(self):
+        rel_tol = 0.05
+
+        pixel_size = 1
+        mirror_grid_dist = 500.
+        grid_pitch = 5
+        upscale = 1
+        oversampling = 5
+
+        n_pts_x = 100
+        n_pts_y = 100
+        n_imgs = 50
+
+        noise_stds = np.arange(0.001,0.01,0.001)
+
+        for noise_std in noise_stds:
+            undeformed_field = np.zeros((n_pts_x,n_pts_y))
+
+            grids = [deform_grid_from_deflection(undeformed_field,pixel_size,mirror_grid_dist,grid_pitch,upscale,oversampling,img_noise_std=noise_std) for _ in range(n_imgs)]
+            noise_meas_std = np.mean(np.std(grids,axis=0))
+            norm_noise_std = noise_meas_std/(np.max(grids)-np.min(grids))
+
+            if np.abs(norm_noise_std-noise_std)/noise_std > rel_tol:
+                self.fail("The noise level is not correct. Correct is %f, estimated is %f"%(noise_std,norm_noise_std))
+
+
+
+
+
 class Test_DeformGridAndRunDeflectometry(TestCase):
 
     def test_half_sine_deflection_no_upscale(self):
