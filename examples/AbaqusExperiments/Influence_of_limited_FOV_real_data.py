@@ -5,7 +5,6 @@ sys.path.extend([abspath(".")])
 
 import recon
 import numpy as np
-from scipy.ndimage import gaussian_filter, zoom
 import matplotlib.pyplot as plt
 
 plt.style.use('science')
@@ -23,6 +22,8 @@ def read_exp_press_data():
     return press - press[0, :], time
 
 
+
+
 # plate and model parameters
 mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.33  # Poisson's ratio []
@@ -30,88 +31,77 @@ density = 7700
 plate_thick = 5e-3
 plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
 
+# Image noise
+noise_std = 0.008
+
+# Reconstruction settings
+win_size = 30  # Should be increased when deflectometry is used
+
+# Deflectometry settings
+run_deflectometry = True
+upscale = 8
 mirror_grid_dist = 500.
+grid_pitch = 5.  # pixels
 
-# crops = np.arange(0,5)
-crops = [0]
-peak_presses = []
-for crop in crops:
+# Load Abaqus data
+abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
 
-    abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
-
-    upscale = 8
-
-    pixel_size = abq_sim_fields.pixel_size_x / upscale
-
-    disp_fields = abq_sim_fields.disp_fields
-
-    if crop > 0:
-        disp_fields = disp_fields[:, crop:-crop, crop:-crop]
-
-    # pressure reconstruction parameters
-    win_size = 30
-    sampling_rate = 1. / (abq_sim_fields.times[1] - abq_sim_fields.times[0])
-
-    # Load slope fields and calculate displacement fields
-    grid_pitch = 5.  # pixels
-
-    # Deflectometry
-    undeformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_fields[0, :, :], abq_sim_fields.pixel_size_x, mirror_grid_dist,
+# The deflectometry return the slopes of the plate which has to be integrated in order to determine the deflection
+if run_deflectometry:
+    slopes_x = []
+    slopes_y = []
+    undeformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(abq_sim_fields.disp_fields[0, :, :],
+                                                                                    abq_sim_fields.pixel_size_x,
+                                                                                    mirror_grid_dist,
                                                                                     grid_pitch,
-                                                                                    img_upscale=upscale)
-    sloppes_x = []
-    sloppes_y = []
-    for disp_field in disp_fields:
-        deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field, abq_sim_fields.pixel_size_x, mirror_grid_dist,
+                                                                                    img_upscale=upscale,
+                                                                                    img_noise_std=0)
+    for disp_field in abq_sim_fields.disp_fields:
+        deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
+                                                                                      abq_sim_fields.pixel_size_x,
+                                                                                      mirror_grid_dist,
                                                                                       grid_pitch,
-                                                                                      img_upscale=upscale)
-        slopes_x, slopes_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
-        sloppes_x.append(slopes_x)
-        sloppes_y.append(slopes_y)
+                                                                                      img_upscale=upscale,
+                                                                                      img_noise_std=noise_std)
 
-    slopes_x = np.array(sloppes_x)
-    slopes_y = np.array(sloppes_y)
+        disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
+        slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
+        slope_y = recon.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
+        slopes_x.append(slope_x)
+        slopes_y.append(slope_y)
 
-    # Integrate slopes from deflectometry to get deflection fields
-    disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
-                                                           zero_at="bottom corners", zero_at_size=5,
-                                                           extrapolate_edge=0, filter_sigma=0, downsample=1)
+    slopes_x = np.array(slopes_x)
+    slopes_y = np.array(slopes_y)
+    pixel_size = abq_sim_fields.pixel_size_x / upscale
+else:
+    pixel_size = abq_sim_fields.pixel_size_x
+    slopes_x, slopes_y = np.gradient(abq_sim_fields.disp_fields, pixel_size, axis=(1, 2))
 
-    # Kinematic fields from deflection field
-    fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size, sampling_rate,
-                                                     filter_time_sigma=2,
-                                                     filter_space_sigma=0)
+# Integrate slopes to get deflection fields
+disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
+                                                       zero_at="bottom corners", zero_at_size=5,
+                                                       extrapolate_edge=0, downsample=1)
 
-    virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
+# Kinematic fields from deflection field
+kin_fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size,
+                                                     abq_sim_fields.sampling_rate,filter_space_sigma=10,filter_time_sigma=2)
 
-    # Results are stored in these lists
-    times = []
-    pressure_fields = []
+# Reconstruct pressure using the virtual fields method
+virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
+pressure_fields = np.array(
+    [recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field) for field in kin_fields])
 
-    for i, field in enumerate(fields):
-        print("Processing frame %i" % i)
-        recon_press = recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field)
+# Plot the results
+# Correct
+pressures,times = read_exp_press_data()
+plt.plot(times*1e3, pressures[:,8]*1e6, '-', label="Correct pressure")
 
-        # Store results
-        pressure_fields.append(recon_press)
-        times.append(field.time)
+# Reconstructed
+center = int(pressure_fields.shape[1] / 2)
+plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], "-o", label="Reconstructed pressure")
 
-    pressure_fields = np.array(pressure_fields)
-    center = int(pressure_fields.shape[1] / 2)
-    peak_presses.append(np.max(pressure_fields[:, center, center]))
-    # Plot the results
-    plt.plot((np.array(times)) * 1000., pressure_fields[:, center, center], '-',
-             label="Crop factor=%f" % (crop * upscale / disp_fields.shape[-1]))
-
-real_press, real_time = read_exp_press_data()
-
-plt.plot(real_time[:] * 1000., real_press[:, 8] * 1.e6, '--', label="Transducer", alpha=0.7)
-
-plt.plot(real_time * 1000, gaussian_filter(real_press[:, 8] * 1.e6, sigma=2. * 500. / 75.), '--',
-         label="We should get this curve for sigma=2")
-
-plt.xlim(left=0.000, right=0.9)
-plt.ylim(top=80000, bottom=-15)
+plt.xlim(left=0.000, right=0.6)
+plt.ylim(top=110000, bottom=-15)
 plt.xlabel("Time [ms]")
 plt.ylabel(r"Overpressure [kPa]")
 
