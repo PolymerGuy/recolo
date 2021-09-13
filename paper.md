@@ -1,5 +1,5 @@
 ---
-title: 'RECOLO: A Python package for reconstruction of pressure fields from kinematic fields using the virtual fields method'
+title: 'RECOLO: A Python package for the reconstruction of surface pressure loads from kinematic fields using the virtual fields method'
 tags:
   - Python
   - Virtual fields method
@@ -7,38 +7,38 @@ tags:
   - Parameter identification
 authors:
   - name: Sindre Nordmark Olufsen
-    affiliation: 1
+    affiliation: 1,2
   - name: Rene Kaufmann
     affiliation: 1
-  - name: Vegard Aune
+  - name: Egil Fagerholt
     affiliation: 1
+  - name: Vegard Aune
+    affiliation: 1,2
 affiliations:
- - name: Structural Impact Laboratory (SIMLab), Department of Structural Engineering, NTNU, Norwegian University of Science and Technology, NO-7491 Trondheim, Norway
+ - name: Structural Impact Laboratory (SIMLab), Department of Structural Engineering, NTNU - Norwegian University of Science and Technology, Trondheim, Norway
    index: 1
-date: 24 March 2021
+ - name: Centre for Advanced Structural Analysis (CASA), NTNU, Trondheim, Norway
+   index: 2
+date: 13 September 2021
 bibliography: paper.bib
 ---
 
 # Summary
-The ability to picture the internals of a body in a non-invasive way is vital for both diagnostics and research in a broad range of fields.
-Tomography is the imaging of body sections, typically acquired from projections of the body by using a penetrating wave, and then reconstructed by employing a reconstruction algorithm. Some cases allow for simplification of the tomographic problem,
-one of them being the presence of symmetries within the tomogram. Axi-symmetry reduces the tomographic reconstruction to the inversion of the Abel transform, which
-can be obtained from a single projection, having a fractional acquisition cost compared to typical datasets. In home-laboratory X-ray setups,
-X-rays are distributed in space as a conical beam rather than parallel rays, which has to be accounted for in the reconstruction of the tomogram.
+In experimental mechanics, it is well known that it is very challenging to measure non-intrusive surface pressures on blast-loaded structures even in controlled, laboratory environments (see e.g., [@Pannell2021]). Still, it is of utmost importance to provide structural engineers with a detailed knowledge of loads and underlying physics to understand and predict how structures respond during extreme loading events. When pressure loads are imposed on a deformable structure, fluid-structure interaction (FSI) effects are known to cause non-trivial loading scenarios which are difficult to quantify (see e.g., [@Aune2021]).
+This project aims at reconstructing the full-field surface pressure loads acting on a deforming structure employing the virtual fields method (VFM) on full-field kinematic measurements [@Kaufmann2019,@Kaufmann2020]. Provided that the properties of the structure are known,
+the pressure loading can be reconstructed both temporally and spatially. To understand the capabilities and error sources
+associated with the reconstruction methodology, the package provides the scientific tools for performing virtual experiments based on analytical data or data from finite element simulations. Tools for performing deflectometry using the grid method are also provided.
 
-``Recolo`` is a Python package that allows for the reconstruction of axi-symmetric tomograms when the projections have been obtained by a conical beam.
-Excellent Python packages such as TomoPy [@Gursoy2014] and the Astra toolbox [@Pelt2016; @vanAarle:16; @VANAARLE201535] are already available for tomographic reconstruction,
-but are general-purpose and do not exploit axi-symmetries. PyAbel [@Hickstein2016] is a Python project for inversion of the Abel transform but is focused on parallel beam geometries.
+``Recolo`` is a Python package that allows for the reconstruction of surface pressure loads acting on plated structures by using the VFM [@Pierron2012].
+Other VFM toolkits such as PeriPyVFM are readily available but are focused on different applications.
 
-``Recolo`` contains a collection of high-level functions that can be used to load datasets, perform virtual experiments and perform the tomographic reconstruction.
-A Feldkamp David Kress algorithm [@Feldkamp:84] is used to reconstruct the tomograms, with modifications
-for reduced computational cost. The implementation relies on NumPy [@Numpy] and SciPy [@SciPy], as well as numerous packages for visualization and IO.
+``Recolo`` contains a collection of science-driven functions which enables the user to perform virtual experiment on synthetically generated data as well
+ as performing pressure reconstruction on experimental datasets. The pressure reconstruction algorithm is based on the work by [@Kaufmann2019,@Kaufmann2020].
+The implementation is based on numerical operations provided by NumPy [@Numpy] and SciPy [@SciPy] as well as visualization by Matplotlib [@Matplotlib].
 
-``Recolo`` was implemented for reconstructing axi-symmetric density fields measured by X-ray absorption radiography.
-This project is a part of the ongoing research within the SFI CASA research group at NTNU and has been a key component in the pursuit of *in-situ*
-investigation of cavitation of polymers during deformation.
+``Recolo`` was implemented to determine the blast loading acting on plated structures in a purpose-built shock tube apparatus at SIMLab, NTNU [@Aune2016]. The methodology developed in this project is directly applicable to obtain new, unique insight into surface pressure distributions on plated structures subjected to blast loading. This project is part of the ongoing research within the SIMLab research group at NTNU.
 
 # Acknowledgements
-The author gratefully appreciates the financial support from the Research Council of Norway through the Centre for Advanced Structural Analysis, Project No. 237885 (SFI-CASA).
+The authors gratefully appreciate the financial support from the Research Council of Norway (RCN) through the Centre for Advanced Structural Analysis (SFI-CASA RCN Project No. 237885) and the SLADE KPN project (RCN Project No. 294748). The financial support by the Norwegian Ministry of Justice and Public Security is also greatly appreciated.
 
 # References

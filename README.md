@@ -1,4 +1,4 @@
-Recon
+![](docs/logo.png)
 =============
 [![codecov](https://codecov.io/gh/PolymerGuy/recon/branch/master/graph/badge.svg?token=7J4EH3C399)](https://codecov.io/gh/PolymerGuy/recon)
 [![CircleCI](https://circleci.com/gh/PolymerGuy/recon.svg?style=svg&circle-token=3403eba7b905e1a626d1c797ed5ca4e3daba76df)](https://circleci.com/gh/PolymerGuy/recon)
@@ -8,7 +8,16 @@ Recon
 
 About this project
 ------------------
-Tools for load reconstruction using the virtual fields method.
+Tools for load reconstruction using the virtual fields method. This Python package provides the tools neccesarry
+for reconstructing distributed pressure loads acting on thin plates based on kinematic fields.
+
+A virtual lab is also provided, allowing synthetic data to be generated based on input from finite element simulations.
+
+Example kinematic fields pressure is shown below:
+![alt text](docs/kinematics.gif)
+
+which gives the following pressure field:
+![alt text](docs/pressure.gif)
 
 The documentation is hosted at https://recolo.readthedocs.io/en/latest/
 
@@ -66,7 +75,7 @@ How to cite us
 --------------
 If you use this toolkit in your scientific work, consider citing one or more of the following:
 
-- Kaufmann,*et al.*, ["Virtual fields for load reconstuction in shock-tube experiments"](https://www.dead.link.com), *Impact Mechanics*, May 2021. ([open access](https://www.dead.link.com))
+- Kaufmann,*et al.*, ["Virtual fields for load reconstuction in shock-tube experiments"](https://www.dead.link.com), *"To be submitted to International Journal of Impact Engineering*, May 2022. ([open access](https://www.dead.link.com))
 
 
 

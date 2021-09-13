@@ -86,6 +86,7 @@ todo_include_todos = False
 # html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -96,6 +97,9 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_logo = 'logo.png'
+
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -141,7 +145,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Recon.tex', u'Recon Documentation',
-     u'Sindre Nordmark Olufsen, Rene Kaufman, Vegard Aune', 'manual'),
+     u'Sindre Nordmark Olufsen, Rene Kaufman, Egil Fagerholt, Vegard Aune', 'manual'),
 ]
 
 

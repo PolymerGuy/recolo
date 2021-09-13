@@ -40,27 +40,27 @@ pixel_size_on_grid_plane = grid_pitch_len / grid_pitch
 pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
 
 ref_img_ids = range(50, 60)
-use_imgs = range(90, 130)
+use_imgs = range(80, 130)
 
-slopes_x, slopes_y = recon.deflectomerty.slopes_from_images(path, grid_pitch, mirror_grid_distance,
+slopes_y, slopes_x = recon.deflectomerty.slopes_from_images(path, grid_pitch, mirror_grid_distance,
                                                             ref_img_ids=ref_img_ids, only_img_ids=use_imgs,
-                                                            crop=(10, -10, 0, -1))
+                                                            crop=(10, -10, 0, -1),window="gaussian")
 
 disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
-                                                       zero_at="bottom corners",zero_at_size=5,
+                                                       zero_at="bottom corners",zero_at_size=20,
                                                        extrapolate_edge=0, filter_sigma=2, downsample=1)
 
 # Results are stored in these lists
 times = []
 presses = []
 
-fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=2,
+fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=0,
                                                  filter_space_sigma=10)
 virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
 
 for i, field in enumerate(fields):
     print("Processing frame %i" % i)
-    recon_press = recon.solver.pressure_elastic_thin_plate(field, plate, virtual_field)
+    recon_press = recon.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field)
     presses.append(recon_press)
     times.append(field.time)
 

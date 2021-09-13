@@ -4,7 +4,7 @@ from scipy.signal import convolve2d
 import recon
 import logging
 
-def pressure_elastic_thin_plate(fields, plate, virtual_fields, shift=False):
+def calc_pressure_thin_elastic_plate(fields, plate, virtual_fields, shift=False):
     """
     Interpolate the displacement fields given by u_x and u_y by means of B-splines
     Parameters
@@ -28,7 +28,7 @@ def pressure_elastic_thin_plate(fields, plate, virtual_fields, shift=False):
     if not isinstance(fields,recon.Fields):
         raise IOError("The kinematic fields have to be given as an instance of the Fields class")
 
-    if not isinstance(plate,recon.plate.Plate):
+    if not isinstance(plate, recon.data_structures.plate.Plate):
         raise IOError("The plate metrics have to be given as an instance of the Plate class")
 
     if not isinstance(virtual_fields,recon.virtual_fields.Hermite16):

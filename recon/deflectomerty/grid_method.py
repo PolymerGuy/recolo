@@ -26,7 +26,6 @@ def triangular_window(win_size):
     t_noy = np.floor(win_size)
     g1 = triang(2 * t_noy - 1)
     conv_matrix = np.outer(g1, g1)
-    raise NotImplementedError("The triangular window does not yield valid results")
     return conv_matrix / conv_matrix.sum()
 
 
@@ -38,7 +37,7 @@ def detect_phase(img, grid_pitch, window="gaussian", boundary="symm"):
     ----------
     img : ndarray
         The image of the grid
-    grid_pitch : int
+    grid_pitch : float
         The grid pitch in pixels
     window : str
         The type of window used for the convolution. "gaussian" and "triangular" are valid input.
@@ -129,7 +128,7 @@ def disp_fields_from_phases(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, 
         The phase modulation field along the y-axis in the deformed configuration as complex numbers
     phase_y_0 : ndarray
         The phase modulation field along the y-axis in the undeformed configuration as complex numbers
-    grid_pitch : int
+    grid_pitch : float
         The grid pitch in pixels
     correct_phase : bool
         Correct the phases for finite displacements
@@ -187,7 +186,7 @@ def disp_fields_from_phases(phase_x, phase_x_0, phase_y, phase_y_0, grid_pitch, 
         return u_x_first, u_x_first
 
 
-def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=True):
+def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=True,window="gaussian"):
     """ Determine the displacements of every pixel based the image of an undeformed grid and a deformed grid. This is
     done by determining the displacement from the phase modulation along two axes in two configurations,
     see [1] for more details.
@@ -213,8 +212,8 @@ def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=Tr
     strain measurement: a review and analysis. Strain, Wiley-Blackwell, 2016, 52 (3), pp.205-243.
     ff10.1111/str.12182ff. ffhal-01317145f
     """
-    phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch)
-    phase_x, phase_y = detect_phase(grid_deformed, grid_pitch)
+    phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch,window=window)
+    phase_x, phase_y = detect_phase(grid_deformed, grid_pitch,window=window)
     disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0,
                                                                    grid_pitch, correct_phase=correct_phase)
 
