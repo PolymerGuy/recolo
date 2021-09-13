@@ -11,7 +11,7 @@ jobs:
       - image: circleci/python:3.7.3
 
 
-    working_directory: ~/recon
+    working_directory: ~/recolo
 
     steps:
       - checkout
@@ -40,7 +40,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest --pyargs recon --cov=./
+            pytest --pyargs recolo --cov=./
             codecov -t $CODECOV_TOKEN
 
       - store_artifacts:

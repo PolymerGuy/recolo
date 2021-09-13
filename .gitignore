@@ -1,6 +1,6 @@
 env
 env/
-/recon/__pycache__/
+/recolo/__pycache__/
 *.pyc
 .pyc
 .vscode
