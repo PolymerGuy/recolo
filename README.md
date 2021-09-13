@@ -13,9 +13,11 @@ for reconstructing distributed pressure loads acting on thin plates based on kin
 
 A virtual lab is also provided, allowing synthetic data to be generated based on input from finite element simulations.
 
-Example kinematic fields and reconstucted pressure is shown below:
+Example kinematic fields pressure is shown below:
 ![alt text](docs/kinematics.gif)
 
+which gives the following pressure field:
+![alt text](docs/pressure.gif)
 
 The documentation is hosted at https://recolo.readthedocs.io/en/latest/
 
