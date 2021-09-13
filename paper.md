@@ -22,8 +22,8 @@ bibliography: paper.bib
 # Summary
 In experimental mechanics, the ability to determine the load acting on a structure without interfering with the experiment is crucial.
 When pressure loads are imposed on a deformable structure, fluid-structure-interaction effects are known to cause non-trivial loading scenarios which are difficult to quantify.
-This project aims at reconstructing the pressure load acting on a deforming structure by means of the virtual fields method [Kaufmann2019,Kaufmann2020]. If the properties of the structure, here being a plate, is known,
-the pressure loading can be reconstructed both temporally and spatially. In order to understand the capabilities and error sources
+This project aims at reconstructing the pressure load acting on a deforming structure employing the virtual fields method [Kaufmann2019,Kaufmann2020]. If the properties of the structure are known,
+the pressure loading can be reconstructed both temporally and spatially. To understand the capabilities and error sources
 associated with the technique, the package provides tools for performing virtual experiments based on analytical data or data from finite element simulations. Tools for performing deflectometry using the grid method are also provided.
 
 ``Recolo`` is a Python package that allows for the reconstruction of pressure loads acting on plated structures by using the virtual fields method [].
