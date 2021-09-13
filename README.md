@@ -75,7 +75,7 @@ How to cite us
 --------------
 If you use this toolkit in your scientific work, consider citing one or more of the following:
 
-- Kaufmann,*et al.*, ["Virtual fields for load reconstuction in shock-tube experiments"](https://www.dead.link.com), *"International Journal of Impact Engineering*, May 2022. ([open access](https://www.dead.link.com))
+- Kaufmann,*et al.*, ["Virtual fields for load reconstuction in shock-tube experiments"](https://www.dead.link.com), *"To be submitted to International Journal of Impact Engineering*, May 2022. ([open access](https://www.dead.link.com))
 
 
 
