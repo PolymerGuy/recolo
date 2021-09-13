@@ -20,23 +20,22 @@ bibliography: paper.bib
 ---
 
 # Summary
-The ability to picture the internals of a body in a non-invasive way is vital for both diagnostics and research in a broad range of fields.
-Tomography is the imaging of body sections, typically acquired from projections of the body by using a penetrating wave, and then reconstructed by employing a reconstruction algorithm. Some cases allow for simplification of the tomographic problem,
-one of them being the presence of symmetries within the tomogram. Axi-symmetry reduces the tomographic reconstruction to the inversion of the Abel transform, which
-can be obtained from a single projection, having a fractional acquisition cost compared to typical datasets. In home-laboratory X-ray setups,
-X-rays are distributed in space as a conical beam rather than parallel rays, which has to be accounted for in the reconstruction of the tomogram.
+The ability to determine the load applied to a structure without interfering with the experiment is crucial in experimental mechanics.
+Fluid-structure-interaction effects caused by interaction between the deformation of the structure and the applied pressure
+are known to cause non-trivial loading scenarios which are difficult to quantify. This project aims at reconstructing the
+pressure load acting on a deforming structure by means of the virtual fields method [Kaufmann2019,Kaufmann2020]. If the properties of the structure, here being a plate, is known,
+the pressure loading can be reconstructed both temporally and spatially. In order to understand the capabilities and error sources
+associated with the technique, the package provides tools for performing virtual experiments based on analytical data or data from finite element simulations. Tools for performing deflectometry using the grid method are also provided.
 
-``Recolo`` is a Python package that allows for the reconstruction of axi-symmetric tomograms when the projections have been obtained by a conical beam.
-Excellent Python packages such as TomoPy [@Gursoy2014] and the Astra toolbox [@Pelt2016; @vanAarle:16; @VANAARLE201535] are already available for tomographic reconstruction,
-but are general-purpose and do not exploit axi-symmetries. PyAbel [@Hickstein2016] is a Python project for inversion of the Abel transform but is focused on parallel beam geometries.
+``Recolo`` is a Python package that allows for the reconstruction of pressure loads acting on plated structures by using the virtual fields method [].
+Other VFM toolkits such as PeriPyVFM are readily available but are focused on different applications.
 
-``Recolo`` contains a collection of high-level functions that can be used to load datasets, perform virtual experiments and perform the tomographic reconstruction.
-A Feldkamp David Kress algorithm [@Feldkamp:84] is used to reconstruct the tomograms, with modifications
-for reduced computational cost. The implementation relies on NumPy [@Numpy] and SciPy [@SciPy], as well as numerous packages for visualization and IO.
+``Recolo`` contains a collection of high-level functions which allows the user to perform virtual experiment on synthetically generated data as well
+ as performing pressure reconstruction on experimental datasets. The pressure reconstruction algorithm is based on the work by Kaufmann et al. [@Kaufmann2019,Kaufmann2020].
+The implementation is highly on numerical operations provided by NumPy [@Numpy] and SciPy [@SciPy] as well as visualization by Matplotlib [@Matplotlib].
 
-``Recolo`` was implemented for reconstructing axi-symmetric density fields measured by X-ray absorption radiography.
-This project is a part of the ongoing research within the SFI CASA research group at NTNU and has been a key component in the pursuit of *in-situ*
-investigation of cavitation of polymers during deformation.
+``Recolo`` was implemented to determine the blast pressure load acting on plated structures a shock-tube apparatus.
+This project is a part of the ongoing research within the SFI CASA research group at NTNU and is a key component in the pursuit of better understanding of fluid-structure-interaction effects in blast load scenarios.
 
 # Acknowledgements
 The author gratefully appreciates the financial support from the Research Council of Norway through the Centre for Advanced Structural Analysis, Project No. 237885 (SFI-CASA).
