@@ -40,7 +40,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest --pyargs recon --cov=./
+            pytest --pyargs recolo --cov=./
             codecov -t $CODECOV_TOKEN
 
       - store_artifacts:
