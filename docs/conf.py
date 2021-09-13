@@ -145,7 +145,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Recon.tex', u'Recon Documentation',
-     u'Sindre Nordmark Olufsen, Rene Kaufman, Vegard Aune', 'manual'),
+     u'Sindre Nordmark Olufsen, Rene Kaufman, Egil Fagerholt, Vegard Aune', 'manual'),
 ]
 
 

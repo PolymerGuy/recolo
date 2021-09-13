@@ -47,15 +47,17 @@ def disp_from_slopes(slopes_x, slopes_y, pixel_size, zero_at="bottom",zero_at_si
     disp_fields = []
 
     for i in range(n_frames):
-        logger.info("Integrating frame %i cropped by %i pixels" % (i, extrapolate_edge))
+        logger.info("Integrating frame %i" % (i))
         slope_y = slopes_y[i,:, :]
         slope_x = slopes_x[i,:, :]
 
-        slope_y = gaussian_filter(slope_y, sigma=filter_sigma)
-        slope_x = gaussian_filter(slope_x, sigma=filter_sigma)
+        if filter_sigma >0:
+            slope_y = gaussian_filter(slope_y, sigma=filter_sigma)
+            slope_x = gaussian_filter(slope_x, sigma=filter_sigma)
 
-        slope_y = slope_y[::downsample, ::downsample]
-        slope_x = slope_x[::downsample, ::downsample]
+        if downsample>0:
+            slope_y = slope_y[::downsample, ::downsample]
+            slope_x = slope_x[::downsample, ::downsample]
 
         if extrapolate_edge > 0:
             slope_x = np.pad(slope_x, pad_width=(extrapolate_edge, extrapolate_edge), mode="edge")

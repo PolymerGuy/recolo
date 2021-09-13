@@ -1,5 +1,5 @@
 from unittest import TestCase
-from  recon.data_import import load_abaqus_rpts
+from  recon.data_structures import load_abaqus_rpts
 import pathlib
 import os
 cwd = pathlib.Path(__file__).parent.resolve()

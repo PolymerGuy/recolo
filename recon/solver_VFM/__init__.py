@@ -1,1 +1,1 @@
-from .dyn_thin_plate import pressure_elastic_thin_plate
+from .dyn_thin_plate import calc_pressure_thin_elastic_plate

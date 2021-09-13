@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 def harmonic_disp_field(amplitude, periode, n_periodes, formulation="Lagrangian"):
     """
@@ -28,6 +29,7 @@ def harmonic_disp_field(amplitude, periode, n_periodes, formulation="Lagrangian"
         Xs,Ys are the coordinates in the undeformed configuration
         displacement_x, displacement_y are the displacement component fields
     """
+    logger = logging.getLogger(__name__)
     x = np.arange(n_periodes * periode, dtype=float)
     y = np.arange(n_periodes * periode, dtype=float)
 
@@ -54,7 +56,7 @@ def harmonic_disp_field(amplitude, periode, n_periodes, formulation="Lagrangian"
             errors_y = np.max(np.abs(Ys + amplitude * np.sin(n_periodes * 2. * np.pi * Ys / ys.max()) - ys))
 
             if errors_x < tol and errors_y < tol:
-                print("Coordinate correction converged in %i iterations" % i)
+                logger.info("Solved X + u(X) - x = 0  in %i iterations" % i)
                 break
         displacement_x = amplitude * np.sin(n_periodes * 2. * np.pi * Xs / xs.max())
         displacement_y = amplitude * np.sin(n_periodes * 2. * np.pi * Ys / ys.max())
@@ -65,3 +67,40 @@ def harmonic_disp_field(amplitude, periode, n_periodes, formulation="Lagrangian"
 
 
 
+def rigid_body_disp_field(disp_x,disp_y,size_x,size_y):
+    """
+    Rigid body motion field with associated reference coordinates, current coordinates and displacement fields.
+
+    The following coordinate definition is used:
+        x = X + u(X)
+    where x is the current coordinates, X is the coordinates in the undeformed configuration and u(X) is the
+    displacement field expressed in therm of coordinates in the undeformed configuration.
+
+    Parameters
+    ----------
+    disp_x : float
+        The rigid body displacement along x
+    disp_y : float
+        The rigid body displacement along x
+    size_x : int
+        The size of the displacement field along x
+    size_y : int
+        The size of the displacement field along x
+
+    Returns
+    -------
+    xs, ys, Xs, Ys, displacement_x, displacement_y : ndarray
+        xs,ys are the coordinates in the deformed configuration
+        Xs,Ys are the coordinates in the undeformed configuration
+        displacement_x, displacement_y are the displacement component fields
+    """
+    logger = logging.getLogger(__name__)
+    x = np.arange(size_x, dtype=float)
+    y = np.arange(size_y, dtype=float)
+
+    xs, ys = np.meshgrid(x, y)
+
+    Xs = xs - disp_x
+    Ys = ys - disp_y
+
+    return xs,ys,Xs,Ys,disp_x,disp_y

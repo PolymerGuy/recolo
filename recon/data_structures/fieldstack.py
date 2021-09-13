@@ -35,7 +35,6 @@ class FieldStack(object):
         else:
             return self.__call__(num)
 
-
     def shape(self):
         return np.shape(self._deflection_)
 
@@ -44,7 +43,8 @@ Fields = namedtuple("Fields",
                     ["deflection", "slope_x", "slope_y", "curv_xx", "curv_yy", "curv_xy", "acceleration", "time"])
 
 
-def kinematic_fields_from_deflections(defl_fields, pixel_size, sampling_rate, acceleration_field=None, filter_space_sigma=None,
+def kinematic_fields_from_deflections(defl_fields, pixel_size, sampling_rate, acceleration_field=None,
+                                      filter_space_sigma=None,
                                       filter_time_sigma=None):
     """
     Calculate kinematic fields from a series of deflection fields.
@@ -80,20 +80,24 @@ def kinematic_fields_from_deflections(defl_fields, pixel_size, sampling_rate, ac
     # Copy to make in-place operations safe
     disp_fields = copy(defl_fields)
 
-    n_times, n_pts_x, n_pts_y = disp_fields.shape
-
-    times = np.arange(n_times) * 1. / sampling_rate
-    field_len_x = n_pts_x * pixel_size
-    field_len_y = n_pts_y * pixel_size
-
     if filter_time_sigma:
         logger.info("Filtering in time with sigma=%f" % float(filter_time_sigma))
         disp_fields = gaussian_filter1d(disp_fields, sigma=filter_time_sigma, axis=0, mode="nearest")
 
     if filter_space_sigma:
+        filtered_disp_fields = []
         for i in range(len(disp_fields)):
-            logger.info("Filtering frame %i with a gussian filter with a standard deviation of %f" %(i,filter_space_sigma))
-            disp_fields[i, :, :] = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
+            logger.info(
+                "Filtering frame %i with a gussian filter with a standard deviation of %f" % (i, filter_space_sigma))
+            filtered_disp_field = gaussian_filter(disp_fields[i, :, :], sigma=filter_space_sigma)
+            remove_n_invalid = int(4 * filter_space_sigma + 0.5)
+            filtered_disp_fields.append(filtered_disp_field[remove_n_invalid:-remove_n_invalid,remove_n_invalid:-remove_n_invalid])
+        disp_fields = np.array(filtered_disp_fields)
+    n_times, n_pts_x, n_pts_y = disp_fields.shape
+
+    times = np.arange(n_times) * 1. / sampling_rate
+    field_len_x = n_pts_x * pixel_size
+    field_len_y = n_pts_y * pixel_size
 
     if acceleration_field is not None:
         logger.info("Acceleration fields were given by the user and does not correspond to filtered displacements")
@@ -140,14 +144,14 @@ def fieldStack_from_disp_func(disp_func, npts_x, npts_y, plate_len_x, plate_len_
     curv_xy = (-ddF_complex_xy(disp_func, xs, ys) / (plate_len_x ** 2.))
 
     # Add an initial axis to make this the first frame in the stack
-    deflection = deflection[np.newaxis,:,:]
-    slope_x = slope_x[np.newaxis,:,:]
-    slope_y = slope_y[np.newaxis,:,:]
-    curv_yy = curv_yy[np.newaxis,:,:]
-    curv_xx = curv_xx[np.newaxis,:,:]
-    curv_xy = curv_xy[np.newaxis,:,:]
+    deflection = deflection[np.newaxis, :, :]
+    slope_x = slope_x[np.newaxis, :, :]
+    slope_y = slope_y[np.newaxis, :, :]
+    curv_yy = curv_yy[np.newaxis, :, :]
+    curv_xx = curv_xx[np.newaxis, :, :]
+    curv_xy = curv_xy[np.newaxis, :, :]
 
-    return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection),[0])
+    return FieldStack(deflection, (slope_x, slope_y), (curv_xx, curv_yy, curv_xy), np.zeros_like(deflection), [0])
 
 
 def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_len_x, plate_len_y):
@@ -173,7 +177,6 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_l
     field_stack : FieldStack
         The field stack
     """
-
 
     n_frames = disp_fields.shape[0]
     deflection = []
@@ -208,7 +211,7 @@ def fieldStack_from_disp_fields(disp_fields, acceleration_fields, times, plate_l
 
     if acceleration_fields is None:
         # Assuming constant time-step size
-        time_step_size = float(times[1])-float(times[0])
+        time_step_size = float(times[1]) - float(times[0])
 
         vel_fields = np.gradient(deflection, axis=0) / time_step_size
         accel_field = np.gradient(vel_fields, axis=0) / time_step_size

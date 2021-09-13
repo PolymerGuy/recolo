@@ -1,12 +1,13 @@
 import numpy as np
-from recon.data_import import list_files_in_folder
+from recon.data_structures import list_files_in_folder
 from imageio import imread
+#from matplotlib.pyplot import imread
 import logging
 from recon.deflectomerty.grid_method import angle_from_disp, disp_from_grids
 import matplotlib.pyplot as plt
 
 def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref_img_ids=None, only_img_ids=None,
-                       crop=None, correct_phase=True):
+                       crop=None, correct_phase=True,window="gaussian"):
     """ Perform deflectometry to determine the slope fields associated with a series of images.
      the slope fields of a specimen based on the dof every pixel based on the phase modulation in two configurations, see [1] for
     more details.
@@ -48,11 +49,12 @@ def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref
 
     logger = logging.getLogger(__name__)
 
+    if ref_img_ids:
+        grid_undeformed = np.mean([imread(img_paths[i]) for i in ref_img_ids], axis=0)
+
     if only_img_ids:
         img_paths = [img_paths[i] for i in only_img_ids]
 
-    if ref_img_ids:
-        grid_undeformed = np.mean([imread(img_paths[i]) for i in ref_img_ids], axis=0)
     else:
         logger.info("No reference images were specified, using first image as reference.")
         grid_undeformed = imread(img_paths[0])
@@ -71,7 +73,7 @@ def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref
             grid_displaced_eulr = grid_displaced_eulr[crop[0]:crop[1], crop[2]:crop[3]]
 
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed, grid_displaced_eulr, grid_pitch,
-                                                               correct_phase=correct_phase)
+                                                               correct_phase=correct_phase,window=window)
 
         slope_y = angle_from_disp(disp_x_from_phase, mirror_grid_distance)
         slope_x = angle_from_disp(disp_y_from_phase, mirror_grid_distance)
