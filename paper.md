@@ -10,6 +10,8 @@ authors:
     affiliation: 1
   - name: Rene Kaufmann
     affiliation: 1
+  - name: Egil Fagerholt
+    affiliation: 1
   - name: Vegard Aune
     affiliation: 1
 affiliations:

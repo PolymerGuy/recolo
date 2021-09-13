@@ -1,3 +1,4 @@
+![](docs/logo.png)
 Recon
 =============
 [![codecov](https://codecov.io/gh/PolymerGuy/recon/branch/master/graph/badge.svg?token=7J4EH3C399)](https://codecov.io/gh/PolymerGuy/recon)
@@ -8,7 +9,14 @@ Recon
 
 About this project
 ------------------
-Tools for load reconstruction using the virtual fields method.
+Tools for load reconstruction using the virtual fields method. This Python package provides the tools neccesarry
+for reconstructing distributed pressure loads acting on thin plates based on kinematic fields.
+
+A virtual lab is also provided, allowing synthetic data to be generated based on input from finite element simulations.
+
+Example kinematic fields and reconstucted pressure is shown below:
+![alt text](documentation/examples/figures/GIF.gif)![alt text](documentation/examples/figures/GIF_mesh.gif)
+
 
 The documentation is hosted at https://recolo.readthedocs.io/en/latest/
 
