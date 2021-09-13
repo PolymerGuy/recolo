@@ -33,7 +33,7 @@ associated with the reconstruction methodology, the package provides the scienti
 Other VFM toolkits such as PeriPyVFM are readily available but are focused on different applications.
 
 ``Recolo`` contains a collection of science-driven functions which enables the user to perform virtual experiment on synthetically generated data as well
- as performing pressure reconstruction on experimental datasets. The pressure reconstruction algorithm is based on the work by Kaufmann et al. [@Kaufmann2019,@Kaufmann2020].
+ as performing pressure reconstruction on experimental datasets. The pressure reconstruction algorithm is based on the work by [@Kaufmann2019,@Kaufmann2020].
 The implementation is based on numerical operations provided by NumPy [@Numpy] and SciPy [@SciPy] as well as visualization by Matplotlib [@Matplotlib].
 
 ``Recolo`` was implemented to determine the blast loading acting on plated structures in a purpose-built shock tube apparatus at SIMLab, NTNU [@Aune2016]. The methodology developed in this project is directly applicable to obtain new, unique insight into surface pressure distributions on plated structures subjected to blast loading. This project is part of the ongoing research within the SIMLab research group at NTNU.
