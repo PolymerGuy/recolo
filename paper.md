@@ -24,8 +24,11 @@ bibliography: paper.bib
 ---
 
 # Summary
-In experimental mechanics, it is well known that it is very challenging to measure surface pressures non-intrusive on blast-loaded structures even in controlled, laboratory environments (see e.g., [@Pannell2021]). Still, it is of utmost importance to provide structural engineers with a detailed knowledge of loads, understand the underlying physics and predict how structures respond during extreme loading events. When pressure loads are imposed on a deformable structure, fluid-structure interaction (FSI) effects are known to cause non-trivial loading scenarios which are difficult to quantify (see e.g., [@Aune2021]).
-This project aims at reconstructing the full-field surface pressure loads acting on a deforming structure employing the virtual fields method (VFM) on full-field kinematic measurements [@Kaufmann2019]. Provided that the properties of the structure are known,
+In experimental mechanics, it is well known that it is very challenging to measure surface pressures non-intrusive on structures exposed to relevant loading scenarios from acoustic to blast events, even in controlled, laboratory environments (see e.g., [@Pannell2021]). Still, it is of utmost importance to provide structural engineers with a detailed knowledge of loads, understand the underlying physics and predict how structures respond during extreme loading events. When pressure loads are imposed on a deformable structure, fluid-structure interaction (FSI) effects are known to cause non-trivial loading scenarios which are difficult to quantify (see e.g., [@Aune2021]).
+This project aims at reconstructing the full-field surface pressure loads acting on a deforming structure employing the virtual fields method (VFM) on full-field kinematic measurements [@Kaufmann2019].
+The current framework allow reconstructions of full-field pressure information from deformation data of thin plates in pure bending.
+In the future the authors aim at an extension of the framework towards large and inelastic deformation scenarios.
+Provided that the properties of the structure are known,
 the pressure loading can be reconstructed both temporally and spatially. To understand the capabilities and accuracy
 associated with the reconstruction methodology, the package provides the scientific tools for performing virtual experiments based on analytical data or data from finite element simulations. As a currently relevant method for deformation measurement used in combination with the VFM, tools for performing deflectometry using the grid method are also provided.
 
