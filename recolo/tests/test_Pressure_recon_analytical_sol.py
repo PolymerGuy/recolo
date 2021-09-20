@@ -1,6 +1,6 @@
 from unittest import TestCase
-import recon
 import numpy as np
+import recolo
 
 def rms_diff(array1, array2):
     return np.sqrt(np.nanmean((array1-array2))**2.)
@@ -34,7 +34,7 @@ class Test_FullStaticReconstruction(TestCase):
         press = 100.
         dx = plate_len_x / float(n_pts_x)
 
-        plate = recon.make_plate(mat_E, mat_nu, 0.0, plate_thick)
+        plate = recolo.make_plate(mat_E, mat_nu, 0.0, plate_thick)
 
 
         win_size = 8
@@ -43,13 +43,13 @@ class Test_FullStaticReconstruction(TestCase):
         deflection = deflection_due_to_sinus_load(press, plate_len_x, plate_len_y, bend_stiff)
 
 
-        fields = recon.fieldStack_from_disp_func(deflection, n_pts_x, n_pts_y, plate_len_x, plate_len_y)
+        fields = recolo.fieldStack_from_disp_func(deflection, n_pts_x, n_pts_y, plate_len_x, plate_len_y)
         # define piecewise virtual fields
-        virtual_fields = recon.virtual_fields.Hermite16(win_size, dx)
+        virtual_fields = recolo.virtual_fields.Hermite16(win_size, dx)
 
         field = fields(0)
 
-        recon_press = recon.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_fields, shift=True)
+        recon_press = recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_fields, shift=True)
         correct_press = pressure_sinusoidal(press,n_pts_x,n_pts_y)[3:-4:,3:-4]
         error = rms_diff(recon_press, correct_press)
         if error/press >tol:

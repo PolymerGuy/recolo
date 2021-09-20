@@ -1,5 +1,5 @@
 from unittest import TestCase
-from recon import kinematic_fields_from_deflections
+from recolo import kinematic_fields_from_deflections
 import numpy as np
 
 

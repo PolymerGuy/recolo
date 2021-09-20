@@ -9,7 +9,7 @@ from os.path import abspath
 sys.path.extend([abspath(".")])
 
 
-import recon
+import recolo
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -35,20 +35,20 @@ for grid_pitch in grid_pitches:
     peak_disp_y = []
     for disp_period in disp_periodes:
         # Generate the coordinates fields corresponding to the harmonic displacement field
-        xs, ys, Xs_lagr, Ys_disp_lagr, u_x, u_y = recon.artificial_grid_deformation.harmonic_disp_field(disp_amp,
+        xs, ys, Xs_lagr, Ys_disp_lagr, u_x, u_y = recolo.artificial_grid_deformation.harmonic_disp_field(disp_amp,
                                                                                                         disp_period,
                                                                                                         disp_n_periodes,
                                                                                                         formulation="lagrangian")
         # Generate the grid images
-        grid_undeformed = recon.artificial_grid_deformation.dotted_grid(xs, ys, grid_pitch)
-        grid_displaced_eulr = recon.artificial_grid_deformation.dotted_grid(Xs_lagr, Ys_disp_lagr, grid_pitch)
+        grid_undeformed = recolo.artificial_grid_deformation.dotted_grid(xs, ys, grid_pitch)
+        grid_displaced_eulr = recolo.artificial_grid_deformation.dotted_grid(Xs_lagr, Ys_disp_lagr, grid_pitch)
 
         # Calculate the phase fields
-        phase_x, phase_y = recon.deflectomerty.detect_phase(grid_displaced_eulr, grid_pitch)
-        phase_x0, phase_y0 = recon.deflectomerty.detect_phase(grid_undeformed, grid_pitch)
+        phase_x, phase_y = recolo.deflectomerty.detect_phase(grid_displaced_eulr, grid_pitch)
+        phase_x0, phase_y0 = recolo.deflectomerty.detect_phase(grid_undeformed, grid_pitch)
 
         # Calculate the displacements from the phase fields
-        disp_x_from_phase, disp_y_from_phase = recon.deflectomerty.disp_fields_from_phases(phase_x, phase_x0, phase_y,
+        disp_x_from_phase, disp_y_from_phase = recolo.deflectomerty.disp_fields_from_phases(phase_x, phase_x0, phase_y,
                                                                                            phase_y0,
                                                                                            grid_pitch,
                                                                                            correct_phase=True)

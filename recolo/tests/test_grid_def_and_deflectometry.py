@@ -1,9 +1,8 @@
-from recon.deflectomerty import disp_from_grids, angle_from_disp
-from recon.artificial_grid_deformation import deform_grid_from_deflection
-from recon.slope_integration import disp_from_slopes
+from recolo.deflectomerty import disp_from_grids, angle_from_disp
+from recolo.artificial_grid_deformation import deform_grid_from_deflection
+from recolo.slope_integration import disp_from_slopes
 from unittest import TestCase
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Test_DeformGridNoise(TestCase):
 

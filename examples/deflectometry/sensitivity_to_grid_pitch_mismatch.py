@@ -4,7 +4,7 @@ from os.path import abspath
 
 sys.path.extend([abspath(".")])
 
-import recon
+import recolo
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -33,18 +33,18 @@ peak_error_y = []
 rms_error_y = []
 for grid_pitch_real in real_grid_pitches:
     # Generate the coordinates fields corresponding to the harmonic displacement field
-    xs, ys, Xs, Ys, _, _ = recon.artificial_grid_deformation.rigid_body_disp_field(displacement_x, displacement_y,
+    xs, ys, Xs, Ys, _, _ = recolo.artificial_grid_deformation.rigid_body_disp_field(displacement_x, displacement_y,
                                                                                    grid_image_size, grid_image_size)
     # Generate the grid images
-    grid_undeformed = recon.artificial_grid_deformation.dotted_grid(xs, ys, grid_pitch_real, 1, oversampling)
-    grid_displaced_eulr = recon.artificial_grid_deformation.dotted_grid(Xs, Ys, grid_pitch_real, 1, oversampling)
+    grid_undeformed = recolo.artificial_grid_deformation.dotted_grid(xs, ys, grid_pitch_real, 1, oversampling)
+    grid_displaced_eulr = recolo.artificial_grid_deformation.dotted_grid(Xs, Ys, grid_pitch_real, 1, oversampling)
 
     # Calculate the phase fields
-    phase_x, phase_y = recon.deflectomerty.detect_phase(grid_displaced_eulr, grid_pitch_assumed)
-    phase_x0, phase_y0 = recon.deflectomerty.detect_phase(grid_undeformed, grid_pitch_assumed)
+    phase_x, phase_y = recolo.deflectomerty.detect_phase(grid_displaced_eulr, grid_pitch_assumed)
+    phase_x0, phase_y0 = recolo.deflectomerty.detect_phase(grid_undeformed, grid_pitch_assumed)
 
     # Calculate the displacements from the phase fields
-    disp_x_from_phase, disp_y_from_phase = recon.deflectomerty.disp_fields_from_phases(phase_x, phase_x0, phase_y,
+    disp_x_from_phase, disp_y_from_phase = recolo.deflectomerty.disp_fields_from_phases(phase_x, phase_x0, phase_y,
                                                                                        phase_y0,
                                                                                        grid_pitch=grid_pitch_assumed,
                                                                                        correct_phase=True)

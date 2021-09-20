@@ -4,7 +4,7 @@ from os.path import abspath
 
 sys.path.extend([abspath(".")])
 
-import recon
+import recolo
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -23,7 +23,7 @@ mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.33  # Poisson's ratio []
 density = 7700
 plate_thick = 5e-3
-plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
+plate = recolo.make_plate(mat_E, mat_nu, density, plate_thick)
 
 # Image noise
 noise_std = 0.008
@@ -38,29 +38,29 @@ mirror_grid_dist = 500.
 grid_pitch = 5.  # pixels
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd, "AbaqusExampleData/"))
+abq_sim_fields = recolo.load_abaqus_rpts(os.path.join(cwd, "AbaqusExampleData/"))
 
 # The deflectometry return the slopes of the plate which has to be integrated in order to determine the deflection
 if run_deflectometry:
     slopes_x = []
     slopes_y = []
-    undeformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(abq_sim_fields.disp_fields[0, :, :],
+    undeformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(abq_sim_fields.disp_fields[0, :, :],
                                                                                     pixel_size=abq_sim_fields.pixel_size_x,
                                                                                     mirror_grid_dist=mirror_grid_dist,
                                                                                     grid_pitch=grid_pitch,
                                                                                     img_upscale=abq_to_img_scale,
                                                                                     img_noise_std=noise_std)
     for disp_field in abq_sim_fields.disp_fields:
-        deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
+        deformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
                                                                                       pixel_size=abq_sim_fields.pixel_size_x,
                                                                                       mirror_grid_dist=mirror_grid_dist,
                                                                                       grid_pitch=grid_pitch,
                                                                                       img_upscale=abq_to_img_scale,
                                                                                       img_noise_std=noise_std)
 
-        disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
-        slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
-        slope_y = recon.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
+        disp_x, disp_y = recolo.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
+        slope_x = recolo.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
+        slope_y = recolo.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
         slopes_x.append(slope_x)
         slopes_y.append(slope_y)
 
@@ -72,20 +72,20 @@ else:
     slopes_x, slopes_y = np.gradient(abq_sim_fields.disp_fields, pixel_size, axis=(1, 2))
 
 # Integrate slopes to get deflection fields
-disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
+disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
                                                        zero_at="bottom corners", zero_at_size=5,
                                                        extrapolate_edge=0, downsample=1)
 
 # Kinematic fields from deflection field
-kin_fields = recon.kinematic_fields_from_deflections(disp_fields,
+kin_fields = recolo.kinematic_fields_from_deflections(disp_fields,
                                                      pixel_size=pixel_size,
                                                      sampling_rate=abq_sim_fields.sampling_rate,
                                                      filter_space_sigma=10)
 
 # Reconstruct pressure using the virtual fields method
-virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
+virtual_field = recolo.virtual_fields.Hermite16(win_size, pixel_size)
 pressure_fields = np.array(
-    [recon.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
+    [recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
 
 # Plot the results
 # Correct pressure history used in the Abaqus simulation

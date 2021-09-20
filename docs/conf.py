@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Recon documentation build configuration file, created by
+# Recolo documentation build configuration file, created by
 # sphinx-quickstart on Mon May  3 13:35:33 2021.
 #
 # This file is execfile()d with the current directory set to its
@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Recon'
+project = u'Recolo'
 copyright = u'2021, Sindre Nordmark Olufsen, Rene Kaufman, Vegard Aune'
 author = u'Sindre Nordmark Olufsen, Rene Kaufman, Vegard Aune'
 
@@ -117,7 +117,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Recondoc'
+htmlhelp_basename = 'Recolodoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -144,7 +144,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Recon.tex', u'Recon Documentation',
+    (master_doc, 'recolo.tex', u'Recolo Documentation',
      u'Sindre Nordmark Olufsen, Rene Kaufman, Egil Fagerholt, Vegard Aune', 'manual'),
 ]
 
@@ -154,7 +154,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'recolo', u'Recon Documentation',
+    (master_doc, 'recolo', u'Recolo Documentation',
      [author], 1)
 ]
 
@@ -165,8 +165,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Recon', u'Recon Documentation',
-     author, 'Recon', 'One line description of project.',
+    (master_doc, 'Recolo', u'Recolo Documentation',
+     author, 'Recolo', 'One line description of project.',
      'Miscellaneous'),
 ]
 
