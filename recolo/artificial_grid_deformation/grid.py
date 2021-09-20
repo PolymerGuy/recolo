@@ -2,6 +2,32 @@ import numpy as np
 
 
 def dotted_grid(xs, ys, pitch, pixel_size=1, oversampling=1, noise_std=None):
+    """
+    Generate a grid image.
+    The gray scale values of the grid is given by:
+
+    g(x,y) = 0.5 * (2. + cos(2. * pi * x / pitch) + cos(2. * pi * y / pitch))
+
+    Parameters
+    ----------
+    xs : ndarray
+        The x-coordinates of the pixels in physical units
+    ys : ndarray
+        The y-coordinates of the pixels in physical units
+    pitch : float
+        The grid pitch in pixels
+    pixel_size : float
+        The size of a pixel in physical units
+    oversampling : int
+        Additional oversampling to reduce sampling artefacts of the grid.
+    noise_std : float
+        The standard deviation of the additive gaussian noise
+    Returns
+    -------
+    grid: ndarray
+        The grid image
+
+    """
     if np.mod(oversampling, 2) == 0:
         raise ValueError("The oversampling has to be an odd number")
     if oversampling == 1:
