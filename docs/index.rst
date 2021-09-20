@@ -32,12 +32,6 @@ This python package provides tools for reconstuction of pressure loads using the
 
 .. toctree::
    :maxdepth: 2
-   :caption: AP
-
-   API
-
-.. toctree::
-   :maxdepth: 2
    :caption: Theory:
 
    VFM
