@@ -8,6 +8,32 @@ import logging
 
 class FieldStack(object):
     def __init__(self, deflection, slopes, curvatures, acceleration, times):
+        """
+        Stack of kinematic fields.
+        The following fields are calculated are:
+            * Deflection
+            * Slopes
+            * Curvatures
+            * Out of plane acceleration
+
+        Parameters
+        ----------
+        deflection : ndarray
+            The deflection fields with shape [frame,x,y]
+        slopes : ndarray
+            The slope fields with shape [component,frame,x,y]
+        curvatures : ndarray
+            The curvature fields with shape [component,frame,x,y]
+        acceleration : ndarray
+            The acceleration fields with shape [frame,x,y]
+        times : ndarray
+            The deflection fields with shape [frame]
+
+        Returns
+        -------
+        fields : Fields
+            The kinematic fields for a single time step
+        """
         self._deflection_ = deflection
         self._slope_x_, self._slope_y_ = slopes
         self._curv_xx_, self._curv_yy_, self._curv_xy_ = curvatures
@@ -20,6 +46,18 @@ class FieldStack(object):
         return len(self._deflection_)
 
     def __call__(self, frame_id, *args, **kwargs):
+        """
+        Get kinematic fields for a given time frame.
+
+        Parameters
+        ----------
+        frame_id : int
+            The frame id
+        Returns
+        -------
+        fields : Fields
+            The kinematic fields for a single time frame
+        """
         return Fields(self._deflection_[frame_id], self._slope_x_[frame_id], self._slope_y_[frame_id],
                       self._curv_xx_[frame_id], self._curv_yy_[frame_id], self._curv_xy_[frame_id],
                       self._acceleration_[frame_id], self._times_[frame_id])
