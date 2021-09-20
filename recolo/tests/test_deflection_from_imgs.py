@@ -1,5 +1,5 @@
-from recon.deflectomerty import slopes_from_images
-from recon.slope_integration import disp_from_slopes
+from recolo.deflectomerty import slopes_from_images
+from recolo.slope_integration import disp_from_slopes
 from unittest import TestCase
 import numpy as np
 import pathlib

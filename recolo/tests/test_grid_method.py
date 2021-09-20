@@ -1,5 +1,5 @@
-from recon.deflectomerty import disp_from_grids
-from recon.artificial_grid_deformation import harmonic_disp_field, dotted_grid
+from recolo.deflectomerty import disp_from_grids
+from recolo.artificial_grid_deformation import harmonic_disp_field, dotted_grid
 from unittest import TestCase
 import numpy as np
 from skimage.restoration import estimate_sigma

@@ -1,6 +1,6 @@
 ![](docs/logo.png)
 =============
-[![codecov](https://codecov.io/gh/PolymerGuy/recon/branch/master/graph/badge.svg?token=7J4EH3C399)](https://codecov.io/gh/PolymerGuy/recolo)
+[![codecov](https://codecov.io/gh/PolymerGuy/recolo/branch/master/graph/badge.svg?token=7J4EH3C399)](https://codecov.io/gh/PolymerGuy/recolo)
 [![CircleCI](https://circleci.com/gh/PolymerGuy/recolo.svg?style=svg&circle-token=3403eba7b905e1a626d1c797ed5ca4e3daba76df)](https://circleci.com/gh/PolymerGuy/recolo)
 [![MIT License][license-shield]][license-url]
 [![Documentation Status](https://readthedocs.org/projects/recolo/badge/?version=latest)](https://recolo.readthedocs.io/en/latest/?badge=latest)
@@ -27,7 +27,7 @@ Getting Started
 Clone the repo by using `git`:
 
 ```bash
-git clone https://github.com/PolymerGuy/recon.git
+git clone https://github.com/PolymerGuy/recolo.git
 ```
 
 when in the folder with the repo, make a virtual environment and install all dependencies:
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 To check that everything is working, run all tests:
 ```bash
-pytest recon
+pytest recolo
 ```
 
 

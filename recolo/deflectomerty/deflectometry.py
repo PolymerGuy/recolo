@@ -1,9 +1,9 @@
 import numpy as np
-from recon.data_structures import list_files_in_folder
+from recolo.data_structures import list_files_in_folder
 from imageio import imread
 #from matplotlib.pyplot import imread
 import logging
-from recon.deflectomerty.grid_method import angle_from_disp, disp_from_grids
+from recolo.deflectomerty.grid_method import angle_from_disp, disp_from_grids
 import matplotlib.pyplot as plt
 
 def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref_img_ids=None, only_img_ids=None,

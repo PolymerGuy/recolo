@@ -3,7 +3,7 @@ import sys
 from os.path import abspath
 sys.path.extend([abspath(".")])
 
-import recon
+import recolo
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -16,23 +16,23 @@ mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.33  # Poisson's ratio []
 density = 7700
 plate_thick = 5e-3
-plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
+plate = recolo.make_plate(mat_E, mat_nu, density, plate_thick)
 
 # Reconstruction settings
 win_size = 6
 
 # Load Abaqus data
-abq_sim_fields = recon.load_abaqus_rpts(os.path.join(cwd,"AbaqusExampleData/"))
+abq_sim_fields = recolo.load_abaqus_rpts(os.path.join(cwd,"AbaqusExampleData/"))
 
 # Kinematic fields from deflection field
-kin_fields = recon.kinematic_fields_from_deflections(abq_sim_fields.disp_fields,
+kin_fields = recolo.kinematic_fields_from_deflections(abq_sim_fields.disp_fields,
                                                      pixel_size=abq_sim_fields.pixel_size_x,
                                                      sampling_rate=abq_sim_fields.sampling_rate,
                                                      acceleration_field=abq_sim_fields.accel_fields)
 
 # Reconstruct pressure using the virtual fields method
-virtual_field = recon.virtual_fields.Hermite16(win_size, abq_sim_fields.pixel_size_x)
-pressure_fields = np.array([recon.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
+virtual_field = recolo.virtual_fields.Hermite16(win_size, abq_sim_fields.pixel_size_x)
+pressure_fields = np.array([recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
 
 # Plot the results
 # Correct pressure history used in the Abaqus simulation

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from recon.artificial_grid_deformation import find_coords_in_undef_conf, interpolated_disp_field
+from recolo.artificial_grid_deformation import find_coords_in_undef_conf, interpolated_disp_field
 import numpy as np
 
 
