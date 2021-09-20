@@ -47,7 +47,7 @@ def load_abaqus_rpts(path_to_rpts, use_only_img_ids=None):
     """
     logger = logging.getLogger(__name__)
 
-    rpt_file_paths = list_files_in_folder(path_to_rpts, file_type=".rpt")
+    rpt_file_paths = list_files_in_folder(path_to_rpts, file_type=".rpt",abs_path=True)
     logger.info("Reading %i Abaqus .rpt files" % len(rpt_file_paths))
 
     disp_fields = []
