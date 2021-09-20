@@ -9,6 +9,7 @@ class TestReadAbaqusField(TestCase):
     def setUp(self):
         path_to_rpts = os.path.join(cwd,"ExampleAbaqusRPT/")
 
+
         self.abaqus_fields = load_abaqus_rpts(path_to_rpts)
 
     def test_check_shapes(self):
