@@ -5,10 +5,10 @@ Abaqus experiment with grid deformation and deflectometry
 Let's now go through the necessary steps for doing pressure reconstruction.
 First, we need to import the tools::
 
-     import recon
+     import recolo
      import numpy as np
 
-The example data can be downloaded from the recon/examples/AbaqusExamples/AbaqusRPTs folder. 
+The example data can be downloaded from the recolo/examples/AbaqusExamples/AbaqusRPTs folder.
 The dataset corresponds to a 300 x 300 mm  thin plate exposed to a sinusoidal pressure distribution in space and a saw-tooth shaped history in time.
 ::
 
@@ -16,7 +16,7 @@ The dataset corresponds to a 300 x 300 mm  thin plate exposed to a sinusoidal pr
      mat_nu = 0.33  # Poisson's ratio []
      density = 7700
      plate_thick = 5e-3
-     plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
+     plate = recolo.make_plate(mat_E, mat_nu, density, plate_thick)
      
 
 We now set the pressure reconstuction window size. 
@@ -30,7 +30,7 @@ Additive gaussian noise is added to the deformed grid images to mimic real world
 
 We now load Abaqus data::
 
-     abq_sim_fields = recon.load_abaqus_rpts("path_to_abaqus_data"))
+     abq_sim_fields = recolo.load_abaqus_rpts("path_to_abaqus_data"))
 
 
 In this case, the deflection fields from Abaqus are used to generate grid images with the corresponding distortion.
@@ -38,23 +38,23 @@ The grid images are then used as input to deflectomerty and the slope fields of 
 
      slopes_x = []
      slopes_y = []
-     undeformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(abq_sim_fields.disp_fields[0, :, :],
+     undeformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(abq_sim_fields.disp_fields[0, :, :],
                                                                                      abq_sim_fields.pixel_size_x,
                                                                                      mirror_grid_dist,
                                                                                      grid_pitch,
                                                                                      img_upscale=upscale,
                                                                                      img_noise_std=noise_std)
      for disp_field in abq_sim_fields.disp_fields:
-          deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
+          deformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
                                                                                           abq_sim_fields.pixel_size_x,
                                                                                           mirror_grid_dist,
                                                                                           grid_pitch,
                                                                                           img_upscale=upscale,
                                                                                           img_noise_std=noise_std)
 
-          disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
-          slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
-          slope_y = recon.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
+          disp_x, disp_y = recolo.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
+          slope_x = recolo.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
+          slope_y = recolo.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
           slopes_x.append(slope_x)
           slopes_y.append(slope_y)
 
@@ -65,24 +65,24 @@ The grid images are then used as input to deflectomerty and the slope fields of 
 The slope fields are then integrated to determine the defletion fields::
 
      # Integrate slopes to get deflection fields
-     disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
+     disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
                                                             zero_at="bottom corners", zero_at_size=5,
                                                             extrapolate_edge=0, downsample=1)
      
 Based on these fields, the kinematic fields (slopes and curvatures) are calculated. 
 ::
 
-     kin_fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size,
+     kin_fields = recolo.kinematic_fields_from_deflections(disp_fields, pixel_size,
                                                      abq_sim_fields.sampling_rate,filter_space_sigma=10)
 
 Now, the pressure reconstuction can be initiated. First we define the Hermite16 virtual fields::
 
-     virtual_field = recon.virtual_fields.Hermite16(win_size, abq_sim_fields.pixel_size_x)
+     virtual_field = recolo.virtual_fields.Hermite16(win_size, abq_sim_fields.pixel_size_x)
 
 and initialize the pressure reconstruction::
 
      pressure_fields = np.array(
-     [recon.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field) 
+     [recolo.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field)
                                                       for field in kin_fields])
 
 

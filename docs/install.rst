@@ -29,7 +29,7 @@ Now the toolkit is installed and ready for use.
 
 Run the tests::
 
-    pytest recon
+    pytest recolo
 
 If you want to check out the examples, then download the files in the examples folder and run the examples.
 
@@ -46,7 +46,7 @@ Prerequisites::
 
 Start to clone this repo to your preferred location::
 
-   git clone https://github.com/PolymerGuy/recon.git
+   git clone https://github.com/PolymerGuy/recolo.git
 
 
 
@@ -73,4 +73,4 @@ These tests are integration and unit tests
 
 If you cloned the repo, you have to call pytest from within the folder::
 
-    pytest recon
+    pytest recolo
