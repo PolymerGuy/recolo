@@ -31,7 +31,11 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.mathjax']
+    'sphinx.ext.mathjax',
+              'sphinxcontrib.bibtex']
+
+bibtex_bibfiles = ['refs.bib']
+bibtex_reference_style = 'author_year'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
