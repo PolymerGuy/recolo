@@ -31,8 +31,7 @@ Run the tests::
 
     pytest recolo
 
-If you want to check out the examples, then download the files in the examples folder and run the examples.
-
+Download the files in the example folder and run the examples.
 By cloning the repo:
 ---------------------
 
@@ -49,7 +48,6 @@ Start to clone this repo to your preferred location::
    git clone https://github.com/PolymerGuy/recolo.git
 
 
-
 We recommend that you always use virtual environments, either by virtualenv or by Conda env
 
 Virtual env::
@@ -63,8 +61,6 @@ Virtual env::
 You can now run an example::
 
     $ python ./examples/AbaqusExperiments/Reconstruction_minimal.py
-
-
 
 Running the tests
 ------------------
