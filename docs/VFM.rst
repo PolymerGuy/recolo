@@ -50,10 +50,11 @@ As local pressure values are of interest, the surface is divided into subdomains
 
 where :math:`N` is number of discrete surface elements.
 
-Virtual Fields
---------------
 The virtual fields based on 4-node Hermite 16 element shape functions :cite:t:`zienkiewicz1977` are available for pressure reconstruction, see :cite:t:`Pierron2012` for more details.
 
+Bibliography
+------------
+
 .. bibliography::
-   :style: unsrt
+   :style: plain
 
