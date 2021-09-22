@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import wget
 import logging
@@ -32,6 +31,8 @@ class ImpactHammerExperiment(object):
         path_to_images : str
             A path to the preferred location where the data is stored.
         """
+        raise NotImplemented
+
         self.logger = logging.getLogger(self.__name__)
 
         if path_to_images:
