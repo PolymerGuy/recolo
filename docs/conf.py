@@ -51,8 +51,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Recolo'
-copyright = u'2021, Sindre Nordmark Olufsen, Rene Kaufman, Vegard Aune'
-author = u'Sindre Nordmark Olufsen, Rene Kaufman, Vegard Aune'
+copyright = u'2021, Sindre Nordmark Olufsen, Rene Kaufman, Egil Fagerholt, Vegard Aune'
+author = u'Sindre Nordmark Olufsen, Rene Kaufman, Egil Fagerholt, Vegard Aune'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
