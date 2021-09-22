@@ -2,10 +2,10 @@ VFM
 ===
 Pressure Reconstruction
 -----------------------
-The virtual fields method can be applied to solve a broad range of problems in solid mechanics [] and only the highly specialized case of load reconstruction is presented here.
-The procedure for pressure reconstruction is based on the work of :cite:t:`Pierron2012` and :cite:t:`Kaufmann2019,Kaufmann2019`.
+The Virtual fields method can be applied to solve a broad range of problems in solid mechanics [:cite:t:`Pierron2012`]. This python package is limited to the particular case of load reconstruction during fast transient dynamics.
+The procedure for surface pressure reconstruction is based on the work of :cite:t:`Pierron2012` and :cite:t:`Kaufmann2019,Kaufmann2019`.
 
-The dynamic equilibrium equations for a thin plate can be written written on weak for using the principal of virtual work as :cite:`dym1973solid`:
+The dynamic equilibrium equations for a thin plate can be written written on weak form using the principal of virtual work as :cite:`dym1973solid`:
 
 .. math::
    :nowrap:
@@ -14,9 +14,9 @@ The dynamic equilibrium equations for a thin plate can be written written on wea
     \underbrace{\int\limits_{V} \rho ~ \boldsymbol{a} ~ \boldsymbol{u^*} dV}_{W_{inertial}^*} ~=~ \underbrace{ -\int\limits_{V} \boldsymbol{\sigma} : \boldsymbol{\varepsilon ^*} dV}_{W_{int}^*} + \underbrace{ \int\limits_{S} \overline{\boldsymbol{T}} \boldsymbol{u^*} ~dS + \int\limits_{V} \rho ~ \boldsymbol{F_{Vol}} ~ \boldsymbol{u^*} ~dV}_{W_{ext}^*} ~~~,
     \end{equation}
 
-where :math:`W_{inertial}^*`, :math:`W_{int}^*` and :math:`W_{ext}^*` denotes the inertial virtual work, the internal virtual work and the external virtual work respectively.
+where :math:`W_{inertial}^*`, :math:`W_{int}^*` and :math:`W_{ext}^*` denotes the inertial virtual work, the internal virtual work and the external virtual work, respectively.
 
-For the case of a thin plate made of an isotropic linear elastic material described by Kirchoff-Love theory, the principal of virtual work can be written as:
+For the particular case of a thin plate represented by an isotropic linear elastic material, the principal of virtual work can be written using the Kirchoff-Love theory as:
 
 .. math::
    :nowrap:
@@ -57,4 +57,3 @@ Bibliography
 
 .. bibliography::
    :style: plain
-

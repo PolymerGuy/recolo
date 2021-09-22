@@ -1,7 +1,6 @@
 Abaqus experiment with grid deformation and deflectometry
 =========================================================
 
-
 Let's now go through the necessary steps for doing pressure reconstruction.
 First, we need to import the tools::
 
