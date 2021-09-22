@@ -6,7 +6,7 @@
 Welcome to Recolo's documentation!
 ==================================
 
-This python package provides tools for reconstuction of pressure loads using the virtual fields method.
+This python package provides tools for reconstuction of pressure loads using the Virtual Fields Method (VFM).
 
 
 

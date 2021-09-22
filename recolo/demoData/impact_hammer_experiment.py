@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import wget
 import logging
@@ -23,10 +22,23 @@ data_folder = os.path.join(cwd,"impact_hammer_data")
 
 
 class ImpactHammerExperiment(object):
-    def __init__(self):
+    def __init__(self,path_to_images=None):
+        """
+        Data from an experiment with an impact hammer and a deflectometry setup.
+
+        Parameters
+        ----------
+        path_to_images : str
+            A path to the preferred location where the data is stored.
+        """
+        raise NotImplemented
+
         self.logger = logging.getLogger(self.__name__)
 
-        self.path_to_img_folder = data_folder
+        if path_to_images:
+            self.path_to_img_folder = path_to_images
+        else:
+            self.path_to_img_folder = data_folder
 
         if self.__is_downloaded__():
             self.logger.info("Experimental data was available locally")
@@ -51,11 +63,16 @@ class ImpactHammerExperiment(object):
         wget.download(link_to_data, out=self.path_to_img_folder, bar=True)
 
     def hammer_data(self):
+        """
+        Impact hammer data
+
+        Returns
+        -------
+        force, disp : ndarray, ndarray
+        """
         path_to_impact_hammer_data = os.path.join(self.path_to_img_folder, impact_hammer_filename)
         data = np.genfromtxt(path_to_impact_hammer_data)
         force = data[0, :]
         time = data[1, 0]
         return force, time
 
-    def grid_image(self, image_id):
-        return plt.imread(self.path_to_imgs[image_id])
