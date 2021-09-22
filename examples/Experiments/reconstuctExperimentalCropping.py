@@ -3,38 +3,34 @@ import sys
 from os.path import abspath
 sys.path.extend([abspath(".")])
 
-import recon
+import recolo
 import numpy as np
-from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
-#from experimentalPressures.experimental_data import read_exp_press_data
 
 plt.style.use('science')
-
-# Parameters for parameter study
-crop_pixels = -2
 
 # plate and model parameters
 mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.3  # Poisson's ratio []
-plate_thick = 4.95e-3
+plate_thick = 2.98e-3
 rho = 7934.
 
-plate = recon.make_plate(mat_E, mat_nu, rho, plate_thick)
+plate = recolo.make_plate(mat_E, mat_nu, rho, plate_thick)
 
 # pressure reconstruction parameters
 win_size = 30
-sampling_rate = 75000.
+sampling_rate = 10000.
 
 # Load slope fields and calculate displacement fields
 
 
-path = "/home/sindreno/gridmethod_Rene/images_full_2"
+#path = "/home/sindreno/gridmethod_Rene/images_full_2"
+path = "/home/sindreno/PressureRecon/impact_hammer/deflectometry"
 
-grid_pitch = 5.08  # pixels
-grid_pitch_len = 5.88 / 1000.  # m
+grid_pitch = 7.0  # pixels
+grid_pitch_len = 2.5 / 1000.  # m
 
-mirror_grid_distance = 1.37  # m
+mirror_grid_distance = 1.63  # m
 
 pixel_size_on_grid_plane = grid_pitch_len / grid_pitch
 pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
@@ -42,25 +38,25 @@ pixel_size_on_mirror = grid_pitch_len / grid_pitch * 0.5
 ref_img_ids = range(50, 60)
 use_imgs = range(80, 130)
 
-slopes_y, slopes_x = recon.deflectomerty.slopes_from_images(path, grid_pitch, mirror_grid_distance,
+slopes_y, slopes_x = recolo.deflectomerty.slopes_from_images(path, grid_pitch, mirror_grid_distance,
                                                             ref_img_ids=ref_img_ids, only_img_ids=use_imgs,
-                                                            crop=(10, -10, 0, -1),window="gaussian")
+                                                            crop=(45, 757,0,-1),window="gaussian",correct_phase=False)
 
-disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
+disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
                                                        zero_at="bottom corners",zero_at_size=20,
-                                                       extrapolate_edge=0, filter_sigma=2, downsample=1)
+                                                       extrapolate_edge=0, filter_sigma=10, downsample=1)
 
 # Results are stored in these lists
 times = []
 presses = []
 
-fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=0,
+fields = recolo.kinematic_fields_from_deflections(disp_fields, pixel_size_on_mirror, sampling_rate, filter_time_sigma=0,
                                                  filter_space_sigma=10)
-virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
+virtual_field = recolo.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
 
 for i, field in enumerate(fields):
     print("Processing frame %i" % i)
-    recon_press = recon.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field)
+    recon_press = recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field)
     presses.append(recon_press)
     times.append(field.time)
 
@@ -86,3 +82,5 @@ plt.ylabel(r"Overpressure [kPa]")
 plt.legend(frameon=False)
 plt.tight_layout()
 plt.show()
+
+import wget
