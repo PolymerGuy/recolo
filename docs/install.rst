@@ -1,37 +1,7 @@
 Installation
 =============
 In order to get started with Recolo, you need to install it on your computer.
-There are two main ways to to this:
 
-*   You can install it via a package manager like PIP
-*   You can  clone the repo
-
-
-Install via package manager:
-----------------------------
-
-The toolkit is available via PIP, and the instructions below shows how a virtual environment can be created
-and the toolkit installed.
-
-Prerequisites::
-
-    This toolkit is tested on Python 3.7
-    We recommend the use of virtualenv
-
-Installing::
-
-    python -m venv env
-    source ./env/bin/activate #On Linux and Mac OS
-    env\Scripts\activate.bat #On Windows
-    pip install recolo
-
-Now the toolkit is installed and ready for use.
-
-Run the tests::
-
-    pytest recolo
-
-Download the files in the example folder and run the examples.
 By cloning the repo:
 ---------------------
 
