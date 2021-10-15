@@ -7,6 +7,7 @@ from recolo.data_structures.fieldstack import *
 from recolo.data_structures.plate import make_plate
 from . import artificial_grid_deformation
 from . import slope_integration
+from . import demoData
 # Set the default logging level to INFO
 import logging
 logging.basicConfig(format='%(name)s:%(levelname)s:%(message)s', level=logging.INFO)
