@@ -4,7 +4,10 @@ from matplotlib.pyplot import imread
 import logging
 from recolo.deflectomerty.grid_method import angle_from_disp, disp_from_grids
 
-def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref_img_ids=None, only_img_ids=None,
+
+
+
+def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance,pixel_size_on_mirror, ref_img_ids=None, only_img_ids=None,
                        crop=None, correct_phase=True,window="gaussian"):
     """ Perform deflectometry to determine the slope fields associated with a series of images.
      the slope fields of a specimen based on the dof every pixel based on the phase modulation in two configurations, see [1] for
@@ -49,13 +52,12 @@ def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref
 
     if ref_img_ids:
         grid_undeformed = np.mean([imread(img_paths[i]) for i in ref_img_ids], axis=0)
-
-    if only_img_ids:
-        img_paths = [img_paths[i] for i in only_img_ids]
-
     else:
         logger.info("No reference images were specified, using first image as reference.")
         grid_undeformed = imread(img_paths[0])
+
+    if only_img_ids:
+        img_paths = [img_paths[i] for i in only_img_ids]
 
     if crop:
         grid_undeformed = grid_undeformed[crop[0]:crop[1], crop[2]:crop[3]]
@@ -73,11 +75,11 @@ def slopes_from_images(path_to_img_folder, grid_pitch, mirror_grid_distance, ref
         disp_x_from_phase, disp_y_from_phase = disp_from_grids(grid_undeformed, grid_displaced_eulr, grid_pitch,
                                                                correct_phase=correct_phase,window=window)
 
-        slope_y = angle_from_disp(disp_x_from_phase, mirror_grid_distance)
-        slope_x = angle_from_disp(disp_y_from_phase, mirror_grid_distance)
+        slope_x = angle_from_disp(disp_x_from_phase * pixel_size_on_mirror, mirror_grid_distance)
+        slope_y = angle_from_disp(disp_y_from_phase * pixel_size_on_mirror, mirror_grid_distance)
 
-        slopes_y.append(slope_x)
-        slopes_x.append(slope_y)
+        slopes_x.append(slope_x)
+        slopes_y.append(slope_y)
 
     slopes_x = np.array(slopes_x)
     slopes_y = np.array(slopes_y)
