@@ -68,7 +68,7 @@ def find_coords_in_undef_conf(xs, ys, disp_func, tol=1e-7, maxit=20):
 
         if np.max(np.abs(dXs)) < tol and np.max(np.abs(dYs)) < tol:
             logger.info(
-                "Converged in %i iterations with a final residual of: " % np.max(np.abs(np.array(func(Xs, Ys)))))
+                "Converged in %i iterations with a final residual of: %f "%(i,np.max(np.abs(np.array(func(Xs, Ys))))))
             return Xs, Ys
 
     raise ValueError("Did not converge to %f in %i iterations" % (tol, i))
