@@ -43,6 +43,7 @@ grid_pitch = 5.  # pixels
 for remove_pixel in remove_n_pixels:
     # Load Abaqus data
     abq_sim_fields = recolo.load_abaqus_rpts(os.path.join(cwd, "AbaqusExampleData/"))
+    pixel_size_on_mirror = abq_sim_fields.pixel_size_x
     if remove_pixel == 0:
         cropped_disp_field = abq_sim_fields.disp_fields
     else:
@@ -53,13 +54,13 @@ for remove_pixel in remove_n_pixels:
     slopes_x = []
     slopes_y = []
     undeformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(cropped_disp_field[0, :, :],
-                                                                                    pixel_size=abq_sim_fields.pixel_size_x,
+                                                                                    pixel_size=pixel_size_on_mirror,
                                                                                     mirror_grid_dist=mirror_grid_dist,
                                                                                     grid_pitch=grid_pitch,
                                                                                     img_upscale=abq_to_img_scale)
     for disp_field in cropped_disp_field:
         deformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
-                                                                                      pixel_size=abq_sim_fields.pixel_size_x,
+                                                                                      pixel_size=pixel_size_on_mirror,
                                                                                       mirror_grid_dist=mirror_grid_dist,
                                                                                       grid_pitch=grid_pitch,
                                                                                       img_upscale=abq_to_img_scale)
@@ -72,20 +73,20 @@ for remove_pixel in remove_n_pixels:
 
     slopes_x = np.array(slopes_x)
     slopes_y = np.array(slopes_y)
-    pixel_size = abq_sim_fields.pixel_size_x / abq_to_img_scale
+    pixel_size_on_mirror = abq_sim_fields.pixel_size_x / abq_to_img_scale
 
     # Integrate slopes to get deflection fields
-    disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
+    disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size_on_mirror,
                                                            zero_at="bottom corners", zero_at_size=1,
                                                            extrapolate_edge=0, filter_sigma=0, downsample=1)
 
     # Kinematic fields from deflection field
     kin_fields = recolo.kinematic_fields_from_deflections(disp_fields,
-                                                         pixel_size=pixel_size,
+                                                         pixel_size=pixel_size_on_mirror,
                                                          sampling_rate=abq_sim_fields.sampling_rate)
 
     # Reconstruct pressure using the virtual fields method
-    virtual_field = recolo.virtual_fields.Hermite16(win_size, pixel_size)
+    virtual_field = recolo.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
     pressure_fields = np.array(
         [recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
 

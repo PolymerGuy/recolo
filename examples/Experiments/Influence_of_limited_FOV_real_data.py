@@ -4,7 +4,7 @@ from os.path import abspath
 
 sys.path.extend([abspath("../AbaqusExperiments")])
 
-import recon
+import recolo
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -28,49 +28,56 @@ mat_E = 210.e9  # Young's modulus [Pa]
 mat_nu = 0.33  # Poisson's ratio []
 density = 7700
 plate_thick = 5e-3
-plate = recon.make_plate(mat_E, mat_nu, density, plate_thick)
+plate = recolo.make_plate(mat_E, mat_nu, density, plate_thick)
 
 # Image noise
 noise_std = 0.008*0
 
-# Reconstruction settings
-win_size = 20  # Should be increased when deflectometry is used
+# recolostruction settings
+win_size = 30  # Should be increased when deflectometry is used
 
 # Deflectometry settings
-upscale = 4
-mirror_grid_dist = 200.
+upscale = 8
+mirror_grid_dist = 1.385
 grid_pitch = 5.  # pixels
 
-crops = [0,1,2,3]
-crops = [0]
+crops = [10]
+pressure_fields_for_crops = []
+
 for crop in crops:
     # Load Abaqus data
-    abq_sim_fields = recon.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
+    abq_sim_fields = recolo.load_abaqus_rpts("/home/sindreno/Rene/testfolder/fields/")
     print("Field shape is",abq_sim_fields.disp_fields.shape)
-    if crop>0:
-        cropped_disp_field = abq_sim_fields.disp_fields[:,crop:-crop,crop:-crop]
-    else:
-        cropped_disp_field = abq_sim_fields.disp_fields
+    #if crop>0:
+    #    cropped_disp_field = abq_sim_fields.disp_fields[:,crop:-crop,crop:-crop]
+    #else:
+    cropped_disp_field = abq_sim_fields.disp_fields
     # The deflectometry return the slopes of the plate which has to be integrated in order to determine the deflection
     slopes_x = []
     slopes_y = []
-    undeformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(cropped_disp_field[0, :, :],
+    undeformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(cropped_disp_field[0, :, :],
                                                                                     abq_sim_fields.pixel_size_x,
                                                                                     mirror_grid_dist,
                                                                                     grid_pitch,
                                                                                     img_upscale=upscale,
                                                                                     img_noise_std=0)
+    if crop>0:
+        undeformed_grid = undeformed_grid[crop:-crop,crop:-crop]
+
     for disp_field in cropped_disp_field:
-        deformed_grid = recon.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
+        deformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
                                                                                       abq_sim_fields.pixel_size_x,
                                                                                       mirror_grid_dist,
                                                                                       grid_pitch,
                                                                                       img_upscale=upscale,
                                                                                       img_noise_std=noise_std)
 
-        disp_x, disp_y = recon.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch,window="gaussian")
-        slope_x = recon.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
-        slope_y = recon.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
+        if crop>0:
+            deformed_grid = deformed_grid[crop:-crop, crop:-crop]
+
+        disp_x, disp_y = recolo.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch,window="triangular")
+        slope_x = recolo.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
+        slope_y = recolo.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
         slopes_x.append(slope_x)
         slopes_y.append(slope_y)
 
@@ -80,24 +87,24 @@ for crop in crops:
 
 
     # Integrate slopes to get deflection fields
-    disp_fields = recon.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
+    disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
                                                            zero_at="bottom corners", zero_at_size=10,
                                                            extrapolate_edge=0, downsample=1)
 
     # Kinematic fields from deflection field
-    kin_fields = recon.kinematic_fields_from_deflections(disp_fields, pixel_size,
-                                                         abq_sim_fields.sampling_rate, filter_space_sigma=0,
-                                                         filter_time_sigma=0)
+    kin_fields = recolo.kinematic_fields_from_deflections(disp_fields, pixel_size,
+                                                         abq_sim_fields.sampling_rate, filter_space_sigma=20,
+                                                         filter_time_sigma=2)
 
-    # Reconstruct pressure using the virtual fields method
-    virtual_field = recon.virtual_fields.Hermite16(win_size, pixel_size)
+    # recolostruct pressure using the virtual fields method
+    virtual_field = recolo.virtual_fields.Hermite16(win_size, pixel_size)
     pressure_fields = np.array(
-        [recon.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
+        [recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field) for field in kin_fields])
 
-    # Reconstructed
+    # recolostructed
     center = int(pressure_fields.shape[1] / 2)
-    plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], "-o", label="Reconstruction, cropped by %i pixels"%(crop*upscale))
-
+    plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], "-o", label="recolostruction, cropped by %i pixels"%(crop))
+    pressure_fields_for_crops.append(pressure_fields)
 # Plot the results
 # Correct
 pressures, times = read_exp_press_data()
