@@ -10,3 +10,4 @@ sphinx_rtd_theme
 sphinxcontrib-bibtex
 sphinx
 scikit-image
+wget
