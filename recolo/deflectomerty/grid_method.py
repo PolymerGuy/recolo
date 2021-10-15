@@ -59,8 +59,10 @@ def detect_phase(img, grid_pitch, window="gaussian", boundary="symm"):
 
     if window == "triangular":
         conv_matrix = triangular_window(grid_pitch)
-    else:
+    elif window == "gaussian":
         conv_matrix = gaussian_window(grid_pitch)
+    else:
+        raise ValueError("Only gaussian and triangular windows are valid")
 
     xs, ys = np.meshgrid(np.arange(s_y), np.arange(s_x))
     # x-direction
@@ -214,6 +216,8 @@ def disp_from_grids(grid_undeformed, grid_deformed, grid_pitch, correct_phase=Tr
     """
     phase_x0, phase_y0 = detect_phase(grid_undeformed, grid_pitch,window=window)
     phase_x, phase_y = detect_phase(grid_deformed, grid_pitch,window=window)
+
+
     disp_x_from_phase, disp_y_from_phase = disp_fields_from_phases(phase_x, phase_x0, phase_y, phase_y0,
                                                                    grid_pitch, correct_phase=correct_phase)
 

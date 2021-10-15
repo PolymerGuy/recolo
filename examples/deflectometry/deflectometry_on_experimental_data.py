@@ -13,9 +13,10 @@ img_paths = recolo.list_files_in_folder(path_to_example_imgs, file_type=".tif", 
 
 # Grid image description
 grid_pitch = 5  # pixels
-mirror_grid_distance = 1.37  # m
+mirror_grid_distance = 500  # mm
+pixel_size_on_mirror = 1
 
-slope_x, slope_y = recolo.deflectomerty.slopes_from_images(path_to_example_imgs, grid_pitch, mirror_grid_distance)
+slope_x, slope_y = recolo.deflectomerty.slopes_from_images(path_to_example_imgs, grid_pitch, mirror_grid_distance, pixel_size_on_mirror)
 
 # Plot results
 fig = plt.figure(figsize=(12, 6))

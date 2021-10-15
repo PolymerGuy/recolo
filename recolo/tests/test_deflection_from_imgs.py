@@ -25,7 +25,7 @@ class Test_DeflectometryOnImages(TestCase):
         xs, ys = np.meshgrid(np.linspace(0, 1, n_pts_x), np.linspace(0, 1, n_pts_y))
         deflection_field = deflection_amp * np.sin(np.pi * xs) * np.sin(np.pi * ys)
 
-        angle_x, angle_y = slopes_from_images(path_to_imgs, grid_pitch, mirror_grid_dist)
+        angle_x, angle_y = slopes_from_images(path_to_imgs, grid_pitch, mirror_grid_dist,pixel_size)
 
         reconstucted_defl = disp_from_slopes(angle_x, angle_y, pixel_size, zero_at="bottom corners")
 
