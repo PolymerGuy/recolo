@@ -22,10 +22,10 @@ After the download has completed, the force measurements can be accessed as::
 
 The experiment was performed on a 300 x 300 mm rectangular plate with the following properties::
 
-     mat_E = 210.e9  # Young's modulus [Pa]
-     mat_nu = 0.33  # Poisson's ratio []
-     density = 7700
-     plate_thick = 5e-3
+     mat_E = 190.e9  # Young's modulus [Pa]
+     mat_nu = 0.3  # Poisson's ratio []
+     density = 7934
+     plate_thick = 4.95e-3
 
 The stiffness of the plate is calculated as::
 
@@ -42,24 +42,34 @@ We now set the pressure reconstruction window size::
 
      win_size = 30
 
+as well as filter and downsampling settings::
+
+     downsampling_factor = 5
+     filter_time_sigma = 6
+     filter_space_sigma = 2
+
 In this case, the deflection fields from Abaqus are used to generate grid images with the corresponding distortion.
 The grid images are then used as input to deflectomerty and the slope fields of the plate are determined::
 
-    slopes_y, slopes_x = recolo.deflectomerty.slopes_from_images(exp_data.path_to_imgs, grid_pitch, mirror_grid_distance,
-                                                                ref_img_ids=ref_img_ids, only_img_ids=use_imgs,
-                                                                crop=(45, 757,0,-1),window="gaussian",correct_phase=False)
+    slopes_y, slopes_x = recolo.deflectomerty.slopes_from_images(exp_data.path_to_img_folder, grid_pitch,
+                                                             mirror_grid_distance, pixel_size_on_grid_plane,
+                                                             ref_img_ids=ref_img_ids,
+                                                             only_img_ids=use_imgs,
+                                                             crop=(76, -35, 10, -10), window="triangular",
+                                                             correct_phase=False)
 
 The slope fields are then integrated to determine the deflection fields::
 
      # Integrate slopes to get deflection fields
      disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixel_size,
                                                             zero_at="bottom corners", zero_at_size=5,
-                                                            extrapolate_edge=0, downsample=1)
+                                                            extrapolate_edge=0, downsample=downsampling_factor)
 
 Based on these fields, the kinematic fields (slopes and curvatures) are calculated::
 
-     kin_fields = recolo.kinematic_fields_from_deflections(disp_fields, pixel_size_on_mirror,
-                                                     abq_sim_fields.sampling_rate,filter_space_sigma=10)
+     kin_fields = recolo.kinematic_fields_from_deflections(disp_fields, downsampling_factor * pixel_size_on_mirror, sampling_rate,
+                                                       filter_time_sigma=filter_time_sigma)
+
 
 Now, the pressure reconstuction can be initiated. First we define the Hermite16 virtual fields::
 
@@ -67,36 +77,44 @@ Now, the pressure reconstuction can be initiated. First we define the Hermite16 
 
 and initialize the pressure reconstruction::
 
-     pressure_fields = np.array(
-     [recolo.solver_VFM.pressure_elastic_thin_plate(field, plate, virtual_field)
-                                                      for field in kin_fields])
+     times = []
+     presses = []
 
+     for i, field in enumerate(kin_fields):
+          recon_press = recolo.solver_VFM.calc_pressure_thin_elastic_plate(field, plate, virtual_field)
+          presses.append(recon_press)
+          times.append(field.time)
+
+     presses = np.array(presses)
 
 The results can then be visualized::
 
-     import matplotlib.pyplot as plt
-     # Plot the correct pressure in the center of the plate
-     times = np.array([0.0, 0.00005, 0.00010, 0.0003, 0.001]) * 1000
-     pressures = np.array([0.0, 0.0, 1.0, 0.0, 0.0]) * 1e5
-     plt.plot(times, pressures, '-', label="Correct pressure")
+     center = int(presses.shape[1] / 2)
 
-     # Plot the coreconstructed pressure in the center of the plate
-     center = int(pressure_fields.shape[1] / 2)
-     plt.plot(abq_sim_fields.times * 1000., pressure_fields[:, center, center], "-o",label="Reconstructed pressure")
-
-     plt.xlim(left=0.000, right=0.3)
-     plt.ylim(top=110000, bottom=-15)
+     # Plot the results
+     plt.figure(figsize=(7,5))
+     plt.plot(times, np.sum(presses, axis=(1, 2)) * ((pixel_size_on_mirror * downsampling_factor) ** 2.), label="VFM force from whole plate")
+     plt.plot(times, np.sum(presses[:,20:50,20:50], axis=(1, 2)) * ((pixel_size_on_mirror * downsampling_factor) ** 2.), label="VFM force from subsection of plate")
+     plt.plot(hammer_time, hammer_force, label="Impact hammer")
+     plt.xlim(left=0.0008, right=0.003)
+     plt.ylim(top=500, bottom=-100)
      plt.xlabel("Time [ms]")
-     plt.ylabel(r"Overpressure [kPa]")
+     plt.ylabel(r"Force [N]")
 
      plt.legend(frameon=False)
      plt.tight_layout()
      plt.show()
 
+
 The resulting plot looks like this:
 
-.. image:: ./figures/minimalExamplePressure.png
+.. image:: ./figures/hammer_force.png
    :scale: 80 %
    :alt: The results
    :align: center
+
+A few things should be noted:
+     * The force level is highly sensitive to the area over which the pressure is integrated.
+     * The deviations are believed to be caused by interaction between deflection at the position of the hammer and the boundary conditions.
+     * Filtering does have an influence on the force amplitude, but relatively large filter kernels can be used without decreasing the force level.
 
