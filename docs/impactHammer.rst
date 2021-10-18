@@ -1,10 +1,10 @@
 Experiment with impact hammer
 =============================
 
-This example presents the force reconstruction from an experiment where an impact hammer is used to knock on a steel plate.
-The force from the hammer onto the plate is reconstructed from the kinematics fields  measured by deflectometry.
+This example presents the force reconstruction from an experiment with an instrumented hammer impacting a steel plate.
+The impacting force from the hammer is reconstructed from the kinematic fields measured by deflectometry.
 
-Due to the large size of the data set, the data is hosted on https://dataverse.no/ and can either be downloaded manually
+Due to the large size of the dataset, the data is hosted on https://dataverse.no/ and can either be downloaded manually
 or using this toolkit.
 
 Let's now go through the necessary steps for force reconstruction based on deflectometry.
@@ -20,7 +20,7 @@ After the download has completed, the force measurements can be accessed as::
 
     hammer_force, hammer_time = exp_data.hammer_data()
 
-The experiment was performed on a 300 x 300 mm rectangular plate with the following properties::
+The experiment was performed on a 300 mm x 300 mm rectangular plate with the following properties::
 
      mat_E = 190.e9  # Young's modulus [Pa]
      mat_nu = 0.3  # Poisson's ratio []
@@ -31,7 +31,7 @@ The stiffness of the plate is calculated as::
 
      plate = recolo.make_plate(mat_E, mat_nu, density, plate_thick)
 
-The experimental setup has to be described by::
+The experimental configuration is given by::
 
     grid_pitch = 7.0  # pixels
     grid_pitch_len = 2.5 / 1000.  # m
@@ -48,8 +48,7 @@ as well as filter and downsampling settings::
      filter_time_sigma = 6
      filter_space_sigma = 2
 
-In this case, the deflection fields from Abaqus are used to generate grid images with the corresponding distortion.
-The grid images are then used as input to deflectomerty and the slope fields of the plate are determined::
+The grid images are used as input to deflectomerty and the slope fields of the plate are determined::
 
     slopes_y, slopes_x = recolo.deflectomerty.slopes_from_images(exp_data.path_to_img_folder, grid_pitch,
                                                              mirror_grid_distance, pixel_size_on_grid_plane,
@@ -116,5 +115,5 @@ The resulting plot looks like this:
 A few things should be noted:
      * The force level is highly sensitive to the area over which the pressure is integrated.
      * The deviations are believed to be caused by interaction between deflection at the position of the hammer and the boundary conditions.
-     * Filtering does have an influence on the force amplitude, but relatively large filter kernels can be used without decreasing the force level.
+     * Filtering influences the force amplitude, but relatively large filter kernels can be used without decreasing the force level.
 
