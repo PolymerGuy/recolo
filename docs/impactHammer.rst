@@ -50,7 +50,7 @@ as well as filter and downsampling settings::
 
 The grid images are used as input to deflectomerty and the slope fields of the plate are determined::
 
-    slopes_y, slopes_x = recolo.deflectomerty.slopes_from_images(exp_data.path_to_img_folder, grid_pitch,
+    slopes_y, slopes_x = recolo.deflectomerty.slopes_from_images(exp_data.path_to_data_folder, grid_pitch,
                                                              mirror_grid_distance, pixel_size_on_grid_plane,
                                                              ref_img_ids=ref_img_ids,
                                                              only_img_ids=use_imgs,
