@@ -49,11 +49,10 @@ class DataverseDataSet(object):
             The name of the new data folder
         """
         self._logger_ = logging.getLogger(self.__class__.__name__)
-        self._readme_file_name_ = "00_ReadMe.txt"
-        self._dataverse_file_repo ='https://dataverse.no/api/datasets/:persistentId/dirindex?persistentId=doi:'
+        self._check_for_file_name_ = "00_ReadMe.txt"
+        self._dataverse_file_repo = 'https://dataverse.no/api/datasets/:persistentId/dirindex?persistentId=doi:'
         self.DOI = DOI
         self.repo_url = self._dataverse_file_repo + DOI
-
 
         self._file_urls_ = find_dataverse_files(self.repo_url)
         self._logger_.info("Found %i files in the repo" % len(self._file_urls_))
@@ -66,8 +65,8 @@ class DataverseDataSet(object):
         if self.__data_is_downloaded__():
             self._logger_.info("Experimental data was found locally")
         else:
+            self._logger_.info("Downloading experimental data")
             try:
-                self._logger_.info("Downloading experimental data")
                 self.__download_dataset__()
             except Exception as e:
                 self._logger_.exception(e)
@@ -75,7 +74,7 @@ class DataverseDataSet(object):
         self.file_paths = list_files_in_folder(self.path_to_data_folder, file_type='', abs_path=True)
 
     def __data_is_downloaded__(self):
-        readme_file_path = os.path.join(self.path_to_data_folder, self._readme_file_name_)
+        readme_file_path = os.path.join(self.path_to_data_folder, self._check_for_file_name_)
         return os.path.exists(readme_file_path)
 
     def __download_dataset__(self):
