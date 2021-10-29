@@ -1,6 +1,8 @@
 env
 env/
 /recolo/__pycache__/
+/recolo/demoData/data
+/recolo/demoData/impact_hammer_data
 *.pyc
 .pyc
 .vscode
@@ -10,6 +12,8 @@ env/
 *.rpt
 *.png
 *.gif
+*.tif
+*.tmp
 .pytest_cache
 
 docs/_build

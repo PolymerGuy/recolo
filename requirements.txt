@@ -11,3 +11,4 @@ sphinxcontrib-bibtex
 sphinx
 scikit-image
 wget
+beautifulsoup4

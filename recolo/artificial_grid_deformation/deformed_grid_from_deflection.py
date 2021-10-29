@@ -41,11 +41,13 @@ def deform_grid_from_deflection(deflection_field, pixel_size, mirror_grid_dist, 
     else:
         disp_fields = deflection_field
 
+    scaled_pixel_size = pixel_size / float(img_upscale)
+
     # Calculate the slope of the mirrored plate
-    slopes_x, slopes_y = np.gradient(disp_fields, pixel_size / float(img_upscale))
+    slopes_x, slopes_y = np.gradient(disp_fields, scaled_pixel_size)
     # Calculate the apparent displacement from the slopes
-    u_x = slopes_x * mirror_grid_dist * 2.
-    u_y = slopes_y * mirror_grid_dist * 2.
+    u_x = slopes_x * mirror_grid_dist * 2. / scaled_pixel_size
+    u_y = slopes_y * mirror_grid_dist * 2. / scaled_pixel_size
     interp_u = interpolated_disp_field(u_x, u_y, dx=1, dy=1, order=3, mode="nearest")
 
     # Generate the coordinates corresponding to the pixels on the sensor
