@@ -47,6 +47,11 @@ class DataverseDataSet(object):
             A path to the preferred location where the data is stored.
         new_data_folder_name : str
             The name of the new data folder
+
+        Examples
+        --------
+        DOI = "10.18710/TKS7SI"
+        data = DataverseDataSet(DOI,new_data_folder_name="hammer_data")
         """
         self._logger_ = logging.getLogger(self.__class__.__name__)
         self._check_for_file_name_ = "00_ReadMe.txt"
@@ -100,7 +105,7 @@ class ImpactHammerExperiment(DataverseDataSet):
         """
         self._hammer_force_filename_ = "hammer_force.txt"
         self._hammer_time_filename_ = "hammer_time.txt"
-        DOI = '10.18710/WA5YCF'
+        DOI = '10.18710/TKS7SI'
 
         super().__init__(DOI, path_to_data=path_to_data, new_data_folder_name="impact_hammer_data")
 
