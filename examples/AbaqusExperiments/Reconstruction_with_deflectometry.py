@@ -51,7 +51,7 @@ if run_deflectometry:
         mirror_grid_dist=mirror_grid_dist,
         grid_pitch=grid_pitch,
         img_upscale=abq_to_img_scale,
-        img_noise_std=noise_std)
+        img_noise_std=0)
     for disp_field in abq_sim_fields.disp_fields:
         deformed_grid = recolo.artificial_grid_deformation.deform_grid_from_deflection(disp_field,
                                                                                        pixel_size=pixel_size_on_mirror,
@@ -61,8 +61,8 @@ if run_deflectometry:
                                                                                        img_noise_std=noise_std)
 
         disp_x, disp_y = recolo.deflectomerty.disp_from_grids(undeformed_grid, deformed_grid, grid_pitch)
-        slope_x = recolo.deflectomerty.angle_from_disp(disp_x, mirror_grid_dist)
-        slope_y = recolo.deflectomerty.angle_from_disp(disp_y, mirror_grid_dist)
+        slope_x = recolo.deflectomerty.angle_from_disp(disp_x * pixel_size_on_mirror/abq_to_img_scale, mirror_grid_dist)
+        slope_y = recolo.deflectomerty.angle_from_disp(disp_y * pixel_size_on_mirror/abq_to_img_scale, mirror_grid_dist)
         slopes_x.append(slope_x)
         slopes_y.append(slope_y)
 
@@ -82,7 +82,7 @@ disp_fields = recolo.slope_integration.disp_from_slopes(slopes_x, slopes_y, pixe
 kin_fields = recolo.kinematic_fields_from_deflections(disp_fields,
                                                       pixel_size=pixel_size_on_mirror,
                                                       sampling_rate=abq_sim_fields.sampling_rate,
-                                                      filter_space_sigma=1)
+                                                      filter_space_sigma=10)
 
 # Reconstruct pressure using the virtual fields method
 virtual_field = recolo.virtual_fields.Hermite16(win_size, pixel_size_on_mirror)
