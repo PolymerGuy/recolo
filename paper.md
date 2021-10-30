@@ -19,7 +19,7 @@ affiliations:
    index: 1
  - name: Centre for Advanced Structural Analysis (CASA), Department of Structural Engineering, NTNU - Norwegian University of Science and Technology, Trondheim, Norway
    index: 2
-date: 13 September 2021
+date: 30 October 2021
 bibliography: paper.bib
 ---
 
@@ -38,7 +38,12 @@ Other VFM toolkits such as PeriPyVFM are readily available but are focused on di
  as performing pressure reconstruction on experimental datasets. The pressure reconstruction algorithm is based on the work by [@Kaufmann2019].
 The implementation is based on numerical operations provided by NumPy [@Numpy] and SciPy [@SciPy] as well as visualization by Matplotlib [@Matplotlib].
 
-``Recolo`` was established to quantify the blast loading acting on plated structures in a purpose-built shock tube apparatus at SIMLab, NTNU [@Aune2016]. The methodology developed in this project is directly applicable to obtain new, unique insight into surface pressure distributions on plated structures subjected to blast loading. This project is part of the ongoing research within the SIMLab research group at NTNU.
+
+
+# Statement of need
+``Recolo`` was established to quantify the blast loading acting on plated structures in a purpose-built shock tube apparatus at SIMLab, NTNU [@Aune2016]. No open-source software known to the authors provided the functionality neccessary to perform pressure load reconstruction based on the kinematics of the specimen subjected to the load, motivating the ``Recolo` project.
+
+The methodology developed in this project is directly applicable to obtain new, unique insight into surface pressure distributions on plated structures subjected to blast loading. This project is part of the ongoing research within the SIMLab research group at NTNU.
 
 # Acknowledgements
 The authors gratefully appreciate the financial support from the Research Council of Norway (RCN) through the Centre for Advanced Structural Analysis (SFI-CASA RCN Project No. 237885) and the SLADE KPN project (RCN Project No. 294748). The financial support by the Norwegian Ministry of Justice and Public Security is also greatly appreciated.
