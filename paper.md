@@ -7,17 +7,17 @@ tags:
   - Parameter identification
 authors:
   - name: Sindre Nordmark Olufsen
-    affiliation: 1,2
+    affiliation: "1, 2"
   - name: Rene Kaufmann
     affiliation: 1
   - name: Egil Fagerholt
     affiliation: 1
   - name: Vegard Aune
-    affiliation: 1,2
+    affiliation: "1, 2"
 affiliations:
  - name: Structural Impact Laboratory (SIMLab), Department of Structural Engineering, NTNU - Norwegian University of Science and Technology, Trondheim, Norway
    index: 1
- - name: Centre for Advanced Structural Analysis (CASA), NTNU, Trondheim, Norway
+ - name: Centre for Advanced Structural Analysis (CASA), Department of Structural Engineering, NTNU - Norwegian University of Science and Technology, Trondheim, Norway
    index: 2
 date: 13 September 2021
 bibliography: paper.bib
