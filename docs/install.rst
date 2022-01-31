@@ -39,5 +39,6 @@ These tests are integration and unit tests
 
 If you cloned the repo, you have to call pytest from within the folder::
 
-    python -m pytest recolo
+    python -m pytest --pyargs recolo --cov=./
+
 
