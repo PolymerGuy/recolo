@@ -12,3 +12,4 @@ sphinx
 scikit-image
 wget
 beautifulsoup4
+SciencePlots
