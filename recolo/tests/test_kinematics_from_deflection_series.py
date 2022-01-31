@@ -106,7 +106,7 @@ class TestHalfSineDeflection(TestCase):
 
         for i, field in enumerate(self.field_stack):
             correct_curv = self.curv_xy_fields[i,:,:]
-            correct_curv_peak_amp = np.abs(np.min(correct_curv))
+            correct_curv_peak_amp = np.abs(np.max(correct_curv))
             calculated_curv = field.curv_xy
 
             peak_relative_error = np.max(np.abs(correct_curv-calculated_curv)/correct_curv_peak_amp)
@@ -117,7 +117,7 @@ class TestHalfSineDeflection(TestCase):
 
         for i, field in enumerate(self.field_stack):
             correct_curv = self.curv_yy_fields[i,:,:]
-            correct_curv_peak_amp = np.abs(np.min(correct_curv))
+            correct_curv_peak_amp = np.abs(np.max(correct_curv))
             calculated_curv = field.curv_xx
 
             peak_relative_error = np.max(np.abs(correct_curv-calculated_curv)/correct_curv_peak_amp)
