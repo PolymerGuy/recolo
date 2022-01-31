@@ -8,6 +8,7 @@ env/
 .vscode
 .idea
 .cache
+.coverage
 *.npy
 *.npz
 *.rpt
