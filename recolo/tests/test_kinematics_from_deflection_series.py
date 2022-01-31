@@ -63,7 +63,7 @@ class TestHalfSineDeflection(TestCase):
         n_pts_x = 200
         n_pts_y = 200
         pixel_size = 1
-        time_ramp = 0.5 * self.acceleration * np.arange(0, 100, 1) ** 2.
+        time_ramp = 0.5 * self.acceleration * np.arange(1, 100, 1) ** 2.
         sampling_rate = 1
         xs,ys = np.meshgrid(np.linspace(0,1,n_pts_x),np.linspace(0,1,n_pts_y))
 
