@@ -36,3 +36,10 @@ This python package provides tools for reconstuction of pressure loads using the
 
    VFM
 
+.. autosummary::
+   :toctree: _autosummary
+   :caption: API Documentation:
+   :template: custom-module-template.rst
+   :recursive:
+
+   recolo
