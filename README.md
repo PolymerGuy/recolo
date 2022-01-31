@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 To check that everything is working, run all tests:
 ```bash
-pytest recolo
+python -m pytest recolo
 ```
 
 
