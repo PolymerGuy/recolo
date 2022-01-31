@@ -6,7 +6,9 @@ import recolo
 
 def calc_pressure_thin_elastic_plate(fields, plate, virtual_fields, shift=False):
     """
-    Interpolate the displacement fields given by u_x and u_y by means of B-splines
+    Calculate pressure field based on kinematic fields. This approach used the virtual fields method and that the
+    pressure is acting on a thin plate under elastic deformation.
+
     Parameters
     ----------
     fields : Fields object
