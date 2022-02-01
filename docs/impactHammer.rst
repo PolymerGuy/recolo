@@ -1,5 +1,3 @@
-.. _hammer-label:
-
 Experiment with impact hammer
 =============================
 
