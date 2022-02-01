@@ -15,6 +15,7 @@ This python package provides tools for reconstuction of pressure loads using the
    :maxdepth: 2
    :caption: Getting started:
 
+   overview
    install
    quickstart
 
