@@ -15,6 +15,7 @@ This python package provides tools for reconstuction of pressure loads using the
    :maxdepth: 2
    :caption: Getting started:
 
+   overview
    install
    quickstart
 
@@ -36,3 +37,10 @@ This python package provides tools for reconstuction of pressure loads using the
 
    VFM
 
+.. autosummary::
+   :toctree: _autosummary
+   :caption: API Documentation:
+   :template: custom-module-template.rst
+   :recursive:
+
+   recolo

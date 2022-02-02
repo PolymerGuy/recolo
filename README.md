@@ -8,8 +8,9 @@
 
 About this project
 ------------------
-Tools for load reconstruction using the virtual fields method. This Python package provides the tools neccesarry
-for reconstructing distributed pressure loads acting on thin plates based on kinematic fields.
+In experimental mechanics, measuring the pressure load acting on a surface in a non-intrusive manner is of high interest for several applications. However, techniques allowing for such non-intrusive measurements have not been freely available to the experimental mechanics community.
+
+**RECOLO** provides tools for reconstructing distributed pressure loads acting on thin, elastic plates. The Python package implements the virtual fields method (VFM), where the input is the kinematic fields governing the plate dynamics.
 
 A virtual lab is also provided, allowing synthetic data to be generated based on input from finite element simulations.
 
@@ -43,7 +44,7 @@ pip install -r requirements.txt
 
 To check that everything is working, run all tests:
 ```bash
-pytest recolo
+python -m pytest --pyargs recolo --cov=./
 ```
 
 
@@ -59,17 +60,21 @@ make html
 The documentation is now found in ./_build_/html
 
 
-Example
--------
-
-
-
 How to contribute
 -----------------
+The RECOLO project welcomes your expertise and enthusiasm!
+
+You are more than welcome to contribute to this project, e.g., by:
+* Report a bug using the Github issue tracker.
+* Fix an already reported bug via a pull-request.
+* Add new functionality via a pull-request.
+* Help revise pull-requests.
+
+When you wish to submit new or revised code, we encourage the following procedure:
+
 * Fork the repo
-* Add nice things to the code
+* Implement your changes/additions
 * Make a pull-request to the -dev branch
-* Celebrate!
 
 How to cite us
 --------------

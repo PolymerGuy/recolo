@@ -7,6 +7,8 @@ env/
 .pyc
 .vscode
 .idea
+.cache
+.coverage
 *.npy
 *.npz
 *.rpt
@@ -18,4 +20,4 @@ env/
 
 docs/_build
 docs/_static
-docs/_templates
+docs/_autosummary
