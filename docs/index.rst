@@ -44,3 +44,11 @@ This python package provides tools for reconstuction of pressure loads using the
    :recursive:
 
    recolo
+   
+
+Citing us:
+----------
+If you use this toolkit as part of your research, please cite the following:
+
+
+S. N. Olufsen, R. Kaufmann, E. Fagerholt, V. Aune (2022). RECOLO: A Python package for the reconstruction of surface pressure loads from kinematic fields using the virtual fields method. Journal of Open Source Software, 7(71), 3980, https://doi.org/10.21105/joss.03980
