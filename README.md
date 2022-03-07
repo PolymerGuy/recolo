@@ -4,7 +4,8 @@
 [![CircleCI](https://circleci.com/gh/PolymerGuy/recolo.svg?style=svg&circle-token=3403eba7b905e1a626d1c797ed5ca4e3daba76df)](https://circleci.com/gh/PolymerGuy/recolo)
 [![MIT License][license-shield]][license-url]
 [![Documentation Status](https://readthedocs.org/projects/recolo/badge/?version=latest)](https://recolo.readthedocs.io/en/latest/?badge=latest)
-[![DOI](https://zenodo.org/badge/343329602.svg)](https://zenodo.org/badge/latestdoi/343329602)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.03980/status.svg)](https://doi.org/10.21105/joss.03980)
+
 
 
 
